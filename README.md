@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/f8e720ca-95db-4d6c-a0d6-36027ec55022" alt="Iffy logo" width="128" />
+  <img src="./public/iffy-logo.png#gh-light-mode-only" alt="Iffy logo" width="128" />
+  <img src="./public/iffy-logo-dark.png#gh-dark-mode-only" alt="Iffy logo" width="128" />
 </p>
 <p align="center">
     <a href="https://iffy.com/">iffy.com</a> |
@@ -14,7 +15,7 @@ Features:
 
 - **Moderation Dashboard:** View and manage all content moderation activity from a single place.
 - **User Lifecycle:** Automatically suspend users with flagged content (and handle automatic compliance when moderated content is removed).
-- **Appeals Management:** Handle user appeals efficiently through email notifications and a user-friendly web form.
+- **Appeals Management:** Handle user appeals efficiently through email notifications and a user-friendly web form.i
 - **Powerful Rules & Presets:** Create rules to automatically moderate content based on your unique business needs.
 
 ## Iffy Cloud vs Iffy Community
