@@ -24,7 +24,7 @@ const envSchema = z
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
     NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
     NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
-    SEED_CLERK_ORGANIZATION_ID: z.string(),
+    SEED_CLERK_ORGANIZATION_ID: z.string().optional(),
     POSTGRES_URL: z.string(),
     POSTGRES_URL_NON_POOLING: z.string(),
     INNGEST_APP_NAME: z.string(),
