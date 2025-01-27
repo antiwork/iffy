@@ -15,7 +15,7 @@ Features:
 
 - **Moderation Dashboard:** View and manage all content moderation activity from a single place.
 - **User Lifecycle:** Automatically suspend users with flagged content (and handle automatic compliance when moderated content is removed).
-- **Appeals Management:** Handle user appeals efficiently through email notifications and a user-friendly web form.i
+- **Appeals Management:** Handle user appeals efficiently through email notifications and a user-friendly web form.
 - **Powerful Rules & Presets:** Create rules to automatically moderate content based on your unique business needs.
 
 ## Iffy Cloud vs Iffy Community
