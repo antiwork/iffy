@@ -103,7 +103,7 @@ In order to send email with Iffy, you will additionally need a Resend API key.
 <details>
 <summary>Shortest (Optional, for testing)</summary>
 
-In order to run tests with shortest, you will additionally need an Anthropic API key and a Mailosaur API key.
+In order to write and run natural language AI tests with [Shortest](https://shortest.com), you will additionally need an Anthropic API key and a Mailosaur API key.
 
 1. Create an account at [anthropic.com](https://www.anthropic.com/).
 1. Create a new API key at [Account Settings](https://console.anthropic.com/account/keys).
