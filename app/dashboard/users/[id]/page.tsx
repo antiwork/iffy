@@ -10,24 +10,24 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const { orgId } = await auth();
   if (!orgId) {
     return {
-      title: "User | Iffy"
+      title: "User | Iffy",
     };
   }
 
   const recordUser = await db.query.recordUsers.findFirst({
-    where: and(eq(schema.recordUsers.clerkOrganizationId, orgId), eq(schema.recordUsers.id, params.id))
+    where: and(eq(schema.recordUsers.clerkOrganizationId, orgId), eq(schema.recordUsers.id, params.id)),
   });
 
   if (!recordUser) {
     return {
-      title: "User Not Found | Iffy"
+      title: "User Not Found | Iffy",
     };
   }
 
   return {
-    title: `${recordUser.name || 'Unknown User'} | Iffy`
+    title: `${recordUser.name || "Unknown User"} | Iffy`,
   };
-};
+}
 
 export default async function Page({ params }: { params: { id: string } }) {
   const { orgId } = await auth();

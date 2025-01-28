@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Email Templates | Iffy"
+  title: "Email Templates | Iffy",
 };
 import { Preview } from "./preview";
 import ContentForm from "./form";

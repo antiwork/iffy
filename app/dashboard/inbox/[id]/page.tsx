@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const { orgId } = await auth();
   if (!orgId) {
     return {
-      title: "Appeal | Iffy"
+      title: "Appeal | Iffy",
     };
   }
 
@@ -30,14 +30,14 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   if (!appeal) {
     return {
-      title: "Appeal Not Found | Iffy"
+      title: "Appeal Not Found | Iffy",
     };
   }
 
   return {
-    title: `Appeal #${appeal.id} - ${appeal.recordUserAction.recordUser.name || 'Unknown User'} | Iffy`
+    title: `Appeal #${appeal.id} - ${appeal.recordUserAction.recordUser.name || "Unknown User"} | Iffy`,
   };
-};
+}
 
 const Inbox = async ({ params }: { params: { id: string } }) => {
   const { orgId } = await auth();

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Settings | Iffy"
+  title: "Settings | Iffy",
 };
 
 export default async function SettingsPage() {

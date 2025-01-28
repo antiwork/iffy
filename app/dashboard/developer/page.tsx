@@ -4,7 +4,7 @@ import { findOrCreateOrganizationSettings } from "@/services/organization-settin
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Developer Settings | Iffy"
+  title: "Developer Settings | Iffy",
 };
 
 import db from "@/db";
