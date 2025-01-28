@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Analytics | Iffy"
+  title: "Analytics | Iffy",
 };
 
 import * as schema from "@/db/schema";

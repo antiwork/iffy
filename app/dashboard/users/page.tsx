@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Users | Iffy"
+  title: "Users | Iffy",
 };
 
 const Users = async () => {

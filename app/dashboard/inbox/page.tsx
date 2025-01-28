@@ -2,7 +2,7 @@ import { Appeal } from "./appeal";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Appeals Inbox | Iffy"
+  title: "Appeals Inbox | Iffy",
 };
 
 const Inbox = async () => {
