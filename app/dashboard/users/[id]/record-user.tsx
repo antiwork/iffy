@@ -17,6 +17,7 @@ import { RecordsTable } from "./records-table";
 import { CopyButton } from "@/components/copy-button";
 import { eq, and, desc } from "drizzle-orm";
 import { StripeAccount } from "./stripe-account";
+import { notFound } from "next/navigation";
 
 export async function RecordUserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const user = await db.query.recordUsers.findFirst({
@@ -32,7 +33,7 @@ export async function RecordUserDetail({ clerkOrganizationId, id }: { clerkOrgan
   });
 
   if (!user) {
-    return null;
+    return notFound();
   }
 
   return (

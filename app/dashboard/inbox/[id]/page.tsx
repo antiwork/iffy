@@ -5,20 +5,20 @@ import { notFound, redirect } from "next/navigation";
 import { Appeal } from "../appeal";
 import { subDays } from "date-fns";
 import { and, desc, eq, gte, inArray } from "drizzle-orm";
-import { Metadata } from "next";
+import { formatRecordUserCompact } from "@/lib/record-user";
 
 const HISTORY_DAYS = 7;
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { orgId } = await auth();
   if (!orgId) {
-    return {
-      title: "Appeal | Iffy",
-    };
+    redirect("/");
   }
 
+  const id = (await params).id;
+
   const appeal = await db.query.appeals.findFirst({
-    where: and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.id, params.id)),
+    where: and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.id, id)),
     with: {
       recordUserAction: {
         with: {
@@ -29,22 +29,20 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   });
 
   if (!appeal) {
-    return {
-      title: "Appeal Not Found | Iffy",
-    };
+    return notFound();
   }
 
   return {
-    title: `Appeal #${appeal.id} - ${appeal.recordUserAction.recordUser.name || "Unknown User"} | Iffy`,
+    title: `Appeal from ${formatRecordUserCompact(appeal.recordUserAction.recordUser)} | Iffy`,
   };
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { orgId } = await auth();
   if (!orgId) {
     redirect("/");
   }
-  const { id } = params;
+  const id = (await params).id;
 
   const appealWithMessages = await db.query.appeals.findFirst({
     where: and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.id, id)),

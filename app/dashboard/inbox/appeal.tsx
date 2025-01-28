@@ -13,7 +13,7 @@ import {
   AlertDialogDescription,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { formatRecordUser } from "@/lib/record-user";
+import { formatRecordUser, getRecordUserSecondaryParts } from "@/lib/record-user";
 import {
   formatModerationStatus,
   formatVia,
@@ -263,8 +263,13 @@ export function Appeal({
     <div className="flex h-full flex-col">
       <div className="flex justify-between gap-4 border-b border-stone-300 p-4 dark:border-zinc-800">
         <div className="flex-1 text-gray-950 dark:text-white/80">
-          <div className="text-lg font-bold">{appeal.recordUserAction.recordUser.email}</div>
-          <div className="text-sm">Appeal opened on {appeal.createdAt.toLocaleString()}</div>
+          <div className="text-lg font-bold">{formatRecordUser(appeal.recordUserAction.recordUser)}</div>
+          {getRecordUserSecondaryParts(appeal.recordUserAction.recordUser).map((part) => (
+            <div key={part} className="text-sm">
+              {part}
+            </div>
+          ))}
+          <div className="text-sm">{appeal.createdAt.toLocaleString()}</div>
         </div>
         <div>{formatAppealStatus(appeal)}</div>
       </div>
