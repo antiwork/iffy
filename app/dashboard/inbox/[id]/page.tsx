@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-const Inbox = async ({ params }: { params: { id: string } }) => {
+export default async function Page({ params }: { params: { id: string } }) {
   const { orgId } = await auth();
   if (!orgId) {
     redirect("/");
@@ -113,5 +113,3 @@ const Inbox = async ({ params }: { params: { id: string } }) => {
     />
   );
 };
-
-export default Inbox;
