@@ -2,6 +2,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Email Templates | Iffy"
+};
 import { Preview } from "./preview";
 import ContentForm from "./form";
 import { Separator } from "@/components/ui/separator";

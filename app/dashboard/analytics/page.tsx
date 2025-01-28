@@ -5,6 +5,11 @@ import { HourlyAnalyticsChart } from "./hourly-analytics-chart";
 import { TotalsCards } from "./totals-cards";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Analytics | Iffy"
+};
 
 import * as schema from "@/db/schema";
 import db from "@/db";

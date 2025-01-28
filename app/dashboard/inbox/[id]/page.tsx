@@ -5,8 +5,39 @@ import { notFound, redirect } from "next/navigation";
 import { Appeal } from "../appeal";
 import { subDays } from "date-fns";
 import { and, desc, eq, gte, inArray } from "drizzle-orm";
+import { Metadata } from "next";
 
 const HISTORY_DAYS = 7;
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const { orgId } = await auth();
+  if (!orgId) {
+    return {
+      title: "Appeal | Iffy"
+    };
+  }
+
+  const appeal = await db.query.appeals.findFirst({
+    where: and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.id, params.id)),
+    with: {
+      recordUserAction: {
+        with: {
+          recordUser: true,
+        },
+      },
+    },
+  });
+
+  if (!appeal) {
+    return {
+      title: "Appeal Not Found | Iffy"
+    };
+  }
+
+  return {
+    title: `Appeal #${appeal.id} - ${appeal.recordUserAction.recordUser.name || 'Unknown User'} | Iffy`
+  };
+};
 
 const Inbox = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params;

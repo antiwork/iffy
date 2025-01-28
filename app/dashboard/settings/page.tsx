@@ -2,6 +2,11 @@ import { findOrCreateOrganizationSettings } from "@/services/organization-settin
 import { Settings } from "./settings";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Settings | Iffy"
+};
 
 export default async function SettingsPage() {
   const { orgId } = await auth();

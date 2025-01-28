@@ -1,6 +1,11 @@
 import { getApiKeys } from "@/services/api-keys";
 import { Settings } from "./settings";
 import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Developer Settings | Iffy"
+};
 
 import db from "@/db";
 import * as schema from "@/db/schema";

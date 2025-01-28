@@ -1,6 +1,11 @@
 import React from "react";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Rules | Iffy"
+};
 import db from "@/db";
 import { Rules } from "./rules";
 import { getRules } from "@/services/rules";
