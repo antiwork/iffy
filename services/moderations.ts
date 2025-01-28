@@ -3,6 +3,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { findOrCreateOrganizationSettings } from "./organization-settings";
 import { env } from "@/lib/env";
 import { inngest } from "@/inngest/client";
+import { ModerationMultiModalInput } from "openai/resources/moderations.mjs";
 import * as schema from "@/db/schema";
 import { ViaWithClerkUserOrRecordUser } from "@/lib/types";
 import { makeStrategyInstance } from "@/strategies";
