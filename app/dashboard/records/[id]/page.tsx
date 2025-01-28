@@ -29,8 +29,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 };
 
-export default async function Page(props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
+export default async function Page({ params }: { params: { id: string } }) {
   const { orgId } = await auth();
   if (!orgId) {
     redirect("/");

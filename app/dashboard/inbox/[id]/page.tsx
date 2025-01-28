@@ -39,8 +39,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 };
 
-const Inbox = async (props: { params: Promise<{ id: string }> }) => {
-  const params = await props.params;
+const Inbox = async ({ params }: { params: { id: string } }) => {
   const { orgId } = await auth();
   if (!orgId) {
     redirect("/");
