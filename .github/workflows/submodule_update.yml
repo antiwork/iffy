@@ -17,10 +17,10 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Checkout parent repository and branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets._GITHUB_ACCESS_TOKEN }}
           repository: ${{ env.PARENT_ORG }}/${{ env.PARENT_REPOSITORY }}
@@ -28,12 +28,19 @@ jobs:
           submodules: true
           fetch-depth: 0
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
       - name: Create new branch and push changes
         shell: bash
         run: |
           git config user.name ${{ secrets.GIT_USER_NAME }}
           git config user.email ${{ secrets.GIT_USER_EMAIL }}
           git submodule update --remote
+          npm i
           git checkout -b $GITHUB_RUN_ID
           git commit -am "updating submodules"
           git push --set-upstream origin $GITHUB_RUN_ID
