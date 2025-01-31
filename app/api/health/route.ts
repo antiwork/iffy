@@ -28,7 +28,13 @@ export async function GET() {
   });
 
   try {
-    await db.query.records.findFirst();
+    await Promise.race([
+      db.query.records.findFirst(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Database health check timeout")), 5000)
+      )
+    ]);
+    
     subsystems.push({
       name: "database",
       status: "healthy",
