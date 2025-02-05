@@ -20,6 +20,7 @@ export default async function Icon() {
           alignItems: "center",
           justifyContent: "center",
           color: "black",
+          background: "transparent",
           fontFamily: "IBMPlexMono-Medium, monospace",
           letterSpacing: "-0.15em",
         }}
