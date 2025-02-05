@@ -1,13 +1,13 @@
 import * as schema from "@/db/schema";
 
-type RecordUser = typeof schema.recordUsers.$inferSelect & {
-  actions: (typeof schema.recordUserActions.$inferSelect)[];
+type User = typeof schema.users.$inferSelect & {
+  actions: (typeof schema.userActions.$inferSelect)[];
 };
 
-type RecordUserDetail = typeof schema.recordUsers.$inferSelect & {
-  actions: (typeof schema.recordUserActions.$inferSelect & {
+type UserDetail = typeof schema.users.$inferSelect & {
+  actions: (typeof schema.userActions.$inferSelect & {
     appeal: typeof schema.appeals.$inferSelect | null;
   })[];
 };
 
-export type { RecordUser, RecordUserDetail };
+export type { User, UserDetail };

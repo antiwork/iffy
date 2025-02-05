@@ -1,11 +1,11 @@
 import { auth } from "@clerk/nextjs/server";
-import { RecordUserDetail } from "./record-user";
+import { UserDetail } from "./record-user";
 import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
-import { formatRecordUserCompact } from "@/lib/record-user";
+import { formatUserCompact } from "@/lib/record-user";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { orgId } = await auth();
@@ -15,16 +15,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const id = (await params).id;
 
-  const recordUser = await db.query.recordUsers.findFirst({
-    where: and(eq(schema.recordUsers.clerkOrganizationId, orgId), eq(schema.recordUsers.id, id)),
+  const user = await db.query.users.findFirst({
+    where: and(eq(schema.users.clerkOrganizationId, orgId), eq(schema.users.id, id)),
   });
 
-  if (!recordUser) {
+  if (!user) {
     return notFound();
   }
 
   return {
-    title: `${formatRecordUserCompact(recordUser)} | Iffy`,
+    title: `${formatUserCompact(user)} | Iffy`,
   };
 }
 
@@ -34,5 +34,5 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     redirect("/");
   }
   const id = (await params).id;
-  return <RecordUserDetail clerkOrganizationId={orgId} id={id} />;
+  return <UserDetail clerkOrganizationId={orgId} id={id} />;
 }

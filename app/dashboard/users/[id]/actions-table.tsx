@@ -1,11 +1,11 @@
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { RecordUserDetail } from "../types";
+import { UserDetail } from "../types";
 import { formatDate } from "@/lib/date";
 import { formatUserActionStatus, formatVia } from "@/lib/badges";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export function ActionsTable({ actions }: Pick<RecordUserDetail, "actions">) {
+export function ActionsTable({ actions }: Pick<UserDetail, "actions">) {
   return (
     <Table>
       <TableHeader>

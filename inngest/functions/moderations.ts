@@ -38,7 +38,7 @@ const updateUserAfterModeration = inngest.createFunction(
       const result = await db.query.records.findFirst({
         where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
         with: {
-          recordUser: true,
+          user: true,
         },
       });
 
@@ -48,26 +48,22 @@ const updateUserAfterModeration = inngest.createFunction(
       return result;
     });
 
-    const recordUser = record.recordUser;
-    if (!recordUser) {
+    const user = record.user;
+    if (!user) {
       return;
     }
 
     const flaggedRecords = await step.run("fetch-user-flagged-records", async () => {
-      return await getFlaggedRecordsFromUser({ clerkOrganizationId, id: recordUser.id });
+      return await getFlaggedRecordsFromUser({ clerkOrganizationId, id: user.id });
     });
 
-    let actionStatus: (typeof schema.recordUserActionStatus.enumValues)[number] | undefined;
+    let actionStatus: (typeof schema.userActionStatus.enumValues)[number] | undefined;
 
-    if (
-      status === "Flagged" &&
-      (!recordUser.actionStatus || recordUser.actionStatus === "Compliant") &&
-      !recordUser.protected
-    ) {
+    if (status === "Flagged" && (!user.actionStatus || user.actionStatus === "Compliant") && !user.protected) {
       actionStatus = "Suspended";
     }
 
-    if (status === "Compliant" && flaggedRecords.length === 0 && recordUser.actionStatus === "Suspended") {
+    if (status === "Compliant" && flaggedRecords.length === 0 && user.actionStatus === "Suspended") {
       actionStatus = "Compliant";
     }
 
@@ -78,7 +74,7 @@ const updateUserAfterModeration = inngest.createFunction(
     await step.run("create-user-action", async () => {
       return await createUserAction({
         clerkOrganizationId,
-        recordUserId: recordUser.id,
+        userId: user.id,
         status: actionStatus,
         via: "Automation",
       });
@@ -96,7 +92,7 @@ const sendModerationWebhook = inngest.createFunction(
       const result = await db.query.records.findFirst({
         where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
         with: {
-          recordUser: true,
+          user: true,
         },
       });
 
@@ -106,7 +102,7 @@ const sendModerationWebhook = inngest.createFunction(
       return result;
     });
 
-    const recordUser = record.recordUser;
+    const user = record.user;
 
     await step.run("send-webhook", async () => {
       const webhook = await db.query.webhookEndpoints.findFirst({
@@ -121,7 +117,7 @@ const sendModerationWebhook = inngest.createFunction(
         payload: {
           entity: record.entity,
           clientId: record.clientId,
-          user: recordUser?.protected
+          user: user?.protected
             ? {
                 protected: true,
               }

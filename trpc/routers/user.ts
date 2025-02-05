@@ -12,7 +12,7 @@ const paginationSchema = z.object({
   limit: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40), z.literal(50)]).default(20),
   sorting: z.array(z.object({ id: z.string(), desc: z.boolean() })).default([{ id: "sort", desc: true }]),
   search: z.string().optional(),
-  statuses: z.enum(schema.recordUserActions.status.enumValues).array().optional(),
+  statuses: z.enum(schema.userActions.status.enumValues).array().optional(),
 });
 
 const getWhereInput = (
@@ -23,20 +23,20 @@ const getWhereInput = (
 ) => {
   const { search, statuses } = input;
 
-  return (recordUsers: typeof schema.recordUsers) => {
-    const conditions = [eq(recordUsers.clerkOrganizationId, clerkOrganizationId)];
+  return (users: typeof schema.users) => {
+    const conditions = [eq(users.clerkOrganizationId, clerkOrganizationId)];
 
     if (statuses?.length) {
-      conditions.push(inArray(recordUsers.actionStatus, statuses));
+      conditions.push(inArray(users.actionStatus, statuses));
     }
 
     if (search) {
       conditions.push(
         or(
-          ilike(recordUsers.username, `%${search}%`),
-          ilike(recordUsers.email, `%${search}%`),
-          ilike(recordUsers.name, `%${search}%`),
-          ilike(recordUsers.clientId, `%${search}%`),
+          ilike(users.username, `%${search}%`),
+          ilike(users.email, `%${search}%`),
+          ilike(users.name, `%${search}%`),
+          ilike(users.clientId, `%${search}%`),
         ) ?? sql`true`,
       );
     }
@@ -44,9 +44,9 @@ const getWhereInput = (
     if (cursorValue !== undefined && sortingOrder !== undefined) {
       const cursorSort = cursorValue;
       if (sortingOrder) {
-        conditions.push(lt(recordUsers.sort, cursorSort));
+        conditions.push(lt(users.sort, cursorSort));
       } else {
-        conditions.push(gt(recordUsers.sort, cursorSort));
+        conditions.push(gt(users.sort, cursorSort));
       }
     }
 
@@ -71,16 +71,16 @@ export const userRouter = router({
     if (supportsCursorPagination) {
       const { sort } = cursor;
       const sortingOrder = sorting[0]?.desc;
-      const orderBy = sortingOrder ? desc(schema.recordUsers.sort) : asc(schema.recordUsers.sort);
+      const orderBy = sortingOrder ? desc(schema.users.sort) : asc(schema.users.sort);
       const where = getWhereInput(input, clerkOrganizationId, sort, sortingOrder);
 
-      users = await db.query.recordUsers.findMany({
-        where: where(schema.recordUsers),
+      users = await db.query.users.findMany({
+        where: where(schema.users),
         limit: limit + 1,
         orderBy: [orderBy],
         with: {
           actions: {
-            orderBy: [desc(schema.recordUserActions.createdAt)],
+            orderBy: [desc(schema.userActions.createdAt)],
             limit: 1,
           },
         },
@@ -101,25 +101,25 @@ export const userRouter = router({
     const offsetValue = skip ?? 0;
     const where = getWhereInput(input, clerkOrganizationId);
 
-    users = await db.query.recordUsers.findMany({
-      where: where(schema.recordUsers),
+    users = await db.query.users.findMany({
+      where: where(schema.users),
       limit: limit + 1,
       offset: offsetValue,
-      orderBy: (usersTable, { asc, desc }) =>
+      orderBy: (fields) =>
         sorting
           .map(({ id, desc: isDesc }) =>
             id === "name"
               ? isDesc
-                ? [desc(usersTable.name), desc(usersTable.email)]
-                : [asc(usersTable.name), asc(usersTable.email)]
+                ? [desc(fields.name), desc(fields.email)]
+                : [asc(fields.name), asc(fields.email)]
               : isDesc
-                ? [desc(usersTable[id as keyof typeof usersTable])]
-                : [asc(usersTable[id as keyof typeof usersTable])],
+                ? [desc(fields[id as keyof typeof fields])]
+                : [asc(fields[id as keyof typeof fields])],
           )
           .flat(),
       with: {
         actions: {
-          orderBy: [desc(schema.recordUserActions.createdAt)],
+          orderBy: [desc(schema.userActions.createdAt)],
           limit: 1,
         },
       },

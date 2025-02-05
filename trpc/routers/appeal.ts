@@ -57,20 +57,20 @@ export const appealRouter = router({
                 ),
               ),
           ),
-          // Search in recordUsers
+          // Search in users
           exists(
             db
               .select({ 1: sql`1` })
-              .from(schema.recordUsers)
-              .innerJoin(schema.recordUserActions, eq(schema.recordUserActions.recordUserId, schema.recordUsers.id))
+              .from(schema.users)
+              .innerJoin(schema.userActions, eq(schema.userActions.userId, schema.users.id))
               .where(
                 and(
-                  eq(schema.recordUserActions.id, schema.appeals.recordUserActionId),
+                  eq(schema.userActions.id, schema.appeals.userActionId),
                   or(
-                    ilike(schema.recordUsers.username, searchPattern),
-                    ilike(schema.recordUsers.email, searchPattern),
-                    ilike(schema.recordUsers.name, searchPattern),
-                    ilike(schema.recordUsers.clientId, searchPattern),
+                    ilike(schema.users.username, searchPattern),
+                    ilike(schema.users.email, searchPattern),
+                    ilike(schema.users.name, searchPattern),
+                    ilike(schema.users.clientId, searchPattern),
                   ),
                 ),
               ),
@@ -84,9 +84,9 @@ export const appealRouter = router({
       limit: limit + 1,
       orderBy: [orderBy],
       with: {
-        recordUserAction: {
+        userAction: {
           with: {
-            recordUser: true,
+            user: true,
           },
         },
         messages: {

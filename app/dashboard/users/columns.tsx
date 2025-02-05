@@ -5,15 +5,15 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { formatRecordUserStatus, formatRecordUserVia } from "@/lib/badges";
+import { formatUserActionStatus, formatVia } from "@/lib/badges";
 import { ActionMenu } from "./action-menu";
 import { formatDate } from "@/lib/date";
-import type { RecordUser } from "./types";
-import { formatRecordUserCompact } from "@/lib/record-user";
+import type { User } from "./types";
+import { formatUserCompact } from "@/lib/record-user";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ShieldCheck } from "lucide-react";
 
-const columnHelper = createColumnHelper<RecordUser>();
+const columnHelper = createColumnHelper<User>();
 
 export const columns = [
   columnHelper.display({
@@ -40,7 +40,7 @@ export const columns = [
     enableSorting: false,
     enableHiding: false,
   }),
-  columnHelper.accessor((row) => formatRecordUserCompact(row), {
+  columnHelper.accessor((row) => formatUserCompact(row), {
     id: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="User / Record" />,
     cell: (props) => {
@@ -67,13 +67,14 @@ export const columns = [
   columnHelper.display({
     id: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
-    cell: ({ row }) => formatRecordUserStatus(row.original) ?? "—",
+    cell: ({ row }) =>
+      row.original.actionStatus ? formatUserActionStatus({ status: row.original.actionStatus }) : "—",
     enableSorting: false,
   }),
   columnHelper.display({
     id: "via",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Via" />,
-    cell: ({ row }) => formatRecordUserVia(row.original) ?? "—",
+    cell: ({ row }) => (row.original.actions?.[0] ? formatVia({ via: row.original.actions[0].via }) : "—"),
     enableSorting: false,
   }),
   columnHelper.accessor((row) => row.flaggedRecordsCount, {
@@ -103,7 +104,7 @@ export const columns = [
       const record = row.original;
       return (
         <div onClick={(event) => event.stopPropagation()}>
-          <ActionMenu recordUser={record} />
+          <ActionMenu user={record} />
         </div>
       );
     },

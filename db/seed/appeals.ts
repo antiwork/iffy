@@ -4,17 +4,17 @@ import * as schema from "../schema";
 import { eq, desc, and } from "drizzle-orm";
 
 export async function seedAppeals(clerkOrganizationId: string) {
-  const recordUsers = await db.query.recordUsers.findMany({
-    where: eq(schema.recordUsers.clerkOrganizationId, clerkOrganizationId),
+  const users = await db.query.users.findMany({
+    where: eq(schema.users.clerkOrganizationId, clerkOrganizationId),
     with: {
       actions: {
-        orderBy: [desc(schema.recordUserActions.createdAt)],
+        orderBy: [desc(schema.userActions.createdAt)],
       },
     },
   });
 
-  for (const recordUser of recordUsers) {
-    const userAction = recordUser.actions[0];
+  for (const user of users) {
+    const userAction = user.actions[0];
     if (!userAction || userAction.status !== "Suspended") {
       continue;
     }
@@ -23,7 +23,7 @@ export async function seedAppeals(clerkOrganizationId: string) {
       .insert(schema.appeals)
       .values({
         clerkOrganizationId,
-        recordUserActionId: userAction.id,
+        userActionId: userAction.id,
       })
       .onConflictDoNothing();
 
@@ -33,7 +33,7 @@ export async function seedAppeals(clerkOrganizationId: string) {
       .where(
         and(
           eq(schema.appeals.clerkOrganizationId, clerkOrganizationId),
-          eq(schema.appeals.recordUserActionId, userAction.id),
+          eq(schema.appeals.userActionId, userAction.id),
         ),
       );
 
@@ -71,14 +71,14 @@ export async function seedAppeals(clerkOrganizationId: string) {
       .where(
         and(
           eq(schema.messages.clerkOrganizationId, clerkOrganizationId),
-          eq(schema.messages.recordUserActionId, userAction.id),
+          eq(schema.messages.userActionId, userAction.id),
         ),
       );
 
     await db.insert(schema.messages).values({
       clerkOrganizationId,
-      recordUserActionId: userAction.id,
-      fromId: recordUser.id,
+      userActionId: userAction.id,
+      fromId: user.id,
       text: faker.lorem.paragraph(),
       appealId: appeal.id,
       type: "Inbound",

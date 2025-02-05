@@ -15,30 +15,30 @@ const updateUserAfterDeletion = inngest.createFunction(
       const record = await db.query.records.findFirst({
         where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, id)),
         with: {
-          recordUser: true,
+          user: true,
         },
       });
       if (!record) throw new Error(`Record not found: ${id}`);
       return record;
     });
 
-    const recordUser = record.recordUser;
-    if (!recordUser) {
+    const user = record.user;
+    if (!user) {
       return;
     }
 
     const flaggedRecords = await step.run("fetch-user-flagged-records", async () => {
       return await getFlaggedRecordsFromUser({
         clerkOrganizationId,
-        id: recordUser.id,
+        id: user.id,
       });
     });
 
-    if (flaggedRecords.length === 0 && recordUser.actionStatus === "Suspended") {
+    if (flaggedRecords.length === 0 && user.actionStatus === "Suspended") {
       await step.run("create-user-action", async () => {
         return await createUserAction({
           clerkOrganizationId,
-          recordUserId: recordUser.id,
+          userId: user.id,
           status: "Compliant",
           via: "Automation",
         });

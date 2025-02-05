@@ -1,8 +1,8 @@
 import { Separator } from "@/components/ui/separator";
-import { formatRecordUser, getRecordUserSecondaryParts } from "@/lib/record-user";
+import { formatUser, getUserSecondaryParts } from "@/lib/record-user";
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { formatRecordUserStatus, formatUserActionStatus, formatVia } from "@/lib/badges";
+import { formatUserActionStatus, formatVia } from "@/lib/badges";
 import { ExternalLink, ShieldCheck, ShieldOff } from "lucide-react";
 import { Header, HeaderActions, HeaderContent, HeaderPrimary, HeaderSecondary } from "@/components/sheet/header";
 import { Section, SectionContent, SectionTitle } from "@/components/sheet/section";
@@ -19,12 +19,12 @@ import { eq, and, desc } from "drizzle-orm";
 import { StripeAccount } from "./stripe-account";
 import { notFound } from "next/navigation";
 
-export async function RecordUserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
-  const user = await db.query.recordUsers.findFirst({
-    where: and(eq(schema.recordUsers.clerkOrganizationId, clerkOrganizationId), eq(schema.recordUsers.id, id)),
+export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
+  const user = await db.query.users.findFirst({
+    where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, id)),
     with: {
       actions: {
-        orderBy: [desc(schema.recordUserActions.createdAt)],
+        orderBy: [desc(schema.userActions.createdAt)],
         with: {
           appeal: true,
         },
@@ -40,9 +40,9 @@ export async function RecordUserDetail({ clerkOrganizationId, id }: { clerkOrgan
     <div>
       <Header>
         <HeaderContent>
-          <HeaderPrimary>{formatRecordUser(user)}</HeaderPrimary>
+          <HeaderPrimary>{formatUser(user)}</HeaderPrimary>
           <HeaderSecondary>
-            {getRecordUserSecondaryParts(user).map((part) => (
+            {getUserSecondaryParts(user).map((part) => (
               <div key={part}>{part}</div>
             ))}
           </HeaderSecondary>
@@ -71,8 +71,8 @@ export async function RecordUserDetail({ clerkOrganizationId, id }: { clerkOrgan
               </Tooltip>
             </TooltipProvider>
           )}
-          {formatRecordUserStatus(user)}
-          <ActionMenu recordUser={user} />
+          {formatUserActionStatus({ status: user.actionStatus ?? "Compliant" })}
+          <ActionMenu user={user} />
         </HeaderActions>
       </Header>
       <Separator className="my-2" />
@@ -165,7 +165,7 @@ export async function RecordUserDetail({ clerkOrganizationId, id }: { clerkOrgan
       <Section>
         <SectionTitle>Records</SectionTitle>
         <SectionContent>
-          <RecordsTable clerkOrganizationId={clerkOrganizationId} recordUserId={user.id} />
+          <RecordsTable clerkOrganizationId={clerkOrganizationId} userId={user.id} />
         </SectionContent>
       </Section>
     </div>

@@ -6,32 +6,30 @@ import { createMessage } from "./messages";
 import { createAppealAction } from "./appeal-actions";
 import { env } from "@/lib/env";
 
-export function generateAppealToken(recordUserId: string) {
+export function generateAppealToken(userId: string) {
   if (!env.APPEAL_ENCRYPTION_KEY) {
     throw new Error("APPEAL_ENCRYPTION_KEY is not set");
   }
-  const signature = crypto.createHmac("sha256", env.APPEAL_ENCRYPTION_KEY).update(recordUserId).digest("hex");
-  return `${recordUserId}-${signature}`;
+  const signature = crypto.createHmac("sha256", env.APPEAL_ENCRYPTION_KEY).update(userId).digest("hex");
+  return `${userId}-${signature}`;
 }
 
-export function validateAppealToken(
-  token: string,
-): [isValid: false, recordUserId: null] | [isValid: true, recordUserId: string] {
-  const [recordUserId, _] = token.split("-");
-  if (!recordUserId) {
+export function validateAppealToken(token: string): [isValid: false, userId: null] | [isValid: true, userId: string] {
+  const [userId, _] = token.split("-");
+  if (!userId) {
     return [false, null];
   }
-  const isValid = token === generateAppealToken(recordUserId);
+  const isValid = token === generateAppealToken(userId);
   if (!isValid) {
     return [false, null];
   }
-  return [true, recordUserId];
+  return [true, userId];
 }
 
-export async function createAppeal({ recordUserId, text }: { recordUserId: string; text: string }) {
-  const user = await db.query.recordUsers.findFirst({
-    where: eq(schema.recordUsers.id, recordUserId),
-    orderBy: desc(schema.recordUserActions.createdAt),
+export async function createAppeal({ userId, text }: { userId: string; text: string }) {
+  const user = await db.query.users.findFirst({
+    where: eq(schema.users.id, userId),
+    orderBy: desc(schema.userActions.createdAt),
     with: {
       actions: {
         orderBy: desc(schema.appealActions.createdAt),
@@ -63,8 +61,8 @@ export async function createAppeal({ recordUserId, text }: { recordUserId: strin
     .insert(schema.appeals)
     .values({
       clerkOrganizationId,
-      recordUserActionId: userAction.id,
-    })
+      userActionId: userAction.id,
+    } as const)
     .returning();
 
   if (!appeal) {
@@ -86,14 +84,14 @@ export async function createAppeal({ recordUserId, text }: { recordUserId: strin
     .where(
       and(
         eq(schema.messages.clerkOrganizationId, clerkOrganizationId),
-        eq(schema.messages.recordUserActionId, userAction.id),
+        eq(schema.messages.userActionId, userAction.id),
       ),
     );
 
   await createMessage({
     clerkOrganizationId,
     userActionId: userAction.id,
-    fromId: recordUserId,
+    fromId: userId,
     text,
     appealId: appeal.id,
     type: "Inbound",

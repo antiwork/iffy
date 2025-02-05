@@ -23,9 +23,9 @@ const eventsMap = {
     data: z.object({
       clerkOrganizationId: z.string(),
       id: z.string(),
-      recordUserId: z.string(),
-      status: z.enum(schema.recordUserActionStatus.enumValues),
-      lastStatus: z.enum(schema.recordUserActionStatus.enumValues).nullable(),
+      userId: z.string(),
+      status: z.enum(schema.userActionStatus.enumValues),
+      lastStatus: z.enum(schema.userActionStatus.enumValues).nullable(),
     }),
   },
   "appeal-action/status-changed": {

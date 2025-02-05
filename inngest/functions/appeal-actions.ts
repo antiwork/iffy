@@ -19,9 +19,9 @@ const updateUserAfterAppealAction = inngest.createFunction(
       const appeal = await db.query.appeals.findFirst({
         where: and(eq(schema.appeals.clerkOrganizationId, clerkOrganizationId), eq(schema.appeals.id, appealId)),
         with: {
-          recordUserAction: {
+          userAction: {
             with: {
-              recordUser: true,
+              user: true,
             },
             columns: {
               id: true,
@@ -37,7 +37,7 @@ const updateUserAfterAppealAction = inngest.createFunction(
     await step.run("create-user-action", async () => {
       return await createUserAction({
         clerkOrganizationId,
-        recordUserId: appeal.recordUserAction.recordUser.id,
+        userId: appeal.userAction.user.id,
         status: "Compliant",
         via: "Automation",
       });

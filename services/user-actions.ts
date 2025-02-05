@@ -2,45 +2,39 @@ import db from "@/db";
 import { inngest } from "@/inngest/client";
 import * as schema from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
-import { ViaWithClerkUserOrRecordUser } from "@/lib/types";
+import { ViaWithClerkUserOrUser } from "@/lib/types";
 
-type ActionStatus = (typeof schema.recordUserActionStatus.enumValues)[number];
+type ActionStatus = (typeof schema.userActionStatus.enumValues)[number];
 
 export async function createUserAction({
   clerkOrganizationId,
-  recordUserId,
+  userId,
   status,
   via,
   clerkUserId,
 }: {
   clerkOrganizationId: string;
-  recordUserId: string;
+  userId: string;
   status: ActionStatus;
-} & ViaWithClerkUserOrRecordUser) {
-  const recordUser = await db.query.recordUsers.findFirst({
-    where: and(
-      eq(schema.recordUsers.clerkOrganizationId, clerkOrganizationId),
-      eq(schema.recordUsers.id, recordUserId),
-    ),
+} & ViaWithClerkUserOrUser) {
+  const user = await db.query.users.findFirst({
+    where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)),
     columns: {
       protected: true,
     },
   });
 
-  if (!recordUser) {
-    throw new Error("Record user not found");
+  if (!user) {
+    throw new Error("User not found");
   }
 
-  if (recordUser.protected && status !== "Compliant") {
-    throw new Error("Record user is protected");
+  if (user.protected && status !== "Compliant") {
+    throw new Error("User is protected");
   }
 
-  const lastAction = await db.query.recordUserActions.findFirst({
-    where: and(
-      eq(schema.recordUserActions.clerkOrganizationId, clerkOrganizationId),
-      eq(schema.recordUserActions.recordUserId, recordUserId),
-    ),
-    orderBy: desc(schema.recordUserActions.createdAt),
+  const lastAction = await db.query.userActions.findFirst({
+    where: and(eq(schema.userActions.clerkOrganizationId, clerkOrganizationId), eq(schema.userActions.userId, userId)),
+    orderBy: desc(schema.userActions.createdAt),
     columns: {
       status: true,
     },
@@ -54,11 +48,11 @@ export async function createUserAction({
   }
 
   const [userAction] = await db
-    .insert(schema.recordUserActions)
+    .insert(schema.userActions)
     .values({
       clerkOrganizationId,
       status,
-      recordUserId,
+      userId,
       via,
       clerkUserId,
     })
@@ -70,14 +64,12 @@ export async function createUserAction({
 
   // sync the record user status with the new status
   await db
-    .update(schema.recordUsers)
+    .update(schema.users)
     .set({
       actionStatus: status,
       actionStatusCreatedAt: userAction.createdAt,
     })
-    .where(
-      and(eq(schema.recordUsers.clerkOrganizationId, clerkOrganizationId), eq(schema.recordUsers.id, recordUserId)),
-    );
+    .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)));
 
   if (status !== lastStatus) {
     try {
@@ -86,7 +78,7 @@ export async function createUserAction({
         data: {
           clerkOrganizationId,
           id: userAction.id,
-          recordUserId,
+          userId,
           status,
           lastStatus: lastStatus ?? null,
         },
