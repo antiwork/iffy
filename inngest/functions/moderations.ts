@@ -90,7 +90,17 @@ const sendModerationWebhook = inngest.createFunction(
   { id: "send-moderation-webhook" },
   { event: "moderation/status-changed" },
   async ({ event, step }) => {
-    const { clerkOrganizationId, status, recordId } = event.data;
+    const { clerkOrganizationId, id, status, recordId } = event.data;
+
+    const moderation = await step.run("fetch-moderation", async () => {
+      const result = await db.query.moderations.findFirst({
+        where: and(eq(schema.moderations.clerkOrganizationId, clerkOrganizationId), eq(schema.moderations.id, id)),
+      });
+      if (!result) {
+        throw new Error(`Moderation not found: ${id}`);
+      }
+      return result;
+    });
 
     const record = await step.run("fetch-record", async () => {
       const result = await db.query.records.findFirst({
@@ -118,14 +128,27 @@ const sendModerationWebhook = inngest.createFunction(
       await sendWebhook({
         id: webhook.id,
         event: eventType,
-        payload: {
-          entity: record.entity,
-          clientId: record.clientId,
-          user: recordUser?.protected
-            ? {
-                protected: true,
-              }
-            : undefined,
+        data: {
+          id: moderation.id,
+          timestamp: moderation.updatedAt,
+          via: moderation.via,
+          payload: {
+            id: record.id,
+            clientId: record.clientId,
+            clientUrl: record.clientUrl ?? undefined,
+            status: moderation.status,
+            name: record.name,
+            entity: record.entity,
+            user: recordUser
+              ? {
+                  id: recordUser.id,
+                  clientId: recordUser.clientId,
+                  clientUrl: recordUser.clientUrl ?? undefined,
+                  status: recordUser.actionStatus ?? undefined,
+                  protected: true,
+                }
+              : undefined,
+          },
         },
       });
     });
