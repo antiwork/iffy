@@ -126,6 +126,47 @@ shortest(async () => {
   expect(moderationResponse.ok()).toBeTruthy();
 });
 
+shortest("Successfully ingest a user", async ({ page }) => {
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
+  const response = await apiContext!.post(`/api/v1/ingest/user`, {
+    data: {
+      clientId: `user_${faker.string.nanoid(3)}`,
+      clientUrl: faker.internet.url(),
+      email: faker.internet.email({ firstName, lastName }).toLocaleLowerCase(),
+      name: faker.person.fullName({ firstName, lastName }),
+      username: faker.internet.userName({ firstName, lastName }).toLocaleLowerCase(),
+      stripeAccountId: `acct_${faker.string.alphanumeric(16)}`,
+      protected: faker.datatype.boolean(),
+    },
+  });
+  expect(response.ok()).toBeTruthy();
+  const responseData = await response.json();
+  expect(responseData.message).toBe("Success");
+
+  const startTime = Date.now();
+  const timeout = 12000;
+  const pollInterval = 2000;
+
+  while (Date.now() - startTime < timeout) {
+    await page.goto(frontendUrl + "/dashboard/users", { waitUntil: "networkidle" });
+
+    try {
+      await page.waitForSelector("table tbody", { timeout: 5000 });
+      const userRow = page.locator("table tbody tr").filter({ hasText: name }).first();
+      const isVisible = await userRow.isVisible().catch(() => false);
+
+      if (isVisible) {
+        return;
+      }
+
+      await page.waitForTimeout(pollInterval);
+    } catch (error) {
+      await page.waitForTimeout(pollInterval);
+    }
+  }
+});
+
 shortest.afterAll(async ({ page }) => {
   await page.goto(frontendUrl + "/dashboard/developer");
   const menuButtons = page.getByRole("button").filter({ hasText: "open menu" });
