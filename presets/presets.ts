@@ -73,7 +73,7 @@ export async function updatePresets() {
       await db.insert(schema.presetStrategies).values({
         presetId: preset.id,
         type: "Prompt",
-        options: { prompt: preset.prompt, topic: preset.name } satisfies PromptOptions,
+        options: { prompt: preset.prompt, topic: preset.name, skipImages: false } satisfies PromptOptions,
       });
     }
   }
