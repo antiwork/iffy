@@ -61,7 +61,18 @@ const sendUserActionWebhook = inngest.createFunction(
   { id: "send-user-action-webhook" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { clerkOrganizationId, status, userId } = event.data;
+    const { clerkOrganizationId, id, status, userId } = event.data;
+
+    const userAction = await step.run("fetch-user-action", async () => {
+      const result = await db.query.userActions.findFirst({
+        where: and(eq(schema.userActions.clerkOrganizationId, clerkOrganizationId), eq(schema.userActions.id, id)),
+      });
+      if (!result) {
+        throw new Error(`Record user action not found: ${id}`);
+      }
+
+      return result;
+    });
 
     const user = await step.run("fetch-user", async () => {
       const result = await db.query.users.findFirst({
@@ -98,8 +109,17 @@ const sendUserActionWebhook = inngest.createFunction(
       await sendWebhook({
         id: webhook.id,
         event: eventType,
-        payload: {
-          clientId: user.clientId,
+        data: {
+          id: userAction.id,
+          timestamp: userAction.createdAt,
+          via: userAction.via,
+          payload: {
+            id: user.id,
+            status: userAction.status,
+            clientId: user.clientId,
+            clientUrl: user.clientUrl ?? undefined,
+            protected: user.protected,
+          },
         },
       });
     });
