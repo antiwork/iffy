@@ -1,5 +1,5 @@
 {
-  "id": "f195fb2d-8448-4870-b3e4-df50d602729c",
+  "id": "08647145-7190-43dc-9495-d89938d0b469",
   "prevId": "789e07fd-9931-4742-922c-ff5a2762742a",
   "version": "7",
   "dialect": "postgresql",
@@ -84,9 +84,9 @@
             }
           ],
           "isUnique": true,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "api_keys_encrypted_key_key": {
           "name": "api_keys_encrypted_key_key",
@@ -100,9 +100,9 @@
             }
           ],
           "isUnique": true,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {},
@@ -110,17 +110,17 @@
       "uniqueConstraints": {
         "api_keys_encrypted_key_unique": {
           "name": "api_keys_encrypted_key_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "encrypted_key"
-          ],
-          "nullsNotDistinct": false
+          ]
         },
         "api_keys_encrypted_key_hash_unique": {
           "name": "api_keys_encrypted_key_hash_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "encrypted_key_hash"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
@@ -183,15 +183,15 @@
         "appeal_actions_appeal_id_fkey": {
           "name": "appeal_actions_appeal_id_fkey",
           "tableFrom": "appeal_actions",
+          "tableTo": "appeals",
           "columnsFrom": [
             "appeal_id"
           ],
-          "tableTo": "appeals",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "restrict"
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -216,8 +216,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "record_user_action_id": {
-          "name": "record_user_action_id",
+        "user_action_id": {
+          "name": "user_action_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -269,15 +269,15 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
-        "appeals_record_user_action_id_idx": {
-          "name": "appeals_record_user_action_id_idx",
+        "appeals_user_action_id_idx": {
+          "name": "appeals_user_action_id_idx",
           "columns": [
             {
-              "expression": "record_user_action_id",
+              "expression": "user_action_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last",
@@ -285,15 +285,15 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
-        "appeals_record_user_action_id_key": {
-          "name": "appeals_record_user_action_id_key",
+        "appeals_user_action_id_key": {
+          "name": "appeals_user_action_id_key",
           "columns": [
             {
-              "expression": "record_user_action_id",
+              "expression": "user_action_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last",
@@ -301,9 +301,9 @@
             }
           ],
           "isUnique": true,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "appeals_sort_key": {
           "name": "appeals_sort_key",
@@ -317,41 +317,41 @@
             }
           ],
           "isUnique": true,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
-        "appeals_record_user_action_id_fkey": {
-          "name": "appeals_record_user_action_id_fkey",
+        "appeals_user_action_id_fkey": {
+          "name": "appeals_user_action_id_fkey",
           "tableFrom": "appeals",
+          "tableTo": "user_actions",
           "columnsFrom": [
-            "record_user_action_id"
+            "user_action_id"
           ],
-          "tableTo": "record_user_actions",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "restrict"
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "appeals_record_user_action_id_unique": {
-          "name": "appeals_record_user_action_id_unique",
+        "appeals_user_action_id_unique": {
+          "name": "appeals_user_action_id_unique",
+          "nullsNotDistinct": false,
           "columns": [
-            "record_user_action_id"
-          ],
-          "nullsNotDistinct": false
+            "user_action_id"
+          ]
         },
         "appeals_sort_unique": {
           "name": "appeals_sort_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "sort"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
@@ -428,8 +428,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "record_user_action_id": {
-          "name": "record_user_action_id",
+        "user_action_id": {
+          "name": "user_action_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -505,73 +505,73 @@
             }
           ],
           "isUnique": true,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
         "messages_appeal_id_fkey": {
           "name": "messages_appeal_id_fkey",
           "tableFrom": "messages",
+          "tableTo": "appeals",
           "columnsFrom": [
             "appeal_id"
           ],
-          "tableTo": "appeals",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "set null"
+          "onDelete": "set null",
+          "onUpdate": "cascade"
         },
         "messages_from_id_fkey": {
           "name": "messages_from_id_fkey",
           "tableFrom": "messages",
+          "tableTo": "users",
           "columnsFrom": [
             "from_id"
           ],
-          "tableTo": "record_users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "set null"
+          "onDelete": "set null",
+          "onUpdate": "cascade"
         },
-        "messages_record_user_action_id_fkey": {
-          "name": "messages_record_user_action_id_fkey",
+        "messages_user_action_id_fkey": {
+          "name": "messages_user_action_id_fkey",
           "tableFrom": "messages",
+          "tableTo": "user_actions",
           "columnsFrom": [
-            "record_user_action_id"
+            "user_action_id"
           ],
-          "tableTo": "record_user_actions",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "restrict"
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
         },
         "messages_to_id_fkey": {
           "name": "messages_to_id_fkey",
           "tableFrom": "messages",
+          "tableTo": "users",
           "columnsFrom": [
             "to_id"
           ],
-          "tableTo": "record_users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "set null"
+          "onDelete": "set null",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "messages_sort_unique": {
           "name": "messages_sort_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "sort"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
@@ -682,9 +682,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "moderations_org_status_idx": {
           "name": "moderations_org_status_idx",
@@ -704,37 +704,37 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
         "moderations_record_id_fkey": {
           "name": "moderations_record_id_fkey",
           "tableFrom": "moderations",
+          "tableTo": "records",
           "columnsFrom": [
             "record_id"
           ],
-          "tableTo": "records",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "restrict"
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
         },
         "moderations_ruleset_id_fkey": {
           "name": "moderations_ruleset_id_fkey",
           "tableFrom": "moderations",
+          "tableTo": "rulesets",
           "columnsFrom": [
             "ruleset_id"
           ],
-          "tableTo": "rulesets",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "set null"
+          "onDelete": "set null",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -765,28 +765,28 @@
         "moderations_to_rules_moderation_id_fkey": {
           "name": "moderations_to_rules_moderation_id_fkey",
           "tableFrom": "moderations_to_rules",
+          "tableTo": "moderations",
           "columnsFrom": [
             "moderation_id"
           ],
-          "tableTo": "moderations",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         },
         "moderations_to_rules_rule_id_fkey": {
           "name": "moderations_to_rules_rule_id_fkey",
           "tableFrom": "moderations_to_rules",
+          "tableTo": "rules",
           "columnsFrom": [
             "rule_id"
           ],
-          "tableTo": "rules",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -881,9 +881,9 @@
             }
           ],
           "isUnique": true,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {},
@@ -891,10 +891,10 @@
       "uniqueConstraints": {
         "organization_settings_clerk_organization_id_unique": {
           "name": "organization_settings_clerk_organization_id_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "clerk_organization_id"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
@@ -950,15 +950,15 @@
         "preset_strategies_preset_id_fkey": {
           "name": "preset_strategies_preset_id_fkey",
           "tableFrom": "preset_strategies",
+          "tableTo": "presets",
           "columnsFrom": [
             "preset_id"
           ],
-          "tableTo": "presets",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "restrict"
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1012,8 +1012,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.record_user_actions": {
-      "name": "record_user_actions",
+    "public.records": {
+      "name": "records",
       "schema": "",
       "columns": {
         "id": {
@@ -1028,15 +1028,443 @@
           "primaryKey": false,
           "notNull": true
         },
-        "record_user_id": {
-          "name": "record_user_id",
+        "client_id": {
+          "name": "client_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "client_url": {
+          "name": "client_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entity": {
+          "name": "entity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image_urls": {
+          "name": "image_urls",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "external_urls": {
+          "name": "external_urls",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "sort": {
+          "name": "sort",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "moderation_status": {
+          "name": "moderation_status",
+          "type": "ModerationStatus",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "moderation_status_created_at": {
+          "name": "moderation_status_created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "moderation_pending": {
+          "name": "moderation_pending",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "moderation_pending_created_at": {
+          "name": "moderation_pending_created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "records_clerk_organization_id_idx": {
+          "name": "records_clerk_organization_id_idx",
+          "columns": [
+            {
+              "expression": "clerk_organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "records_client_id_key": {
+          "name": "records_client_id_key",
+          "columns": [
+            {
+              "expression": "client_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "records_user_id_idx": {
+          "name": "records_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "records_sort_key": {
+          "name": "records_sort_key",
+          "columns": [
+            {
+              "expression": "sort",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int4_ops"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "records_user_id_fkey": {
+          "name": "records_user_id_fkey",
+          "tableFrom": "records",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "records_client_id_unique": {
+          "name": "records_client_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "client_id"
+          ]
+        },
+        "records_sort_unique": {
+          "name": "records_sort_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "sort"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rule_strategies": {
+      "name": "rule_strategies",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "clerk_organization_id": {
+          "name": "clerk_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "StrategyType",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rule_id": {
+          "name": "rule_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "options": {
+          "name": "options",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "rule_strategies_rule_id_fkey": {
+          "name": "rule_strategies_rule_id_fkey",
+          "tableFrom": "rule_strategies",
+          "tableTo": "rules",
+          "columnsFrom": [
+            "rule_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rules": {
+      "name": "rules",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "clerk_organization_id": {
+          "name": "clerk_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "preset_id": {
+          "name": "preset_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ruleset_id": {
+          "name": "ruleset_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "rules_preset_id_fkey": {
+          "name": "rules_preset_id_fkey",
+          "tableFrom": "rules",
+          "tableTo": "presets",
+          "columnsFrom": [
+            "preset_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "rules_ruleset_id_fkey": {
+          "name": "rules_ruleset_id_fkey",
+          "tableFrom": "rules",
+          "tableTo": "rulesets",
+          "columnsFrom": [
+            "ruleset_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rulesets": {
+      "name": "rulesets",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "clerk_organization_id": {
+          "name": "clerk_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user_actions": {
+      "name": "user_actions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "clerk_organization_id": {
+          "name": "clerk_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "status": {
           "name": "status",
-          "type": "RecordUserActionStatus",
+          "type": "UserActionStatus",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
@@ -1064,11 +1492,11 @@
         }
       },
       "indexes": {
-        "record_user_actions_record_user_id_idx": {
-          "name": "record_user_actions_record_user_id_idx",
+        "user_actions_user_id_idx": {
+          "name": "user_actions_user_id_idx",
           "columns": [
             {
-              "expression": "record_user_id",
+              "expression": "user_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last",
@@ -1076,24 +1504,24 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
-        "record_user_actions_record_user_id_fkey": {
-          "name": "record_user_actions_record_user_id_fkey",
-          "tableFrom": "record_user_actions",
+        "user_actions_user_id_fkey": {
+          "name": "user_actions_user_id_fkey",
+          "tableFrom": "user_actions",
+          "tableTo": "users",
           "columnsFrom": [
-            "record_user_id"
+            "user_id"
           ],
-          "tableTo": "record_users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "restrict"
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1102,8 +1530,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.record_users": {
-      "name": "record_users",
+    "public.users": {
+      "name": "users",
       "schema": "",
       "columns": {
         "id": {
@@ -1183,7 +1611,7 @@
         },
         "action_status": {
           "name": "action_status",
-          "type": "RecordUserActionStatus",
+          "type": "UserActionStatus",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
@@ -1203,8 +1631,8 @@
         }
       },
       "indexes": {
-        "record_users_clerk_organization_id_idx": {
-          "name": "record_users_clerk_organization_id_idx",
+        "users_clerk_organization_id_idx": {
+          "name": "users_clerk_organization_id_idx",
           "columns": [
             {
               "expression": "clerk_organization_id",
@@ -1215,12 +1643,12 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
-        "record_users_client_id_key": {
-          "name": "record_users_client_id_key",
+        "users_client_id_key": {
+          "name": "users_client_id_key",
           "columns": [
             {
               "expression": "client_id",
@@ -1231,12 +1659,12 @@
             }
           ],
           "isUnique": true,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
-        "record_users_sort_key": {
-          "name": "record_users_sort_key",
+        "users_sort_key": {
+          "name": "users_sort_key",
           "columns": [
             {
               "expression": "sort",
@@ -1247,457 +1675,29 @@
             }
           ],
           "isUnique": true,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "record_users_client_id_unique": {
-          "name": "record_users_client_id_unique",
+        "users_client_id_unique": {
+          "name": "users_client_id_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "client_id"
-          ],
-          "nullsNotDistinct": false
+          ]
         },
-        "record_users_sort_unique": {
-          "name": "record_users_sort_unique",
+        "users_sort_unique": {
+          "name": "users_sort_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "sort"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.records": {
-      "name": "records",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "clerk_organization_id": {
-          "name": "clerk_organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "client_id": {
-          "name": "client_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "client_url": {
-          "name": "client_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "entity": {
-          "name": "entity",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "text": {
-          "name": "text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "image_urls": {
-          "name": "image_urls",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
-        },
-        "external_urls": {
-          "name": "external_urls",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
-        },
-        "record_user_id": {
-          "name": "record_user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "sort": {
-          "name": "sort",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "moderation_status": {
-          "name": "moderation_status",
-          "type": "ModerationStatus",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "moderation_status_created_at": {
-          "name": "moderation_status_created_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "moderation_pending": {
-          "name": "moderation_pending",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "moderation_pending_created_at": {
-          "name": "moderation_pending_created_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "records_clerk_organization_id_idx": {
-          "name": "records_clerk_organization_id_idx",
-          "columns": [
-            {
-              "expression": "clerk_organization_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops"
-            }
-          ],
-          "isUnique": false,
-          "with": {},
-          "method": "btree",
-          "concurrently": false
-        },
-        "records_client_id_key": {
-          "name": "records_client_id_key",
-          "columns": [
-            {
-              "expression": "client_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops"
-            }
-          ],
-          "isUnique": true,
-          "with": {},
-          "method": "btree",
-          "concurrently": false
-        },
-        "records_record_user_id_idx": {
-          "name": "records_record_user_id_idx",
-          "columns": [
-            {
-              "expression": "record_user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops"
-            }
-          ],
-          "isUnique": false,
-          "with": {},
-          "method": "btree",
-          "concurrently": false
-        },
-        "records_sort_key": {
-          "name": "records_sort_key",
-          "columns": [
-            {
-              "expression": "sort",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": true,
-          "with": {},
-          "method": "btree",
-          "concurrently": false
-        }
-      },
-      "foreignKeys": {
-        "records_record_user_id_fkey": {
-          "name": "records_record_user_id_fkey",
-          "tableFrom": "records",
-          "columnsFrom": [
-            "record_user_id"
-          ],
-          "tableTo": "record_users",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "cascade",
-          "onDelete": "set null"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "records_client_id_unique": {
-          "name": "records_client_id_unique",
-          "columns": [
-            "client_id"
-          ],
-          "nullsNotDistinct": false
-        },
-        "records_sort_unique": {
-          "name": "records_sort_unique",
-          "columns": [
-            "sort"
-          ],
-          "nullsNotDistinct": false
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.rule_strategies": {
-      "name": "rule_strategies",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "clerk_organization_id": {
-          "name": "clerk_organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "type": {
-          "name": "type",
-          "type": "StrategyType",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rule_id": {
-          "name": "rule_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "options": {
-          "name": "options",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "rule_strategies_rule_id_fkey": {
-          "name": "rule_strategies_rule_id_fkey",
-          "tableFrom": "rule_strategies",
-          "columnsFrom": [
-            "rule_id"
-          ],
-          "tableTo": "rules",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "cascade",
-          "onDelete": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.rules": {
-      "name": "rules",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "clerk_organization_id": {
-          "name": "clerk_organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "preset_id": {
-          "name": "preset_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ruleset_id": {
-          "name": "ruleset_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "rules_preset_id_fkey": {
-          "name": "rules_preset_id_fkey",
-          "tableFrom": "rules",
-          "columnsFrom": [
-            "preset_id"
-          ],
-          "tableTo": "presets",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "cascade",
-          "onDelete": "restrict"
-        },
-        "rules_ruleset_id_fkey": {
-          "name": "rules_ruleset_id_fkey",
-          "tableFrom": "rules",
-          "columnsFrom": [
-            "ruleset_id"
-          ],
-          "tableTo": "rulesets",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "cascade",
-          "onDelete": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.rulesets": {
-      "name": "rulesets",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "clerk_organization_id": {
-          "name": "clerk_organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1808,15 +1808,15 @@
         "webhook_events_webhook_endpoint_id_fkey": {
           "name": "webhook_events_webhook_endpoint_id_fkey",
           "tableFrom": "webhook_events",
+          "tableTo": "webhook_endpoints",
           "columnsFrom": [
             "webhook_endpoint_id"
           ],
-          "tableTo": "webhook_endpoints",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "cascade",
-          "onDelete": "restrict"
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1869,15 +1869,6 @@
         "Flagged"
       ]
     },
-    "public.RecordUserActionStatus": {
-      "name": "RecordUserActionStatus",
-      "schema": "public",
-      "values": [
-        "Compliant",
-        "Suspended",
-        "Banned"
-      ]
-    },
     "public.StrategyType": {
       "name": "StrategyType",
       "schema": "public",
@@ -1885,6 +1876,15 @@
         "Blocklist",
         "OpenAI",
         "Prompt"
+      ]
+    },
+    "public.UserActionStatus": {
+      "name": "UserActionStatus",
+      "schema": "public",
+      "values": [
+        "Compliant",
+        "Suspended",
+        "Banned"
       ]
     },
     "public.Via": {
@@ -1908,10 +1908,11 @@
     }
   },
   "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
   "views": {
     "public.moderations_analytics_daily": {
-      "name": "moderations_analytics_daily",
-      "schema": "public",
       "columns": {
         "time": {
           "name": "time",
@@ -1939,12 +1940,12 @@
         }
       },
       "definition": "\n  SELECT\n    date_trunc('day', \"moderations\".\"created_at\" AT TIME ZONE 'UTC') AS time,\n    \"moderations\".\"clerk_organization_id\" AS clerk_organization_id,\n    COUNT(*)::int AS moderations,\n    COUNT(*) FILTER (WHERE \"moderations\".\"status\" = 'Flagged')::int AS flagged\n  FROM \"moderations\"\n  WHERE \"moderations\".\"created_at\" AT TIME ZONE 'UTC' >= date_trunc('day', now() AT TIME ZONE 'UTC') - INTERVAL '29 days'\n  GROUP BY time, \"moderations\".\"clerk_organization_id\"\n",
-      "materialized": true,
-      "isExisting": false
+      "name": "moderations_analytics_daily",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": true
     },
     "public.moderations_analytics_hourly": {
-      "name": "moderations_analytics_hourly",
-      "schema": "public",
       "columns": {
         "time": {
           "name": "time",
@@ -1972,13 +1973,12 @@
         }
       },
       "definition": "\n  SELECT\n    date_trunc('hour', \"moderations\".\"created_at\" AT TIME ZONE 'UTC') AS time,\n    \"moderations\".\"clerk_organization_id\" AS clerk_organization_id,\n    COUNT(*)::int AS moderations,\n    COUNT(*) FILTER (WHERE \"moderations\".\"status\" = 'Flagged')::int AS flagged\n  FROM \"moderations\"\n  WHERE \"moderations\".\"created_at\" AT TIME ZONE 'UTC' >= date_trunc('hour', now() AT TIME ZONE 'UTC') - INTERVAL '23 hours'\n  GROUP BY time, \"moderations\".\"clerk_organization_id\"\n",
-      "materialized": true,
-      "isExisting": false
+      "name": "moderations_analytics_hourly",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": true
     }
   },
-  "sequences": {},
-  "roles": {},
-  "policies": {},
   "_meta": {
     "columns": {},
     "schemas": {},
