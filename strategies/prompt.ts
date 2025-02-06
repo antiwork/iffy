@@ -22,10 +22,12 @@ const getMultiModalInput = (
       type: "text",
       text: record.text,
     },
-    ...(!skipImages ? (record.imageUrls ?? []).map((url) => ({
-      type: "image_url" as const,
-      image_url: { url },
-    })) : []),
+    ...(!skipImages
+      ? (record.imageUrls ?? []).map((url) => ({
+          type: "image_url" as const,
+          image_url: { url },
+        }))
+      : []),
   ];
 };
 
