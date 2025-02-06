@@ -74,7 +74,7 @@ export const columns = [
   columnHelper.display({
     id: "via",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Via" />,
-    cell: ({ row }) => (row.original.actions?.[0] ? formatVia({ via: row.original.actions[0].via }) : "—"),
+    cell: ({ row }) => (row.original.actions ? formatUserVia({ actions: row.original.actions }) : "—"),
     enableSorting: false,
   }),
   columnHelper.accessor((row) => row.flaggedRecordsCount, {
