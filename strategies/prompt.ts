@@ -15,16 +15,17 @@ const MODEL = "gpt-4o-mini";
 
 const getMultiModalInput = (
   record: typeof schema.records.$inferSelect,
+  skipImages?: boolean,
 ): OpenAI.Chat.Completions.ChatCompletionContentPart[] => {
   return [
     {
       type: "text",
       text: record.text,
     },
-    ...(record.imageUrls ?? []).map((url) => ({
+    ...(!skipImages ? (record.imageUrls ?? []).map((url) => ({
       type: "image_url" as const,
       image_url: { url },
-    })),
+    })) : []),
   ];
 };
 
@@ -45,6 +46,7 @@ export const type = "Prompt";
 export const optionsSchema = z.object({
   topic: z.string(),
   prompt: z.string(),
+  skipImages: z.boolean().optional().default(false),
 });
 
 export type Options = z.infer<typeof optionsSchema>;
@@ -62,7 +64,7 @@ export class Strategy implements StrategyInstance {
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       {
         role: "user",
-        content: getMultiModalInput(context.record),
+        content: getMultiModalInput(context.record, this.options.skipImages),
       },
       {
         role: "user",
@@ -113,7 +115,7 @@ export class Strategy implements StrategyInstance {
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       {
         role: "user",
-        content: getMultiModalInput(context.record),
+        content: getMultiModalInput(context.record, this.options.skipImages),
       },
       {
         role: "user",
