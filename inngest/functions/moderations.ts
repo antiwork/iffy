@@ -38,7 +38,7 @@ const updateUserAfterModeration = inngest.createFunction(
       const result = await db.query.records.findFirst({
         where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
         with: {
-          recordUser: true,
+          user: true,
         },
       });
 
@@ -48,26 +48,22 @@ const updateUserAfterModeration = inngest.createFunction(
       return result;
     });
 
-    const recordUser = record.recordUser;
-    if (!recordUser) {
+    const user = record.user;
+    if (!user) {
       return;
     }
 
     const flaggedRecords = await step.run("fetch-user-flagged-records", async () => {
-      return await getFlaggedRecordsFromUser({ clerkOrganizationId, id: recordUser.id });
+      return await getFlaggedRecordsFromUser({ clerkOrganizationId, id: user.id });
     });
 
-    let actionStatus: (typeof schema.recordUserActionStatus.enumValues)[number] | undefined;
+    let actionStatus: (typeof schema.userActionStatus.enumValues)[number] | undefined;
 
-    if (
-      status === "Flagged" &&
-      (!recordUser.actionStatus || recordUser.actionStatus === "Compliant") &&
-      !recordUser.protected
-    ) {
+    if (status === "Flagged" && (!user.actionStatus || user.actionStatus === "Compliant") && !user.protected) {
       actionStatus = "Suspended";
     }
 
-    if (status === "Compliant" && flaggedRecords.length === 0 && recordUser.actionStatus === "Suspended") {
+    if (status === "Compliant" && flaggedRecords.length === 0 && user.actionStatus === "Suspended") {
       actionStatus = "Compliant";
     }
 
@@ -78,7 +74,7 @@ const updateUserAfterModeration = inngest.createFunction(
     await step.run("create-user-action", async () => {
       return await createUserAction({
         clerkOrganizationId,
-        recordUserId: recordUser.id,
+        userId: user.id,
         status: actionStatus,
         via: "Automation",
       });
@@ -90,13 +86,23 @@ const sendModerationWebhook = inngest.createFunction(
   { id: "send-moderation-webhook" },
   { event: "moderation/status-changed" },
   async ({ event, step }) => {
-    const { clerkOrganizationId, status, recordId } = event.data;
+    const { clerkOrganizationId, id, status, recordId } = event.data;
+
+    const moderation = await step.run("fetch-moderation", async () => {
+      const result = await db.query.moderations.findFirst({
+        where: and(eq(schema.moderations.clerkOrganizationId, clerkOrganizationId), eq(schema.moderations.id, id)),
+      });
+      if (!result) {
+        throw new Error(`Moderation not found: ${id}`);
+      }
+      return result;
+    });
 
     const record = await step.run("fetch-record", async () => {
       const result = await db.query.records.findFirst({
         where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
         with: {
-          recordUser: true,
+          user: true,
         },
       });
 
@@ -106,7 +112,7 @@ const sendModerationWebhook = inngest.createFunction(
       return result;
     });
 
-    const recordUser = record.recordUser;
+    const user = record.user;
 
     await step.run("send-webhook", async () => {
       const webhook = await db.query.webhookEndpoints.findFirst({
@@ -118,14 +124,27 @@ const sendModerationWebhook = inngest.createFunction(
       await sendWebhook({
         id: webhook.id,
         event: eventType,
-        payload: {
-          entity: record.entity,
-          clientId: record.clientId,
-          user: recordUser?.protected
-            ? {
-                protected: true,
-              }
-            : undefined,
+        data: {
+          id: moderation.id,
+          timestamp: moderation.updatedAt,
+          via: moderation.via,
+          payload: {
+            id: record.id,
+            clientId: record.clientId,
+            clientUrl: record.clientUrl ?? undefined,
+            status: moderation.status,
+            name: record.name,
+            entity: record.entity,
+            user: user
+              ? {
+                  id: user.id,
+                  clientId: user.clientId,
+                  clientUrl: user.clientUrl ?? undefined,
+                  status: user.actionStatus ?? undefined,
+                  protected: true,
+                }
+              : undefined,
+          },
         },
       });
     });

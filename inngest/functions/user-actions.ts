@@ -17,17 +17,14 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
   { id: "update-stripe-payments-payouts" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { clerkOrganizationId, status, recordUserId } = event.data;
+    const { clerkOrganizationId, status, userId } = event.data;
 
-    const recordUser = await step.run("fetch-record-user", async () => {
-      const result = await db.query.recordUsers.findFirst({
-        where: and(
-          eq(schema.recordUsers.clerkOrganizationId, clerkOrganizationId),
-          eq(schema.recordUsers.id, recordUserId),
-        ),
+    const user = await step.run("fetch-user", async () => {
+      const result = await db.query.users.findFirst({
+        where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)),
       });
       if (!result) {
-        throw new Error(`Record user not found: ${recordUserId}`);
+        throw new Error(`User not found: ${userId}`);
       }
 
       return result;
@@ -45,14 +42,14 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
     });
 
     await step.run("update-stripe-payouts", async () => {
-      if (organizationSettings.stripeApiKey && recordUser.stripeAccountId) {
+      if (organizationSettings.stripeApiKey && user.stripeAccountId) {
         switch (status) {
           case "Suspended":
           case "Banned":
-            await pausePaymentsAndPayouts(decrypt(organizationSettings.stripeApiKey), recordUser.stripeAccountId);
+            await pausePaymentsAndPayouts(decrypt(organizationSettings.stripeApiKey), user.stripeAccountId);
             break;
           case "Compliant":
-            await resumePaymentsAndPayouts(decrypt(organizationSettings.stripeApiKey), recordUser.stripeAccountId);
+            await resumePaymentsAndPayouts(decrypt(organizationSettings.stripeApiKey), user.stripeAccountId);
             break;
         }
       }
@@ -64,17 +61,25 @@ const sendUserActionWebhook = inngest.createFunction(
   { id: "send-user-action-webhook" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { clerkOrganizationId, status, recordUserId } = event.data;
+    const { clerkOrganizationId, id, status, userId } = event.data;
 
-    const recordUser = await step.run("fetch-record-user", async () => {
-      const result = await db.query.recordUsers.findFirst({
-        where: and(
-          eq(schema.recordUsers.clerkOrganizationId, clerkOrganizationId),
-          eq(schema.recordUsers.id, recordUserId),
-        ),
+    const userAction = await step.run("fetch-user-action", async () => {
+      const result = await db.query.userActions.findFirst({
+        where: and(eq(schema.userActions.clerkOrganizationId, clerkOrganizationId), eq(schema.userActions.id, id)),
       });
       if (!result) {
-        throw new Error(`Record user not found: ${recordUserId}`);
+        throw new Error(`Record user action not found: ${id}`);
+      }
+
+      return result;
+    });
+
+    const user = await step.run("fetch-user", async () => {
+      const result = await db.query.users.findFirst({
+        where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)),
+      });
+      if (!result) {
+        throw new Error(`User not found: ${userId}`);
       }
 
       return result;
@@ -104,8 +109,17 @@ const sendUserActionWebhook = inngest.createFunction(
       await sendWebhook({
         id: webhook.id,
         event: eventType,
-        payload: {
-          clientId: recordUser.clientId,
+        data: {
+          id: userAction.id,
+          timestamp: userAction.createdAt,
+          via: userAction.via,
+          payload: {
+            id: user.id,
+            status: userAction.status,
+            clientId: user.clientId,
+            clientUrl: user.clientUrl ?? undefined,
+            protected: user.protected,
+          },
         },
       });
     });
@@ -116,7 +130,7 @@ const sendUserActionEmail = inngest.createFunction(
   { id: "send-user-action-email" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { clerkOrganizationId, id, status, lastStatus, recordUserId } = event.data;
+    const { clerkOrganizationId, id, status, lastStatus, userId } = event.data;
 
     const organizationSettings = await step.run("fetch-organization-settings", async () => {
       return await findOrCreateOrganizationSettings(clerkOrganizationId);
@@ -141,7 +155,7 @@ const sendUserActionEmail = inngest.createFunction(
             clerkOrganizationId,
             type: "Suspended",
             appealUrl: organizationSettings.appealsEnabled
-              ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(recordUserId)}`)
+              ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(userId)}`)
               : undefined,
           });
           break;
@@ -163,7 +177,7 @@ const sendUserActionEmail = inngest.createFunction(
         clerkOrganizationId,
         userActionId: id,
         type: "Outbound",
-        toId: recordUserId,
+        toId: userId,
         subject: template.subject,
         text: template.body,
       });
@@ -172,7 +186,7 @@ const sendUserActionEmail = inngest.createFunction(
     await step.run("send-email", async () => {
       return await sendEmail({
         clerkOrganizationId,
-        recordUserId,
+        userId,
         subject: template.subject,
         html: template.html,
         text: template.body,
@@ -185,7 +199,7 @@ const updateAppealsAfterUserAction = inngest.createFunction(
   { id: "update-appeals-after-user-action" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { clerkOrganizationId, status, recordUserId } = event.data;
+    const { clerkOrganizationId, status, userId } = event.data;
 
     if (status === "Suspended") return;
 
@@ -195,11 +209,11 @@ const updateAppealsAfterUserAction = inngest.createFunction(
           appeal: schema.appeals,
         })
         .from(schema.appeals)
-        .innerJoin(schema.recordUserActions, eq(schema.recordUserActions.id, schema.appeals.recordUserActionId))
+        .innerJoin(schema.userActions, eq(schema.userActions.id, schema.appeals.userActionId))
         .where(
           and(
-            eq(schema.recordUserActions.clerkOrganizationId, clerkOrganizationId),
-            eq(schema.recordUserActions.recordUserId, recordUserId),
+            eq(schema.userActions.clerkOrganizationId, clerkOrganizationId),
+            eq(schema.userActions.userId, userId),
             eq(schema.appeals.actionStatus, "Open"),
           ),
         );

@@ -5,9 +5,9 @@ import * as schema from "../schema";
 
 const COUNT = 50;
 
-export async function seedRecordUsers(clerkOrganizationId: string) {
-  const recordUsers = await db
-    .insert(schema.recordUsers)
+export async function seedUsers(clerkOrganizationId: string) {
+  const users = await db
+    .insert(schema.users)
     .values(
       [...Array(COUNT)].map(() => {
         const firstName = faker.person.firstName();
@@ -24,7 +24,7 @@ export async function seedRecordUsers(clerkOrganizationId: string) {
       }),
     )
     .returning();
-  console.log("Seeded Record Users");
+  console.log("Seeded Users");
 
-  return recordUsers;
+  return users;
 }

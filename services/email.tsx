@@ -64,36 +64,36 @@ export async function renderEmailTemplate<T extends EmailTemplateType>({
 
 export async function sendEmail({
   clerkOrganizationId,
-  recordUserId,
+  userId,
   ...payload
 }: {
   clerkOrganizationId: string;
-  recordUserId: string;
+  userId: string;
 } & CreateEmailOptions) {
   const { emailsEnabled } = await findOrCreateOrganizationSettings(clerkOrganizationId);
 
   if (!emailsEnabled || !env.RESEND_API_KEY) {
-    console.log(recordUserId, payload.subject, payload.text, payload.html);
+    console.log(userId, payload.subject, payload.text, payload.html);
     return;
   }
 
   const resend = new Resend(env.RESEND_API_KEY);
 
-  const user = await db.query.recordUsers.findFirst({
-    where: (users, { and, eq }) => and(eq(users.clerkOrganizationId, clerkOrganizationId), eq(users.id, recordUserId)),
+  const user = await db.query.users.findFirst({
+    where: (users, { and, eq }) => and(eq(users.clerkOrganizationId, clerkOrganizationId), eq(users.id, userId)),
   });
 
   if (!user) {
-    throw new Error("Record user not found");
+    throw new Error("User not found");
   }
 
   const email = user.email;
   if (!email) {
-    throw new Error("Record user has no email");
+    throw new Error("User has no email");
   }
 
   if (env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
-    console.log(recordUserId, payload.subject, payload.text, payload.html);
+    console.log(userId, payload.subject, payload.text, payload.html);
     return;
   }
 

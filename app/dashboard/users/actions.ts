@@ -9,33 +9,33 @@ import db from "@/db";
 import { and, eq, inArray } from "drizzle-orm";
 
 const createUserActionSchema = z.object({
-  status: z.enum(schema.recordUserActionStatus.enumValues),
+  status: z.enum(schema.userActionStatus.enumValues),
   reasoning: z.string().optional(),
 });
 
 // TODO(s3ththompson): Add bulk services in the future
 export const createUserActions = actionClient
   .schema(createUserActionSchema)
-  .bindArgsSchemas<[recordUserIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
+  .bindArgsSchemas<[userIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
   .action(
     async ({
       parsedInput: { status, reasoning },
-      bindArgsParsedInputs: [recordUserIds],
+      bindArgsParsedInputs: [userIds],
       ctx: { clerkOrganizationId, clerkUserId },
     }) => {
       const userActions = await Promise.all(
-        recordUserIds.map((recordUserId) =>
+        userIds.map((userId) =>
           service.createUserAction({
             clerkOrganizationId,
-            recordUserId,
+            userId,
             status,
             via: "Manual",
             clerkUserId,
           }),
         ),
       );
-      for (const recordUserId of recordUserIds) {
-        revalidatePath(`/dashboard/users/${recordUserId}`);
+      for (const userId of userIds) {
+        revalidatePath(`/dashboard/users/${userId}`);
       }
       return userActions;
     },
@@ -45,23 +45,18 @@ const setUserProtectedSchema = z.boolean();
 
 export const setUserProtectedMany = actionClient
   .schema(setUserProtectedSchema)
-  .bindArgsSchemas<[recordUserIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
-  .action(async ({ parsedInput, bindArgsParsedInputs: [recordUserIds], ctx: { clerkOrganizationId } }) => {
+  .bindArgsSchemas<[userIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
+  .action(async ({ parsedInput, bindArgsParsedInputs: [userIds], ctx: { clerkOrganizationId } }) => {
     const userRecords = await db
-      .update(schema.recordUsers)
+      .update(schema.users)
       .set({
         protected: parsedInput,
       })
-      .where(
-        and(
-          eq(schema.recordUsers.clerkOrganizationId, clerkOrganizationId),
-          inArray(schema.recordUsers.id, recordUserIds),
-        ),
-      )
+      .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), inArray(schema.users.id, userIds)))
       .returning();
 
-    for (const recordUserId of recordUserIds) {
-      revalidatePath(`/dashboard/users/${recordUserId}`);
+    for (const userId of userIds) {
+      revalidatePath(`/dashboard/users/${userId}`);
     }
     return userRecords;
   });

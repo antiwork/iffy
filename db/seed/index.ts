@@ -1,12 +1,12 @@
 import { findOrCreateDefaultRuleset } from "@/services/ruleset";
 import { seedAppeals } from "./appeals";
 import { seedRules } from "./rules";
-import { seedRecordUsers } from "./record-users";
+import { seedUsers } from "./record-users";
 import { seedRecords } from "./records";
 import { seedOrganizationSettings } from "./organization";
 import { env } from "@/lib/env";
 import { close } from "@/db";
-import { seedRecordUserActions } from "./record-user-actions";
+import { seedUserActions } from "./record-user-actions";
 
 async function main() {
   if (!env.SEED_CLERK_ORGANIZATION_ID) {
@@ -18,9 +18,9 @@ async function main() {
   await seedOrganizationSettings(clerkOrganizationId);
   const defaultRuleset = await findOrCreateDefaultRuleset(clerkOrganizationId);
   await seedRules(clerkOrganizationId);
-  const recordUsers = await seedRecordUsers(clerkOrganizationId);
-  await seedRecords(clerkOrganizationId, defaultRuleset, recordUsers);
-  await seedRecordUserActions(clerkOrganizationId);
+  const users = await seedUsers(clerkOrganizationId);
+  await seedRecords(clerkOrganizationId, defaultRuleset, users);
+  await seedUserActions(clerkOrganizationId);
   await seedAppeals(clerkOrganizationId);
 }
 

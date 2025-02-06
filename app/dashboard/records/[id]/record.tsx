@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { formatModerationStatus, formatRecordStatus, formatRecordUserStatus, formatVia } from "@/lib/badges";
+import { formatModerationStatus, formatRecordStatus, formatUserStatus, formatVia } from "@/lib/badges";
 import { ExternalLink, FlaskConical, FlaskConicalOff } from "lucide-react";
 import { RecordImages } from "./record-images";
 import { Code, CodeInline } from "@/components/code";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ActionMenu } from "../action-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatRecordUserCompact } from "@/lib/record-user";
+import { formatUserCompact } from "@/lib/record-user";
 import { cn } from "@/lib/utils";
 import { ModerationsTable } from "./moderations-table";
 import { CopyButton } from "@/components/copy-button";
@@ -37,7 +37,7 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
           },
         },
       },
-      recordUser: true,
+      user: true,
     },
   });
 
@@ -87,16 +87,14 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
         <SectionTitle>Details</SectionTitle>
         <SectionContent>
           <dl className="grid gap-3">
-            {record.recordUser && (
+            {record.user && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">User</dt>
                 <dd className="flex items-center gap-4">
                   <Button asChild variant="link" className="text-md -mx-4 -my-2 font-normal">
-                    <Link href={`/dashboard/users/${record.recordUser.id}`}>
-                      {formatRecordUserCompact(record.recordUser)}
-                    </Link>
+                    <Link href={`/dashboard/users/${record.user.id}`}>{formatUserCompact(record.user)}</Link>
                   </Button>
-                  {formatRecordUserStatus(record.recordUser)}
+                  {formatUserStatus(record.user)}
                 </dd>
               </div>
             )}

@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { Appeal } from "../appeal";
 import { subDays } from "date-fns";
 import { and, desc, eq, gte, inArray } from "drizzle-orm";
-import { formatRecordUserCompact } from "@/lib/record-user";
+import { formatUserCompact } from "@/lib/record-user";
 
 const HISTORY_DAYS = 7;
 
@@ -20,9 +20,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const appeal = await db.query.appeals.findFirst({
     where: and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.id, id)),
     with: {
-      recordUserAction: {
+      userAction: {
         with: {
-          recordUser: true,
+          user: true,
         },
       },
     },
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 
   return {
-    title: `Appeal from ${formatRecordUserCompact(appeal.recordUserAction.recordUser)} | Iffy`,
+    title: `Appeal from ${formatUserCompact(appeal.userAction.user)} | Iffy`,
   };
 }
 
@@ -47,9 +47,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const appealWithMessages = await db.query.appeals.findFirst({
     where: and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.id, id)),
     with: {
-      recordUserAction: {
+      userAction: {
         with: {
-          recordUser: true,
+          user: true,
         },
       },
       actions: {
@@ -70,10 +70,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
   const { messages, actions, ...appeal } = appealWithMessages;
 
-  const recordUserId = appeal.recordUserAction.recordUser.id;
+  const userId = appeal.userAction.user.id;
 
   const records = await db.query.records.findMany({
-    where: and(eq(schema.records.clerkOrganizationId, orgId), eq(schema.records.recordUserId, recordUserId)),
+    where: and(eq(schema.records.clerkOrganizationId, orgId), eq(schema.records.userId, userId)),
   });
 
   const moderations = await db.query.moderations.findMany({
@@ -91,13 +91,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     },
   });
 
-  const userActions = await db.query.recordUserActions.findMany({
+  const userActions = await db.query.userActions.findMany({
     where: and(
-      eq(schema.recordUserActions.clerkOrganizationId, orgId),
-      eq(schema.recordUserActions.recordUserId, recordUserId),
-      gte(schema.recordUserActions.createdAt, subDays(appeal.createdAt, HISTORY_DAYS)),
+      eq(schema.userActions.clerkOrganizationId, orgId),
+      eq(schema.userActions.userId, userId),
+      gte(schema.userActions.createdAt, subDays(appeal.createdAt, HISTORY_DAYS)),
     ),
-    orderBy: [desc(schema.recordUserActions.createdAt)],
+    orderBy: [desc(schema.userActions.createdAt)],
   });
 
   return (

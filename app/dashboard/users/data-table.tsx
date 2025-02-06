@@ -16,7 +16,7 @@ import { DataTableLoading } from "@/components/ui/data-table-loading";
 import { useRouter } from "next/navigation";
 
 import * as schema from "@/db/schema";
-type RecordUserActionStatus = (typeof schema.recordUserActions.status.enumValues)[number];
+type UserActionStatus = (typeof schema.userActions.status.enumValues)[number];
 
 const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => {
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -30,7 +30,7 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
   const query = {
     clerkOrganizationId,
     sorting,
-    statuses: (columnFilters.find((filter) => filter.id === "status")?.value as RecordUserActionStatus[]) || [],
+    statuses: (columnFilters.find((filter) => filter.id === "status")?.value as UserActionStatus[]) || [],
     search: globalFilter || undefined,
   };
   const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = trpc.user.infinite.useInfiniteQuery(query, {

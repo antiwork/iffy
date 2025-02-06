@@ -9,7 +9,7 @@ import { DataTableFacetedFilter } from "@/components/ui/data-table-faceted-filte
 import { DebouncedInput } from "@/components/debounced-input";
 import { BulkActionMenu } from "./action-menu";
 
-import type { RecordUser } from "./types";
+import type { User } from "./types";
 import * as schema from "@/db/schema";
 
 interface DataTableToolbarProps<TData> {
@@ -17,7 +17,7 @@ interface DataTableToolbarProps<TData> {
   data: TData[];
 }
 
-function DataTableToolbarActions<TData extends RecordUser>({ table, data }: DataTableToolbarProps<TData>) {
+function DataTableToolbarActions<TData extends User>({ table, data }: DataTableToolbarProps<TData>) {
   const selected = table.getFilteredSelectedRowModel().rows.map((row) => row.original);
   return (
     <div className="flex items-center text-sm">
@@ -25,12 +25,12 @@ function DataTableToolbarActions<TData extends RecordUser>({ table, data }: Data
       <Button variant="link" className="h-8" onClick={() => table.toggleAllRowsSelected(false)}>
         Deselect
       </Button>
-      <BulkActionMenu recordUsers={selected} />
+      <BulkActionMenu users={selected} />
     </div>
   );
 }
 
-export function DataTableToolbar<TData extends RecordUser>({ table, data }: DataTableToolbarProps<TData>) {
+export function DataTableToolbar<TData extends User>({ table, data }: DataTableToolbarProps<TData>) {
   const isFiltered = !!table.getState().globalFilter || table.getState().columnFilters.length > 0;
   const hasSelected = table.getFilteredSelectedRowModel().rows.length > 0;
 
@@ -47,7 +47,7 @@ export function DataTableToolbar<TData extends RecordUser>({ table, data }: Data
           <DataTableFacetedFilter
             column={table.getColumn("status")}
             title="Status"
-            options={schema.recordUserActionStatus.enumValues.map((value) => ({ label: value, value }))}
+            options={schema.userActionStatus.enumValues.map((value) => ({ label: value, value }))}
           />
         )}
         {isFiltered && (

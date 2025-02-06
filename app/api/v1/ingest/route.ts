@@ -28,10 +28,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  let recordUser: typeof schema.recordUsers.$inferSelect | undefined;
+  let user: typeof schema.users.$inferSelect | undefined;
   if (data.user) {
-    [recordUser] = await db
-      .insert(schema.recordUsers)
+    [user] = await db
+      .insert(schema.users)
       .values({
         clerkOrganizationId,
         clientId: data.user.clientId,
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
         stripeAccountId: data.user.stripeAccountId,
       })
       .onConflictDoUpdate({
-        target: schema.recordUsers.clientId,
+        target: schema.users.clientId,
         set: {
           clientUrl: data.user.clientUrl,
           email: data.user.email,
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     imageUrls: content.imageUrls,
     externalUrls: content.externalUrls,
     clientUrl: data.clientUrl,
-    recordUserId: recordUser?.id,
+    userId: user?.id,
   });
 
   const organizationSettings = await db.query.organizationSettings.findFirst({
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
   }
 
   // always moderate records of suspended users
-  if (recordUser && recordUser.actionStatus === "Suspended") {
+  if (user && user.actionStatus === "Suspended") {
     moderationThreshold = true;
   }
 

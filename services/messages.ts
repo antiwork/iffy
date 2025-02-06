@@ -37,7 +37,7 @@ export async function createMessage({
     .insert(schema.messages)
     .values({
       clerkOrganizationId,
-      recordUserActionId: userActionId,
+      userActionId,
       toId,
       fromId,
       type,

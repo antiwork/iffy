@@ -4,18 +4,18 @@ type AppealBase = typeof schema.appeals.$inferSelect;
 type MessageBase = typeof schema.messages.$inferSelect;
 type ModerationBase = typeof schema.moderations.$inferSelect;
 
-export type RecordUserAction = typeof schema.recordUserActions.$inferSelect;
+export type UserAction = typeof schema.userActions.$inferSelect;
 export type Record = typeof schema.records.$inferSelect;
-export type RecordUser = typeof schema.recordUsers.$inferSelect;
+export type User = typeof schema.users.$inferSelect;
 export type AppealAction = typeof schema.appealActions.$inferSelect;
 
 export type Message = MessageBase & {
-  from: RecordUser | null;
+  from: User | null;
 };
 
 export type Appeal = AppealBase & {
-  recordUserAction: RecordUserAction & {
-    recordUser: RecordUser;
+  userAction: UserAction & {
+    user: User;
   };
 };
 
@@ -29,7 +29,7 @@ export type Moderation = ModerationBase & {
 
 export type AppealTimelineMessage = { type: "Message"; data: Message; sortDate: Date };
 export type AppealTimelineAction = { type: "Action"; data: AppealAction; sortDate: Date };
-export type AppealTimelineUserAction = { type: "User Action"; data: RecordUserAction; sortDate: Date };
+export type AppealTimelineUserAction = { type: "User Action"; data: UserAction; sortDate: Date };
 export type AppealTimelineModeration = { type: "Moderation"; data: Moderation; sortDate: Date };
 export type AppealTimelineDeletedRecord = { type: "Deleted Record"; data: Record; sortDate: Date };
 

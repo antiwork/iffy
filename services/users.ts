@@ -14,7 +14,7 @@ export async function getFlaggedRecordsFromUser({
   const records = await db.query.records.findMany({
     where: and(
       eq(schema.records.clerkOrganizationId, clerkOrganizationId),
-      eq(schema.records.recordUserId, id),
+      eq(schema.records.userId, id),
       isNull(schema.records.deletedAt),
     ),
     with: {

@@ -1,13 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import * as schema from "@/db/schema";
-import { ViaWithClerkUserOrRecordUser } from "./types";
+import { ViaWithClerkUserOrUser } from "./types";
 
 type Appeal = typeof schema.appeals.$inferSelect;
 type AppealAction = typeof schema.appealActions.$inferSelect;
 type Moderation = typeof schema.moderations.$inferSelect;
 type Record = typeof schema.records.$inferSelect;
-type RecordUser = typeof schema.recordUsers.$inferSelect;
-type RecordUserAction = typeof schema.recordUserActions.$inferSelect;
+type User = typeof schema.users.$inferSelect;
+type UserAction = typeof schema.userActions.$inferSelect;
 
 export function formatModerationStatus({ status, pending }: Partial<Pick<Moderation, "status" | "pending">>) {
   if (pending) {
@@ -37,7 +37,7 @@ export function formatModerationStatus({ status, pending }: Partial<Pick<Moderat
   }
 }
 
-export function formatVia({ via }: ViaWithClerkUserOrRecordUser) {
+export function formatVia({ via }: ViaWithClerkUserOrUser) {
   if (via === "Automation") {
     return <Badge variant="outline">Automated</Badge>;
   } else if (via === "AI") {
@@ -49,7 +49,7 @@ export function formatVia({ via }: ViaWithClerkUserOrRecordUser) {
   }
 }
 
-export function formatUserActionStatus({ status }: Pick<RecordUserAction, "status">) {
+export function formatUserActionStatus({ status }: Pick<UserAction, "status">) {
   switch (status) {
     case "Suspended":
       return <Badge variant="warning">Suspended</Badge>;
@@ -87,14 +87,14 @@ export function formatRecordVia({ moderations }: { moderations: Moderation[] }) 
   return null;
 }
 
-export function formatRecordUserStatus({ actionStatus }: Pick<RecordUser, "actionStatus">) {
+export function formatUserStatus({ actionStatus }: Pick<User, "actionStatus">) {
   if (actionStatus) {
     return formatUserActionStatus({ status: actionStatus });
   }
   return null;
 }
 
-export function formatRecordUserVia({ actions }: { actions: RecordUserAction[] }) {
+export function formatUserVia({ actions }: { actions: UserAction[] }) {
   if (actions.length > 0) {
     return formatVia(actions[0]!);
   }

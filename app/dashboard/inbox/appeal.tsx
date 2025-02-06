@@ -13,7 +13,7 @@ import {
   AlertDialogDescription,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { formatRecordUser, getRecordUserSecondaryParts } from "@/lib/record-user";
+import { formatUser, getUserSecondaryParts } from "@/lib/record-user";
 import {
   formatModerationStatus,
   formatVia,
@@ -25,7 +25,7 @@ import {
   AppealTimelineItem,
   AppealAction,
   Message,
-  RecordUserAction,
+  UserAction,
   Moderation,
   Record,
   Appeal as AppealData,
@@ -37,7 +37,7 @@ import {
   isOutboundMessage,
   isMessage,
   AppealTimelineUserAction,
-  RecordUser,
+  User,
   AppealTimelineAction,
   AppealTimelineModeration,
   AppealTimelineMessage,
@@ -53,7 +53,7 @@ import { useToast } from "@/hooks/use-toast";
 function makeAppealTimeline(
   actions: AppealAction[],
   messages: Message[],
-  userActions: RecordUserAction[],
+  userActions: UserAction[],
   records: Record[],
   moderations: Moderation[],
 ) {
@@ -79,16 +79,16 @@ const AppealActionItem = ({ item }: { item: AppealTimelineAction }) => {
   );
 };
 
-const UserActionItem = ({ item, recordUser }: { item: AppealTimelineUserAction; recordUser: RecordUser }) => (
+const UserActionItem = ({ item, user }: { item: AppealTimelineUserAction; user: User }) => (
   <div className="text-sm text-gray-950 dark:text-white/80">
-    <Link href={`/dashboard/users/${recordUser.id}`} className="font-bold">
-      {formatRecordUser(recordUser)}
+    <Link href={`/dashboard/users/${user.id}`} className="font-bold">
+      {formatUser(user)}
     </Link>{" "}
     marked {formatUserActionStatus(item.data)} via {formatVia(item.data)}
   </div>
 );
 
-const ModerationItem = ({ item }: { item: AppealTimelineModeration; recordUser: RecordUser }) => (
+const ModerationItem = ({ item }: { item: AppealTimelineModeration; user: User }) => (
   <div className="text-sm text-gray-950 dark:text-white/80">
     {item.data.record.entity}{" "}
     <Link href={`/dashboard/records/${item.data.record.id}`} className="font-bold">
@@ -125,8 +125,8 @@ const MessageItem = ({ item }: { item: AppealTimelineMessage }) => (
 
 const TimelineItem = ({ item, appeal }: { item: AppealTimelineItem; appeal: AppealData }) => {
   if (isAction(item)) return <AppealActionItem item={item} />;
-  if (isUserAction(item)) return <UserActionItem item={item} recordUser={appeal.recordUserAction.recordUser} />;
-  if (isModeration(item)) return <ModerationItem item={item} recordUser={appeal.recordUserAction.recordUser} />;
+  if (isUserAction(item)) return <UserActionItem item={item} user={appeal.userAction.user} />;
+  if (isModeration(item)) return <ModerationItem item={item} user={appeal.userAction.user} />;
   if (isDeletedRecord(item)) return <DeletedRecordItem item={item} />;
   return <MessageItem item={item} />;
 };
@@ -245,7 +245,7 @@ export function Appeal({
   appeal: AppealData;
   actions: AppealAction[];
   messages: Message[];
-  userActions: RecordUserAction[];
+  userActions: UserAction[];
   records: Record[];
   moderations: Moderation[];
 }) {
@@ -263,8 +263,8 @@ export function Appeal({
     <div className="flex h-full flex-col">
       <div className="flex justify-between gap-4 border-b border-stone-300 p-4 dark:border-zinc-800">
         <div className="flex-1 text-gray-950 dark:text-white/80">
-          <div className="text-lg font-bold">{formatRecordUser(appeal.recordUserAction.recordUser)}</div>
-          {getRecordUserSecondaryParts(appeal.recordUserAction.recordUser).map((part) => (
+          <div className="text-lg font-bold">{formatUser(appeal.userAction.user)}</div>
+          {getUserSecondaryParts(appeal.userAction.user).map((part) => (
             <div key={part} className="text-sm">
               {part}
             </div>

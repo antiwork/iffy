@@ -3,8 +3,8 @@ import {
   records,
   moderations,
   rulesets,
-  recordUsers,
-  recordUserActions,
+  users,
+  userActions,
   appeals,
   messages,
   appealActions,
@@ -31,9 +31,9 @@ export const moderationsRelations = relations(moderations, ({ one, many }) => ({
 
 export const recordsRelations = relations(records, ({ one, many }) => ({
   moderations: many(moderations),
-  recordUser: one(recordUsers, {
-    fields: [records.recordUserId],
-    references: [recordUsers.id],
+  user: one(users, {
+    fields: [records.userId],
+    references: [users.id],
   }),
 }));
 
@@ -42,17 +42,17 @@ export const rulesetsRelations = relations(rulesets, ({ many }) => ({
   rules: many(rules),
 }));
 
-export const recordUserActionsRelations = relations(recordUserActions, ({ one, many }) => ({
-  recordUser: one(recordUsers, {
-    fields: [recordUserActions.recordUserId],
-    references: [recordUsers.id],
+export const userActionsRelations = relations(userActions, ({ one, many }) => ({
+  user: one(users, {
+    fields: [userActions.userId],
+    references: [users.id],
   }),
   messages: many(messages),
   appeal: one(appeals),
 }));
 
-export const recordUsersRelations = relations(recordUsers, ({ many }) => ({
-  actions: many(recordUserActions),
+export const usersRelations = relations(users, ({ many }) => ({
+  actions: many(userActions),
   from: many(messages, { relationName: "from" }),
   to: many(messages, { relationName: "to" }),
   records: many(records),
@@ -63,27 +63,27 @@ export const messagesRelations = relations(messages, ({ one }) => ({
     fields: [messages.appealId],
     references: [appeals.id],
   }),
-  from: one(recordUsers, {
+  from: one(users, {
     fields: [messages.fromId],
-    references: [recordUsers.id],
+    references: [users.id],
     relationName: "from",
   }),
-  recordUserAction: one(recordUserActions, {
-    fields: [messages.recordUserActionId],
-    references: [recordUserActions.id],
+  userAction: one(userActions, {
+    fields: [messages.userActionId],
+    references: [userActions.id],
   }),
-  to: one(recordUsers, {
+  to: one(users, {
     fields: [messages.toId],
-    references: [recordUsers.id],
+    references: [users.id],
     relationName: "to",
   }),
 }));
 
 export const appealsRelations = relations(appeals, ({ one, many }) => ({
   messages: many(messages),
-  recordUserAction: one(recordUserActions, {
-    fields: [appeals.recordUserActionId],
-    references: [recordUserActions.id],
+  userAction: one(userActions, {
+    fields: [appeals.userActionId],
+    references: [userActions.id],
   }),
   actions: many(appealActions),
 }));

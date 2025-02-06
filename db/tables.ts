@@ -20,7 +20,7 @@ export const emailTemplateType = pgEnum("EmailTemplateType", ["Suspended", "Comp
 export const messageStatus = pgEnum("MessageStatus", ["Pending", "Delivered"]);
 export const messageType = pgEnum("MessageType", ["Outbound", "Inbound"]);
 export const moderationStatus = pgEnum("ModerationStatus", ["Compliant", "Flagged"]);
-export const recordUserActionStatus = pgEnum("RecordUserActionStatus", ["Compliant", "Suspended", "Banned"]);
+export const userActionStatus = pgEnum("UserActionStatus", ["Compliant", "Suspended", "Banned"]);
 export const via = pgEnum("Via", ["Inbound", "Manual", "Automation", "AI"]);
 export const webhookEventStatus = pgEnum("WebhookEventStatus", ["Pending", "Sent", "Failed"]);
 export const strategyType = pgEnum("StrategyType", ["Blocklist", "OpenAI", "Prompt"]);
@@ -82,27 +82,24 @@ export const rulesets = pgTable("rulesets", {
     .$onUpdate(() => new Date()),
 });
 
-export const recordUserActions = pgTable(
-  "record_user_actions",
+export const userActions = pgTable(
+  "user_actions",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
     clerkOrganizationId: text("clerk_organization_id").notNull(),
-    recordUserId: text("record_user_id").notNull(),
-    status: recordUserActionStatus().notNull(),
+    userId: text("user_id").notNull(),
+    status: userActionStatus().notNull(),
     via: via().default("Automation").notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     clerkUserId: text("clerk_user_id"),
   },
   (table) => {
     return {
-      recordUserIdIdx: index("record_user_actions_record_user_id_idx").using(
-        "btree",
-        table.recordUserId.asc().nullsLast().op("text_ops"),
-      ),
-      recordUserActionsRecordUserIdFkey: foreignKey({
-        columns: [table.recordUserId],
-        foreignColumns: [recordUsers.id],
-        name: "record_user_actions_record_user_id_fkey",
+      userIdIdx: index("user_actions_user_id_idx").using("btree", table.userId.asc().nullsLast().op("text_ops")),
+      userActionsUserIdFkey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+        name: "user_actions_user_id_fkey",
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
@@ -214,7 +211,7 @@ export const messages = pgTable(
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
     clerkOrganizationId: text("clerk_organization_id").notNull(),
-    recordUserActionId: text("record_user_action_id").notNull(),
+    userActionId: text("user_action_id").notNull(),
     toId: text("to_id"),
     fromId: text("from_id"),
     type: messageType().notNull(),
@@ -237,21 +234,21 @@ export const messages = pgTable(
         .onDelete("set null"),
       messagesFromIdFkey: foreignKey({
         columns: [table.fromId],
-        foreignColumns: [recordUsers.id],
+        foreignColumns: [users.id],
         name: "messages_from_id_fkey",
       })
         .onUpdate("cascade")
         .onDelete("set null"),
-      messagesRecordUserActionIdFkey: foreignKey({
-        columns: [table.recordUserActionId],
-        foreignColumns: [recordUserActions.id],
-        name: "messages_record_user_action_id_fkey",
+      messagesUserActionIdFkey: foreignKey({
+        columns: [table.userActionId],
+        foreignColumns: [userActions.id],
+        name: "messages_user_action_id_fkey",
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
       messagesToIdFkey: foreignKey({
         columns: [table.toId],
-        foreignColumns: [recordUsers.id],
+        foreignColumns: [users.id],
         name: "messages_to_id_fkey",
       })
         .onUpdate("cascade")
@@ -260,8 +257,8 @@ export const messages = pgTable(
   },
 );
 
-export const recordUsers = pgTable(
-  "record_users",
+export const users = pgTable(
+  "users",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
     clerkOrganizationId: text("clerk_organization_id").notNull(),
@@ -278,21 +275,18 @@ export const recordUsers = pgTable(
       .notNull()
       .$onUpdate(() => new Date()),
     sort: serial().notNull().unique(),
-    actionStatus: recordUserActionStatus("action_status"),
+    actionStatus: userActionStatus("action_status"),
     actionStatusCreatedAt: timestamp("action_status_created_at", { precision: 3, mode: "date" }),
     flaggedRecordsCount: integer("flagged_records_count").default(0).notNull(),
   },
   (table) => {
     return {
-      clerkOrganizationIdIdx: index("record_users_clerk_organization_id_idx").using(
+      clerkOrganizationIdIdx: index("users_clerk_organization_id_idx").using(
         "btree",
         table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
       ),
-      clientIdKey: uniqueIndex("record_users_client_id_key").using(
-        "btree",
-        table.clientId.asc().nullsLast().op("text_ops"),
-      ),
-      sortKey: uniqueIndex("record_users_sort_key").using("btree", table.sort.asc().nullsLast().op("int4_ops")),
+      clientIdKey: uniqueIndex("users_client_id_key").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
+      sortKey: uniqueIndex("users_sort_key").using("btree", table.sort.asc().nullsLast().op("int4_ops")),
     };
   },
 );
@@ -314,7 +308,7 @@ export const appeals = pgTable(
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
     clerkOrganizationId: text("clerk_organization_id").notNull(),
-    recordUserActionId: text("record_user_action_id").notNull().unique(),
+    userActionId: text("user_action_id").notNull().unique(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
       .defaultNow()
@@ -330,19 +324,19 @@ export const appeals = pgTable(
         "btree",
         table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
       ),
-      recordUserActionIdIdx: index("appeals_record_user_action_id_idx").using(
+      userActionIdIdx: index("appeals_user_action_id_idx").using(
         "btree",
-        table.recordUserActionId.asc().nullsLast().op("text_ops"),
+        table.userActionId.asc().nullsLast().op("text_ops"),
       ),
-      recordUserActionIdKey: uniqueIndex("appeals_record_user_action_id_key").using(
+      userActionIdKey: uniqueIndex("appeals_user_action_id_key").using(
         "btree",
-        table.recordUserActionId.asc().nullsLast().op("text_ops"),
+        table.userActionId.asc().nullsLast().op("text_ops"),
       ),
       sortKey: uniqueIndex("appeals_sort_key").using("btree", table.sort.asc().nullsLast().op("int4_ops")),
-      appealsRecordUserActionIdFkey: foreignKey({
-        columns: [table.recordUserActionId],
-        foreignColumns: [recordUserActions.id],
-        name: "appeals_record_user_action_id_fkey",
+      appealsUserActionIdFkey: foreignKey({
+        columns: [table.userActionId],
+        foreignColumns: [userActions.id],
+        name: "appeals_user_action_id_fkey",
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
@@ -470,7 +464,7 @@ export const records = pgTable(
     text: text().notNull(),
     imageUrls: text("image_urls").array().notNull().default([]),
     externalUrls: text("external_urls").array().notNull().default([]),
-    recordUserId: text("record_user_id"),
+    userId: text("user_id"),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
       .defaultNow()
@@ -490,15 +484,12 @@ export const records = pgTable(
         table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
       ),
       clientIdKey: uniqueIndex("records_client_id_key").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
-      recordUserIdIdx: index("records_record_user_id_idx").using(
-        "btree",
-        table.recordUserId.asc().nullsLast().op("text_ops"),
-      ),
+      userIdIdx: index("records_user_id_idx").using("btree", table.userId.asc().nullsLast().op("text_ops")),
       sortKey: uniqueIndex("records_sort_key").using("btree", table.sort.asc().nullsLast().op("int4_ops")),
-      recordsRecordUserIdFkey: foreignKey({
-        columns: [table.recordUserId],
-        foreignColumns: [recordUsers.id],
-        name: "records_record_user_id_fkey",
+      recordsUserIdFkey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+        name: "records_user_id_fkey",
       })
         .onUpdate("cascade")
         .onDelete("set null"),

@@ -22,16 +22,16 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
     return redirect("/");
   }
 
-  const [isValid, recordUserId] = validateAppealToken(token);
+  const [isValid, userId] = validateAppealToken(token);
   if (!isValid) {
     return redirect("/");
   }
 
-  const user = await db.query.recordUsers.findFirst({
-    where: eq(schema.recordUsers.id, recordUserId),
+  const user = await db.query.users.findFirst({
+    where: eq(schema.users.id, userId),
     with: {
       actions: {
-        orderBy: [desc(schema.recordUserActions.createdAt)],
+        orderBy: [desc(schema.userActions.createdAt)],
         limit: 1,
         with: {
           appeal: true,
@@ -104,7 +104,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
   const records = await db.query.records.findMany({
     where: and(
       eq(schema.records.clerkOrganizationId, clerkOrganizationId),
-      eq(schema.records.recordUserId, user.id),
+      eq(schema.records.userId, user.id),
       isNull(schema.records.deletedAt),
     ),
     with: {

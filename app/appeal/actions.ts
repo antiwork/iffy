@@ -12,11 +12,11 @@ export const submitAppeal = appealActionClient
   .schema(submitAppealSchema)
   .bindArgsSchemas<[token: z.ZodString]>([z.string()])
   .action(async ({ parsedInput: { text }, bindArgsParsedInputs: [token] }) => {
-    const [isValid, recordUserId] = await validateAppealToken(token);
+    const [isValid, userId] = await validateAppealToken(token);
     if (!isValid) {
       throw new Error("Invalid appeal token");
     }
-    const appeal = await createAppeal({ recordUserId, text });
+    const appeal = await createAppeal({ userId, text });
     revalidatePath("/appeal");
     return { appeal };
   });

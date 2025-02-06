@@ -1,8 +1,8 @@
 import * as schema from "@/db/schema";
 
-type RecordUser = typeof schema.recordUsers.$inferSelect;
+type User = typeof schema.users.$inferSelect;
 
-export function formatRecordUser(user: RecordUser) {
+export function formatUser(user: User) {
   let primary = user.clientId;
   if (user.email) primary = user.email;
   if (user.username) primary = user.username;
@@ -10,7 +10,7 @@ export function formatRecordUser(user: RecordUser) {
   return primary;
 }
 
-export function getRecordUserSecondaryParts(user: RecordUser) {
+export function getUserSecondaryParts(user: User) {
   let secondary = ["No email provided"];
   if (user.email) secondary = [user.clientId];
   if (user.username && user.email) secondary = [user.email];
@@ -18,11 +18,11 @@ export function getRecordUserSecondaryParts(user: RecordUser) {
   return secondary;
 }
 
-export function formatRecordUserSecondary(user: RecordUser) {
-  return getRecordUserSecondaryParts(user)[0];
+export function formatUserSecondary(user: User) {
+  return getUserSecondaryParts(user)[0];
 }
 
-export function formatRecordUserCompact(user: RecordUser) {
+export function formatUserCompact(user: User) {
   let primary = user.clientId;
   // in compact situations the ranking of properties is different than above
   if (user.name) primary = user.name;
@@ -31,7 +31,7 @@ export function formatRecordUserCompact(user: RecordUser) {
   return primary;
 }
 
-export function formatRecordUserCompactSecondary(user: RecordUser) {
+export function formatUserCompactSecondary(user: User) {
   let secondary = "No email provided";
   // in compact situations the ranking of properties is different than above
   if (user.name) secondary = user.clientId;
