@@ -1,4 +1,4 @@
-import db from "@/db";
+import db, { transaction, type DB } from "@/db";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { findOrCreateOrganizationSettings } from "./organization-settings";
 import { env } from "@/lib/env";
@@ -70,76 +70,77 @@ export async function createModeration({
   testMode?: boolean;
   createdAt?: Date;
 } & ViaWithClerkUserOrUser) {
-  // read the last status from the record
-  const record = await db.query.records.findFirst({
-    where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
-  });
+  return transaction(async (tx) => {
+    const record = await tx.query.records.findFirst({
+      where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
+    });
 
-  if (!record) {
-    throw new Error("Record not found");
-  }
+    if (!record) {
+      throw new Error("Record not found");
+    }
 
-  const lastStatus = record.moderationStatus;
+    const lastStatus = record.moderationStatus;
 
-  const [moderation] = await db
-    .insert(schema.moderations)
-    .values({
-      clerkOrganizationId,
-      status,
-      via,
-      clerkUserId,
-      reasoning,
-      recordId,
-      rulesetId,
-      testMode,
-      createdAt,
-    })
-    .returning();
+    const [moderation] = await tx
+      .insert(schema.moderations)
+      .values({
+        clerkOrganizationId,
+        status,
+        via,
+        clerkUserId,
+        reasoning,
+        recordId,
+        rulesetId,
+        testMode,
+        createdAt,
+      })
+      .returning();
 
-  if (!moderation) {
-    throw new Error("Failed to create moderation");
-  }
+    if (!moderation) {
+      throw new Error("Failed to create moderation");
+    }
 
-  if (ruleIds.length > 0) {
-    await db.insert(schema.moderationsToRules).values(
-      ruleIds.map((ruleId) => ({
-        moderationId: moderation.id,
-        ruleId,
-      })),
-    );
-  }
+    if (ruleIds.length > 0) {
+      await tx.insert(schema.moderationsToRules).values(
+        ruleIds.map((ruleId) => ({
+          moderationId: moderation.id,
+          ruleId,
+        })),
+      );
+    }
 
-  // sync the record status with the new status
-  await db
-    .update(schema.records)
-    .set({
-      moderationStatus: status,
-      moderationStatusCreatedAt: moderation.createdAt,
-      moderationPending: false,
-    })
-    .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)));
+    await tx
+      .update(schema.records)
+      .set({
+        moderationStatus: status,
+        moderationStatusCreatedAt: moderation.createdAt,
+        moderationPending: false,
+      })
+      .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)));
 
-  if (status !== lastStatus) {
-    if (record.userId) {
-      if (status === "Flagged") {
-        await db
-          .update(schema.users)
-          .set({
-            flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} + 1`,
-          })
-          .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
-      }
-      if (lastStatus === "Flagged" && status !== "Flagged") {
-        await db
-          .update(schema.users)
-          .set({
-            flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
-          })
-          .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+    if (status !== lastStatus) {
+      if (record.userId) {
+        if (status === "Flagged") {
+          await tx
+            .update(schema.users)
+            .set({
+              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} + 1`,
+            })
+            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+        }
+        if (lastStatus === "Flagged" && status !== "Flagged") {
+          await tx
+            .update(schema.users)
+            .set({
+              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
+            })
+            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+        }
       }
     }
 
-    if (!moderation.testMode) {
+    // Keep Inngest event outside transaction
+    if (status !== lastStatus && !moderation.testMode) {
       try {
         await inngest.send({
           name: "moderation/status-changed",
@@ -155,9 +156,9 @@ export async function createModeration({
         console.error(error);
       }
     }
-  }
 
-  return moderation;
+    return moderation;
+  });
 }
 
 export async function createPendingModeration({
@@ -171,33 +172,34 @@ export async function createPendingModeration({
   recordId: string;
   createdAt?: Date;
 } & ViaWithClerkUserOrUser) {
-  const [moderation] = await db
-    .insert(schema.moderations)
-    .values({
-      clerkOrganizationId,
-      via,
-      clerkUserId,
-      recordId,
-      createdAt,
-      status: "Compliant",
-      pending: true,
-    })
-    .returning();
+  return transaction(async (tx) => {
+    const [moderation] = await tx
+      .insert(schema.moderations)
+      .values({
+        clerkOrganizationId,
+        via,
+        clerkUserId,
+        recordId,
+        createdAt,
+        status: "Compliant",
+        pending: true,
+      })
+      .returning();
 
-  if (!moderation) {
-    throw new Error("Failed to create pending moderation");
-  }
+    if (!moderation) {
+      throw new Error("Failed to create pending moderation");
+    }
 
-  // update the record pending state
-  await db
-    .update(schema.records)
-    .set({
-      moderationPending: true,
-      moderationPendingCreatedAt: moderation.createdAt,
-    })
-    .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)));
+    await tx
+      .update(schema.records)
+      .set({
+        moderationPending: true,
+        moderationPendingCreatedAt: moderation.createdAt,
+      })
+      .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)));
 
-  return moderation;
+    return moderation;
+  });
 }
 
 export async function updatePendingModeration({
@@ -219,98 +221,97 @@ export async function updatePendingModeration({
   testMode?: boolean;
   tokens?: number;
 }) {
-  const [moderation] = await db
-    .update(schema.moderations)
-    .set({
-      status,
-      reasoning,
-      rulesetId,
-      pending: false,
-      testMode,
-      tokens,
-    })
-    .where(and(eq(schema.moderations.id, id), eq(schema.moderations.clerkOrganizationId, clerkOrganizationId)))
-    .returning();
+  return transaction(async (tx) => {
+    const [moderation] = await tx
+      .update(schema.moderations)
+      .set({
+        status,
+        reasoning,
+        rulesetId,
+        pending: false,
+        testMode,
+        tokens,
+      })
+      .where(and(eq(schema.moderations.id, id), eq(schema.moderations.clerkOrganizationId, clerkOrganizationId)))
+      .returning();
 
-  if (!moderation) {
-    throw new Error("Failed to update moderation");
-  }
-
-  if (ruleIds.length > 0) {
-    await db.insert(schema.moderationsToRules).values(
-      ruleIds.map((ruleId) => ({
-        moderationId: moderation.id,
-        ruleId,
-      })),
-    );
-  }
-
-  const record = await db.query.records.findFirst({
-    where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, moderation.recordId)),
-  });
-
-  if (!record) {
-    throw new Error("Record not found");
-  }
-
-  let statusChanged = false;
-  let updateData: Partial<typeof schema.records.$inferInsert> = {};
-
-  // read the last status from the record
-  const lastStatus = record.moderationStatus;
-
-  // if the moderation is newer than the one that last updated the status,
-  // update the status
-  const statusCreatedAt = record.moderationStatusCreatedAt;
-  if (!statusCreatedAt || moderation.createdAt > statusCreatedAt) {
-    updateData.moderationStatus = status;
-    updateData.moderationStatusCreatedAt = moderation.createdAt;
-    if (status !== lastStatus) {
-      statusChanged = true;
+    if (!moderation) {
+      throw new Error("Failed to update moderation");
     }
-  }
 
-  // if the moderation is newer or the same as the one that set the pending flag,
-  // clear the pending flag
-  const pendingCreatedAt = record.moderationPendingCreatedAt;
-  if (!pendingCreatedAt || moderation.createdAt >= pendingCreatedAt) {
-    updateData.moderationPending = false;
-  }
+    if (ruleIds.length > 0) {
+      await tx.insert(schema.moderationsToRules).values(
+        ruleIds.map((ruleId) => ({
+          moderationId: moderation.id,
+          ruleId,
+        })),
+      );
+    }
 
-  // if no updates are needed, return the moderation
-  if (Object.keys(updateData).length === 0) {
-    return moderation;
-  }
+    const record = await tx.query.records.findFirst({
+      where: and(
+        eq(schema.records.clerkOrganizationId, clerkOrganizationId),
+        eq(schema.records.id, moderation.recordId),
+      ),
+    });
 
-  // sync the record with the new status and/or pending flag
-  await db
-    .update(schema.records)
-    .set(updateData)
-    .where(
-      and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, moderation.recordId)),
-    );
+    if (!record) {
+      throw new Error("Record not found");
+    }
 
-  if (statusChanged) {
-    if (record.userId) {
-      if (status === "Flagged") {
-        await db
-          .update(schema.users)
-          .set({
-            flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} + 1`,
-          })
-          .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
-      }
-      if (lastStatus === "Flagged" && status !== "Flagged") {
-        await db
-          .update(schema.users)
-          .set({
-            flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
-          })
-          .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+    let statusChanged = false;
+    let updateData: Partial<typeof schema.records.$inferInsert> = {};
+
+    const lastStatus = record.moderationStatus;
+
+    const statusCreatedAt = record.moderationStatusCreatedAt;
+    if (!statusCreatedAt || moderation.createdAt > statusCreatedAt) {
+      updateData.moderationStatus = status;
+      updateData.moderationStatusCreatedAt = moderation.createdAt;
+      if (status !== lastStatus) {
+        statusChanged = true;
       }
     }
 
-    if (!moderation.testMode) {
+    const pendingCreatedAt = record.moderationPendingCreatedAt;
+    if (!pendingCreatedAt || moderation.createdAt >= pendingCreatedAt) {
+      updateData.moderationPending = false;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return moderation;
+    }
+
+    await tx
+      .update(schema.records)
+      .set(updateData)
+      .where(
+        and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, moderation.recordId)),
+      );
+
+    if (statusChanged) {
+      if (record.userId) {
+        if (status === "Flagged") {
+          await tx
+            .update(schema.users)
+            .set({
+              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} + 1`,
+            })
+            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+        }
+        if (lastStatus === "Flagged" && status !== "Flagged") {
+          await tx
+            .update(schema.users)
+            .set({
+              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
+            })
+            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+        }
+      }
+    }
+
+    // Keep Inngest event outside transaction
+    if (statusChanged && !moderation.testMode) {
       try {
         await inngest.send({
           name: "moderation/status-changed",
@@ -326,9 +327,9 @@ export async function updatePendingModeration({
         console.error(error);
       }
     }
-  }
 
-  return moderation;
+    return moderation;
+  });
 }
 
 type ModerationResult = {
