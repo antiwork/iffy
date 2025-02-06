@@ -103,14 +103,14 @@ function PromptStrategy({ control, index }: { control: Control<RuleFormValues>; 
     <div className="space-y-2">
       <FormField
         control={control}
-        name={`strategies.${index}.options.skipImages`}
+        name={`strategies.${index}.options` as const}
         render={({ field }) => (
           <FormItem className="flex flex-row items-center space-x-2">
             <FormControl>
               <input
                 type="checkbox"
-                checked={field.value}
-                onChange={field.onChange}
+                checked={(field.value as { skipImages?: boolean })?.skipImages ?? false}
+                onChange={(e) => field.onChange({ ...field.value, skipImages: e.target.checked })}
                 onBlur={field.onBlur}
                 className="h-4 w-4 rounded border-gray-300"
               />
@@ -194,9 +194,7 @@ export function StrategiesList({ control }: StrategiesListProps) {
                   <DropdownMenuItem onClick={() => append({ type: "Blocklist", options: { blocklist: [] } })}>
                     Blocklist
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => append({ type: "Prompt", options: { topic: "", prompt: "", skipImages: false } })}
-                  >
+                  <DropdownMenuItem onClick={() => append({ type: "Prompt", options: { topic: "", prompt: "", skipImages: false } } as StrategyFormValues)}>
                     Prompt
                   </DropdownMenuItem>
                 </DropdownMenuContent>
