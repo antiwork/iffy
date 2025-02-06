@@ -45,7 +45,7 @@ export async function createMessage({
       text,
       status,
       appealId,
-    } as const)
+    })
     .returning();
 
   return message;

@@ -102,7 +102,7 @@ export async function createModeration({
 
   if (ruleIds.length > 0) {
     await db.insert(schema.moderationsToRules).values(
-      ruleIds.map((ruleId: string) => ({
+      ruleIds.map((ruleId) => ({
         moderationId: moderation.id,
         ruleId,
       })),
@@ -238,7 +238,7 @@ export async function updatePendingModeration({
 
   if (ruleIds.length > 0) {
     await db.insert(schema.moderationsToRules).values(
-      ruleIds.map((ruleId: string) => ({
+      ruleIds.map((ruleId) => ({
         moderationId: moderation.id,
         ruleId,
       })),

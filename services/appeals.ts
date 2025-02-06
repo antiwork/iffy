@@ -62,7 +62,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
     .values({
       clerkOrganizationId,
       userActionId: userAction.id,
-    } as const)
+    })
     .returning();
 
   if (!appeal) {

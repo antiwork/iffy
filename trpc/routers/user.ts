@@ -105,16 +105,16 @@ export const userRouter = router({
       where: where(schema.users),
       limit: limit + 1,
       offset: offsetValue,
-      orderBy: (fields) =>
+      orderBy: (usersTable, { asc, desc }) =>
         sorting
           .map(({ id, desc: isDesc }) =>
             id === "name"
               ? isDesc
-                ? [desc(fields.name), desc(fields.email)]
-                : [asc(fields.name), asc(fields.email)]
+                ? [desc(usersTable.name), desc(usersTable.email)]
+                : [asc(usersTable.name), asc(usersTable.email)]
               : isDesc
-                ? [desc(fields[id as keyof typeof fields])]
-                : [asc(fields[id as keyof typeof fields])],
+                ? [desc(usersTable[id as keyof typeof usersTable])]
+                : [asc(usersTable[id as keyof typeof usersTable])],
           )
           .flat(),
       with: {

@@ -5,7 +5,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { formatUserActionStatus, formatVia } from "@/lib/badges";
+import { formatUserActionStatus, formatUserVia, formatVia } from "@/lib/badges";
 import { ActionMenu } from "./action-menu";
 import { formatDate } from "@/lib/date";
 import type { User } from "./types";
@@ -74,7 +74,7 @@ export const columns = [
   columnHelper.display({
     id: "via",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Via" />,
-    cell: ({ row }) => (row.original.actions ? formatUserVia({ actions: row.original.actions }) : "—"),
+    cell: ({ row }) => formatUserVia(row.original) ?? "—",
     enableSorting: false,
   }),
   columnHelper.accessor((row) => row.flaggedRecordsCount, {
