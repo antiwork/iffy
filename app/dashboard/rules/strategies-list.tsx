@@ -194,7 +194,14 @@ export function StrategiesList({ control }: StrategiesListProps) {
                   <DropdownMenuItem onClick={() => append({ type: "Blocklist", options: { blocklist: [] } })}>
                     Blocklist
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => append({ type: "Prompt", options: { topic: "", prompt: "", skipImages: false } } as StrategyFormValues)}>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      append({
+                        type: "Prompt",
+                        options: { topic: "", prompt: "", skipImages: false },
+                      } as StrategyFormValues)
+                    }
+                  >
                     Prompt
                   </DropdownMenuItem>
                 </DropdownMenuContent>
