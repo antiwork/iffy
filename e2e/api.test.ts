@@ -127,15 +127,13 @@ shortest(async () => {
 });
 
 shortest("Successfully ingest a user", async ({ page }) => {
-  const firstName = faker.person.firstName();
-  const lastName = faker.person.lastName();
+  const email = `user_${faker.string.nanoid(3)}@example.com`;
+
   const response = await apiContext!.post(`/api/v1/ingest/user`, {
     data: {
       clientId: `user_${faker.string.nanoid(3)}`,
       clientUrl: faker.internet.url(),
-      email: faker.internet.email({ firstName, lastName }).toLocaleLowerCase(),
-      name: faker.person.fullName({ firstName, lastName }),
-      username: faker.internet.userName({ firstName, lastName }).toLocaleLowerCase(),
+      email,
       stripeAccountId: `acct_${faker.string.alphanumeric(16)}`,
       protected: faker.datatype.boolean(),
     },
@@ -153,7 +151,7 @@ shortest("Successfully ingest a user", async ({ page }) => {
 
     try {
       await page.waitForSelector("table tbody", { timeout: 5000 });
-      const userRow = page.locator("table tbody tr").filter({ hasText: name }).first();
+      const userRow = page.locator("table tbody tr").filter({ hasText: email }).first();
       const isVisible = await userRow.isVisible().catch(() => false);
 
       if (isVisible) {
