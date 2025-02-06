@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { ZodSchema } from "zod";
-import { fromZodError } from "zod-validation-error";
 import { IngestUserRequestData } from "./schema";
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { eq } from "drizzle-orm";
 import { validateApiKey } from "@/services/api-keys";
 import { parseRequestDataWithSchema } from "@/app/api/parse";
 
@@ -25,7 +22,7 @@ export async function POST(req: NextRequest) {
   }
 
   const [user] = await db
-    .insert(schema.recordUsers)
+    .insert(schema.users)
     .values({
       clerkOrganizationId,
       clientId: data.clientId,
@@ -37,7 +34,7 @@ export async function POST(req: NextRequest) {
       stripeAccountId: data.stripeAccountId,
     })
     .onConflictDoUpdate({
-      target: schema.recordUsers.clientId,
+      target: schema.users.clientId,
       set: {
         clientUrl: data.clientUrl,
         email: data.email,
