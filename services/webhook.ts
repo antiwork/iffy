@@ -10,30 +10,29 @@ type PublicUser = {
   id: string;
   clientId: string;
   clientUrl?: string;
-  status?: (typeof schema.userActionStatus.enumValues)[number];
   protected: boolean;
+  status?: (typeof schema.userActionStatus.enumValues)[number];
+  statusUpdatedAt?: string;
+  statusUpdatedVia?: (typeof schema.via.enumValues)[number];
 };
 
 type PublicRecord = {
   id: string;
   clientId: string;
   clientUrl?: string;
-  status?: (typeof schema.moderationStatus.enumValues)[number];
   name: string;
   entity: string;
-  user?: PublicUser;
+  status?: (typeof schema.moderationStatus.enumValues)[number];
+  statusUpdatedAt?: string;
+  statusUpdatedVia?: (typeof schema.via.enumValues)[number];
 };
 
 type PublicModeration = {
   id: string;
-  timestamp: string;
-  via: (typeof schema.via.enumValues)[number];
 };
 
 type PublicUserAction = {
   id: string;
-  timestamp: string;
-  via: (typeof schema.via.enumValues)[number];
 };
 
 export type WebhookEvents = {
@@ -108,7 +107,8 @@ export async function sendWebhook<T extends keyof WebhookEvents>({
 
   webhook.secret = decrypt(webhook.secret);
 
-  const body = JSON.stringify({ event, ...data });
+  const timestamp = Date.now().toString();
+  const body = JSON.stringify({ event, timestamp, ...data });
   const signature = crypto.createHmac("sha256", webhook.secret).update(body).digest("hex");
 
   try {
