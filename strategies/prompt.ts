@@ -48,7 +48,7 @@ export const type = "Prompt";
 export const optionsSchema = z.object({
   topic: z.string(),
   prompt: z.string(),
-  skipImages: z.boolean().optional().default(false),
+  skipImages: z.boolean().optional(),
 });
 
 export type Options = z.infer<typeof optionsSchema>;
