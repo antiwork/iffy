@@ -103,27 +103,6 @@ function PromptStrategy({ control, index }: { control: Control<RuleFormValues>; 
     <div className="space-y-2">
       <FormField
         control={control}
-        name={`strategies.${index}.options` as const}
-        render={({ field }) => (
-          <FormItem className="flex flex-row items-center space-x-2">
-            <FormControl>
-              <input
-                type="checkbox"
-                checked={(field.value as { skipImages?: boolean })?.skipImages ?? false}
-                onChange={(e) => field.onChange({ ...field.value, skipImages: e.target.checked })}
-                onBlur={field.onBlur}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-            </FormControl>
-            <div className="space-y-0.5">
-              <div className="text-sm font-medium">Skip images</div>
-              <div className="text-sm text-gray-500">Ignore images when processing content</div>
-            </div>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
         name={`strategies.${index}.options.topic`}
         render={({ field }) => (
           <FormItem>
@@ -143,6 +122,27 @@ function PromptStrategy({ control, index }: { control: Control<RuleFormValues>; 
               <Textarea placeholder="Prompt" {...field} />
             </FormControl>
             <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name={`strategies.${index}.options.skipImages`}
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-center space-x-2">
+            <FormControl>
+              <input
+                type="checkbox"
+                checked={field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+                onBlur={field.onBlur}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+            </FormControl>
+            <div className="space-y-0.5">
+              <div className="text-sm font-medium">Skip images</div>
+              <div className="text-sm text-gray-500">Ignore images when processing content</div>
+            </div>
           </FormItem>
         )}
       />
