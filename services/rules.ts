@@ -85,7 +85,7 @@ export const createCustomRule = async ({
   });
 };
 
-export const updateCustomRule= async ({
+export const updateCustomRule = async ({
   clerkOrganizationId,
   id,
   strategies,
