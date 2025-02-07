@@ -174,5 +174,7 @@ export const deleteRule = async (clerkOrganizationId: string, ruleId: string) =>
     await tx
       .delete(schema.rules)
       .where(and(eq(schema.rules.id, ruleId), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)));
+    
+    return rule;
   });
 };
