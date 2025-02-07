@@ -27,78 +27,80 @@ export function validateAppealToken(token: string): [isValid: false, userId: nul
 }
 
 export async function createAppeal({ userId, text }: { userId: string; text: string }) {
-  const user = await db.query.users.findFirst({
-    where: eq(schema.users.id, userId),
-    orderBy: desc(schema.userActions.createdAt),
-    with: {
-      actions: {
-        orderBy: desc(schema.appealActions.createdAt),
-        limit: 1,
+  return await db.transaction(async (tx) => {
+    const user = await tx.query.users.findFirst({
+      where: eq(schema.users.id, userId),
+      orderBy: desc(schema.userActions.createdAt),
+      with: {
+        actions: {
+          orderBy: desc(schema.appealActions.createdAt),
+          limit: 1,
+        },
       },
-    },
-  });
+    });
 
-  if (!user) {
-    throw new Error("User not found");
-  }
+    if (!user) {
+      throw new Error("User not found");
+    }
 
-  const userAction = user.actions[0];
-  if (!userAction) {
-    throw new Error("No user action found");
-  }
+    const userAction = user.actions[0];
+    if (!userAction) {
+      throw new Error("No user action found");
+    }
 
-  if (userAction.status === "Banned") {
-    throw new Error("Banned users may not appeal");
-  }
+    if (userAction.status === "Banned") {
+      throw new Error("Banned users may not appeal");
+    }
 
-  if (userAction.status !== "Suspended") {
-    throw new Error("User action is not suspended");
-  }
+    if (userAction.status !== "Suspended") {
+      throw new Error("User action is not suspended");
+    }
 
-  const { clerkOrganizationId } = user;
+    const { clerkOrganizationId } = user;
 
-  const [appeal] = await db
-    .insert(schema.appeals)
-    .values({
+    const [appeal] = await tx
+      .insert(schema.appeals)
+      .values({
+        clerkOrganizationId,
+        userActionId: userAction.id,
+      })
+      .returning();
+
+    if (!appeal) {
+      throw new Error("Failed to create appeal");
+    }
+
+    await createAppealAction({
+      clerkOrganizationId,
+      appealId: appeal.id,
+      status: "Open",
+      via: "Inbound",
+    });
+
+    await tx
+      .update(schema.messages)
+      .set({
+        appealId: appeal.id,
+      })
+      .where(
+        and(
+          eq(schema.messages.clerkOrganizationId, clerkOrganizationId),
+          eq(schema.messages.userActionId, userAction.id),
+        ),
+      );
+
+    await createMessage({
       clerkOrganizationId,
       userActionId: userAction.id,
-    })
-    .returning();
-
-  if (!appeal) {
-    throw new Error("Failed to create appeal");
-  }
-
-  await createAppealAction({
-    clerkOrganizationId,
-    appealId: appeal.id,
-    status: "Open",
-    via: "Inbound",
-  });
-
-  await db
-    .update(schema.messages)
-    .set({
+      fromId: userId,
+      text,
       appealId: appeal.id,
-    })
-    .where(
-      and(
-        eq(schema.messages.clerkOrganizationId, clerkOrganizationId),
-        eq(schema.messages.userActionId, userAction.id),
-      ),
-    );
+      type: "Inbound",
+      status: "Delivered",
+    });
 
-  await createMessage({
-    clerkOrganizationId,
-    userActionId: userAction.id,
-    fromId: userId,
-    text,
-    appealId: appeal.id,
-    type: "Inbound",
-    status: "Delivered",
+    return appeal;
   });
-
-  return appeal;
 }
 
 export async function getInboxCount(orgId: string) {

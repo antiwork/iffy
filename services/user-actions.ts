@@ -1,4 +1,4 @@
-import db, { transaction, type DB } from "@/db";
+import db from "@/db";
 import { inngest } from "@/inngest/client";
 import * as schema from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
@@ -17,7 +17,7 @@ export async function createUserAction({
   userId: string;
   status: ActionStatus;
 } & ViaWithClerkUserOrUser) {
-  return transaction(async (tx) => {
+  return await db.transaction(async (tx) => {
     const user = await tx.query.users.findFirst({
       where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)),
       columns: {

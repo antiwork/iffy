@@ -22,10 +22,6 @@ const db = dbClient.db;
 
 export type DB = NodePgDatabase<typeof schema>;
 
-export const transaction = async <T>(fn: (tx: DB) => Promise<T>): Promise<T> => {
-  return db.transaction(fn);
-};
-
 export default db;
 export const close = dbClient.close;
 export { schema };

@@ -1,4 +1,4 @@
-import db, { transaction, type DB } from "@/db";
+import db from "@/db";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { findOrCreateOrganizationSettings } from "./organization-settings";
 import { env } from "@/lib/env";
@@ -70,7 +70,7 @@ export async function createModeration({
   testMode?: boolean;
   createdAt?: Date;
 } & ViaWithClerkUserOrUser) {
-  return transaction(async (tx) => {
+  return await db.transaction(async (tx) => {
     const record = await tx.query.records.findFirst({
       where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
     });
@@ -172,7 +172,7 @@ export async function createPendingModeration({
   recordId: string;
   createdAt?: Date;
 } & ViaWithClerkUserOrUser) {
-  return transaction(async (tx) => {
+  return await db.transaction(async (tx) => {
     const [moderation] = await tx
       .insert(schema.moderations)
       .values({
@@ -221,7 +221,7 @@ export async function updatePendingModeration({
   testMode?: boolean;
   tokens?: number;
 }) {
-  return transaction(async (tx) => {
+  return await db.transaction(async (tx) => {
     const [moderation] = await tx
       .update(schema.moderations)
       .set({

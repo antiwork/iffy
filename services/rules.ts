@@ -96,25 +96,27 @@ export const updateCustomRule = async ({
   name: string;
   description?: string;
 }) => {
-  await db.delete(schema.ruleStrategies).where(eq(schema.ruleStrategies.ruleId, id));
+  return await db.transaction(async (tx) => {
+    await tx.delete(schema.ruleStrategies).where(eq(schema.ruleStrategies.ruleId, id));
 
-  for (const strategy of strategies) {
-    await db
-      .insert(schema.ruleStrategies)
-      .values({ clerkOrganizationId, type: strategy.type, ruleId: id, options: strategy.options });
-  }
+    for (const strategy of strategies) {
+      await tx
+        .insert(schema.ruleStrategies)
+        .values({ clerkOrganizationId, type: strategy.type, ruleId: id, options: strategy.options });
+    }
 
-  const [updatedRule] = await db
-    .update(schema.rules)
-    .set({ name, description })
-    .where(and(eq(schema.rules.id, id), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)))
-    .returning();
+    const [updatedRule] = await tx
+      .update(schema.rules)
+      .set({ name, description })
+      .where(and(eq(schema.rules.id, id), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)))
+      .returning();
 
-  if (!updatedRule) {
-    throw new Error("Failed to update rule");
-  }
+    if (!updatedRule) {
+      throw new Error("Failed to update rule");
+    }
 
-  return updatedRule;
+    return updatedRule;
+  });
 };
 
 export const createPresetRule = async ({
@@ -158,17 +160,19 @@ export const updatePresetRule = async ({
 };
 
 export const deleteRule = async (clerkOrganizationId: string, ruleId: string) => {
-  const rule = await db.query.rules.findFirst({
-    where: and(eq(schema.rules.id, ruleId), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)),
+  return await db.transaction(async (tx) => {
+    const rule = await tx.query.rules.findFirst({
+      where: and(eq(schema.rules.id, ruleId), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)),
+    });
+    if (!rule) {
+      throw new Error("Rule not found");
+    }
+    await tx.delete(schema.ruleStrategies).where(eq(schema.ruleStrategies.ruleId, ruleId));
+    if (rule.presetId) {
+      await tx.delete(schema.presetStrategies).where(eq(schema.presetStrategies.presetId, rule.presetId));
+    }
+    await tx
+      .delete(schema.rules)
+      .where(and(eq(schema.rules.id, ruleId), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)));
   });
-  if (!rule) {
-    throw new Error("Rule not found");
-  }
-  await db.delete(schema.ruleStrategies).where(eq(schema.ruleStrategies.ruleId, ruleId));
-  if (rule.presetId) {
-    await db.delete(schema.presetStrategies).where(eq(schema.presetStrategies.presetId, rule.presetId));
-  }
-  await db
-    .delete(schema.rules)
-    .where(and(eq(schema.rules.id, ruleId), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)));
 };
