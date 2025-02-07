@@ -6,6 +6,7 @@ import * as schema from "@/db/schema";
 import { StrategyInstance } from "./types";
 import { LinkData, Context, StrategyResult } from "@/services/moderations";
 import { env } from "@/lib/env";
+import sampleSize from "lodash/sampleSize";
 
 const openai = new OpenAI({
   apiKey: env.OPENAI_API_KEY,
@@ -17,17 +18,16 @@ const getMultiModalInput = (
   record: typeof schema.records.$inferSelect,
   skipImages?: boolean,
 ): OpenAI.Chat.Completions.ChatCompletionContentPart[] => {
+  const images = skipImages ? [] : sampleSize(record.imageUrls, 3);
   return [
     {
-      type: "text",
+      type: "text" as const,
       text: record.text,
     },
-    ...(!skipImages
-      ? record.imageUrls.map((url) => ({
-          type: "image_url" as const,
-          image_url: { url },
-        }))
-      : []),
+    ...images.map((url) => ({
+      type: "image_url" as const,
+      image_url: { url },
+    })),
   ];
 };
 
