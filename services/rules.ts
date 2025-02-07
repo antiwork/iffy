@@ -60,30 +60,32 @@ export const createCustomRule = async ({
   name: string;
   description?: string;
 }) => {
-  const [newRule] = await db
-    .insert(schema.rules)
-    .values({
-      clerkOrganizationId,
-      rulesetId,
-      name,
-      description,
-    })
-    .returning();
+  return await db.transaction(async (tx) => {
+    const [newRule] = await tx
+      .insert(schema.rules)
+      .values({
+        clerkOrganizationId,
+        rulesetId,
+        name,
+        description,
+      })
+      .returning();
 
-  if (!newRule) {
-    throw new Error("Failed to create rule");
-  }
+    if (!newRule) {
+      throw new Error("Failed to create rule");
+    }
 
-  for (const strategy of strategies) {
-    await db
-      .insert(schema.ruleStrategies)
-      .values({ clerkOrganizationId, type: strategy.type, ruleId: newRule.id, options: strategy.options });
-  }
+    for (const strategy of strategies) {
+      await tx
+        .insert(schema.ruleStrategies)
+        .values({ clerkOrganizationId, type: strategy.type, ruleId: newRule.id, options: strategy.options });
+    }
 
-  return newRule;
+    return newRule;
+  });
 };
 
-export const updateCustomRule = async ({
+export const updateCustomRule= async ({
   clerkOrganizationId,
   id,
   strategies,
