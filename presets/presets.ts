@@ -87,21 +87,11 @@ export async function updatePresets() {
     }
 
     for (const strategy of preset.strategies) {
-      if (strategy.type === "Blocklist") {
-        await db.insert(schema.presetStrategies).values({
-          presetId: preset.id,
-          type: "Blocklist",
-          options: strategy.options,
-        });
-      }
-
-      if (strategy.type === "Prompt") {
-        await db.insert(schema.presetStrategies).values({
-          presetId: preset.id,
-          type: "Prompt",
-          options: strategy.options,
-        });
-      }
+      await db.insert(schema.presetStrategies).values({
+        presetId: preset.id,
+        type: strategy.type,
+        options: strategy.options,
+      });
     }
   }
 
