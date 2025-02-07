@@ -56,8 +56,10 @@ export async function createAppealAction({
       },
     });
 
+    // read the last status from the record user
     const lastStatus = appeal?.actionStatus;
 
+    // sync the record user status with the new status
     await tx
       .update(schema.appeals)
       .set({

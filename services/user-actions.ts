@@ -44,6 +44,7 @@ export async function createUserAction({
       },
     });
 
+    // read the last status
     const lastStatus = lastAction?.status;
 
     if (lastStatus === status) {
