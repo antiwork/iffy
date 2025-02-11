@@ -66,6 +66,7 @@ export async function createUserAction({
       throw new Error("Failed to create user action");
     }
 
+    // sync the record user status with the new status
     await tx
       .update(schema.users)
       .set({
@@ -74,7 +75,6 @@ export async function createUserAction({
       })
       .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)));
 
-    // Keep Inngest event outside transaction
     if (status !== lastStatus) {
       try {
         await inngest.send({

@@ -1,5 +1,4 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import pg from "pg";
 const { Pool } = pg;
 import { env } from "@/lib/env";
@@ -19,8 +18,6 @@ declare const globalThis: {
 
 const dbClient = globalThis.dbClientGlobal ?? dbClientSingleton();
 const db = dbClient.db;
-
-export type DB = NodePgDatabase<typeof schema>;
 
 export default db;
 export const close = dbClient.close;

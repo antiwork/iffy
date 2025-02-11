@@ -70,6 +70,7 @@ export async function createModeration({
   testMode?: boolean;
   createdAt?: Date;
 } & ViaWithClerkUserOrUser) {
+  // read the last status from the record
   return await db.transaction(async (tx) => {
     const record = await tx.query.records.findFirst({
       where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
@@ -109,6 +110,7 @@ export async function createModeration({
       );
     }
 
+    // sync the record status with the new status
     await tx
       .update(schema.records)
       .set({
@@ -139,7 +141,6 @@ export async function createModeration({
       }
     }
 
-    // Keep Inngest event outside transaction
     if (status !== lastStatus && !moderation.testMode) {
       try {
         await inngest.send({
@@ -190,6 +191,7 @@ export async function createPendingModeration({
       throw new Error("Failed to create pending moderation");
     }
 
+    // update the record pending state
     await tx
       .update(schema.records)
       .set({
@@ -262,8 +264,11 @@ export async function updatePendingModeration({
     let statusChanged = false;
     let updateData: Partial<typeof schema.records.$inferInsert> = {};
 
+    // read the last status from the record
     const lastStatus = record.moderationStatus;
 
+    // if the moderation is newer than the one that last updated the status,
+    // update the status
     const statusCreatedAt = record.moderationStatusCreatedAt;
     if (!statusCreatedAt || moderation.createdAt > statusCreatedAt) {
       updateData.moderationStatus = status;
@@ -273,15 +278,19 @@ export async function updatePendingModeration({
       }
     }
 
+    // if the moderation is newer or the same as the one that set the pending flag,
+    // clear the pending flag
     const pendingCreatedAt = record.moderationPendingCreatedAt;
     if (!pendingCreatedAt || moderation.createdAt >= pendingCreatedAt) {
       updateData.moderationPending = false;
     }
 
+    // if no updates are needed, return the moderation
     if (Object.keys(updateData).length === 0) {
       return moderation;
     }
 
+    // sync the record with the new status and/or pending flag
     await tx
       .update(schema.records)
       .set(updateData)
@@ -310,7 +319,6 @@ export async function updatePendingModeration({
       }
     }
 
-    // Keep Inngest event outside transaction
     if (statusChanged && !moderation.testMode) {
       try {
         await inngest.send({

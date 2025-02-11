@@ -120,7 +120,6 @@ export async function deleteRecord(clerkOrganizationId: string, recordId: string
         .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
     }
 
-    // Keep Inngest event outside transaction
     try {
       await inngest.send({
         name: "record/deleted",
