@@ -126,24 +126,15 @@ const sendModerationWebhook = inngest.createFunction(
         event: eventType,
         data: {
           id: moderation.id,
-          timestamp: moderation.updatedAt,
-          via: moderation.via,
           payload: {
             id: record.id,
             clientId: record.clientId,
             clientUrl: record.clientUrl ?? undefined,
-            status: moderation.status,
             name: record.name,
             entity: record.entity,
-            user: user
-              ? {
-                  id: user.id,
-                  clientId: user.clientId,
-                  clientUrl: user.clientUrl ?? undefined,
-                  status: user.actionStatus ?? undefined,
-                  protected: true,
-                }
-              : undefined,
+            status: moderation.status,
+            statusUpdatedAt: new Date(moderation.updatedAt).getTime().toString(),
+            statusUpdatedVia: moderation.via,
           },
         },
       });

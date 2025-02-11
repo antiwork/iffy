@@ -111,14 +111,14 @@ const sendUserActionWebhook = inngest.createFunction(
         event: eventType,
         data: {
           id: userAction.id,
-          timestamp: userAction.createdAt,
-          via: userAction.via,
           payload: {
             id: user.id,
-            status: userAction.status,
             clientId: user.clientId,
             clientUrl: user.clientUrl ?? undefined,
             protected: user.protected,
+            status: userAction.status,
+            statusUpdatedAt: new Date(userAction.createdAt).getTime().toString(),
+            statusUpdatedVia: userAction.via,
           },
         },
       });
