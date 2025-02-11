@@ -18,10 +18,7 @@ export async function createAppealAction({
   appealId: string;
   status: ActionStatus;
 } & ViaWithClerkUserOrUser) {
-  let transactionResult: typeof schema.appealActions.$inferSelect;
-  let lastStatusFromTransaction: (typeof schema.appeals.$inferSelect)["actionStatus"] | null = null;
-
-  const result = await db.transaction(async (tx): Promise<typeof schema.appealActions.$inferSelect> => {
+  return await db.transaction(async (tx) => {
     const lastAction = await tx.query.appealActions.findFirst({
       where: and(
         eq(schema.appealActions.clerkOrganizationId, clerkOrganizationId),
@@ -33,8 +30,8 @@ export async function createAppealAction({
       },
     });
 
-    if (lastAction?.status === status && lastAction) {
-      return lastAction as typeof schema.appealActions.$inferSelect;
+    if (lastAction?.status === status) {
+      return lastAction;
     }
 
     const [appealAction] = await tx
@@ -60,7 +57,7 @@ export async function createAppealAction({
     });
 
     // read the last status from the record user
-    lastStatusFromTransaction = appeal?.actionStatus ?? null;
+    const lastStatus = appeal?.actionStatus;
 
     // sync the record user status with the new status
     await tx
@@ -71,26 +68,23 @@ export async function createAppealAction({
       })
       .where(and(eq(schema.appeals.clerkOrganizationId, clerkOrganizationId), eq(schema.appeals.id, appealId)));
 
+    if (status !== lastStatus) {
+      try {
+        await inngest.send({
+          name: "appeal-action/status-changed",
+          data: {
+            clerkOrganizationId,
+            id: appealAction.id,
+            appealId,
+            status,
+            lastStatus: lastStatus ?? null,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
     return appealAction;
   });
-  transactionResult = result;
-
-  if (status !== lastStatusFromTransaction) {
-    try {
-      await inngest.send({
-        name: "appeal-action/status-changed",
-        data: {
-          clerkOrganizationId,
-          id: transactionResult.id,
-          appealId,
-          status,
-          lastStatus: lastStatusFromTransaction ?? null,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  return transactionResult;
 }
