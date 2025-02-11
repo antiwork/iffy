@@ -18,7 +18,6 @@ declare const globalThis: {
 
 const dbClient = globalThis.dbClientGlobal ?? dbClientSingleton();
 const db = dbClient.db;
-
 export default db;
 export const close = dbClient.close;
 export { schema };
