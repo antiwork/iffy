@@ -12,6 +12,7 @@ const strategySchema = z.discriminatedUnion("type", [
     options: z.object({
       topic: z.string().refine((value) => value !== "", "Topic is required"),
       prompt: z.string().refine((value) => value !== "", "Prompt is required"),
+      skipImages: z.boolean().default(false),
     }),
   }),
   z.object({

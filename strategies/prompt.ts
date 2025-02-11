@@ -6,6 +6,7 @@ import * as schema from "@/db/schema";
 import { StrategyInstance } from "./types";
 import { LinkData, Context, StrategyResult } from "@/services/moderations";
 import { env } from "@/lib/env";
+import sampleSize from "lodash/sampleSize";
 
 const openai = new OpenAI({
   apiKey: env.OPENAI_API_KEY,
@@ -15,13 +16,15 @@ const MODEL = "gpt-4o-mini";
 
 const getMultiModalInput = (
   record: typeof schema.records.$inferSelect,
+  skipImages?: boolean,
 ): OpenAI.Chat.Completions.ChatCompletionContentPart[] => {
+  const images = skipImages ? [] : sampleSize(record.imageUrls, 3);
   return [
     {
-      type: "text",
+      type: "text" as const,
       text: record.text,
     },
-    ...(record.imageUrls ?? []).map((url) => ({
+    ...images.map((url) => ({
       type: "image_url" as const,
       image_url: { url },
     })),
@@ -45,6 +48,7 @@ export const type = "Prompt";
 export const optionsSchema = z.object({
   topic: z.string(),
   prompt: z.string(),
+  skipImages: z.boolean().optional(),
 });
 
 export type Options = z.infer<typeof optionsSchema>;
@@ -62,7 +66,7 @@ export class Strategy implements StrategyInstance {
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       {
         role: "user",
-        content: getMultiModalInput(context.record),
+        content: getMultiModalInput(context.record, this.options.skipImages),
       },
       {
         role: "user",
@@ -113,7 +117,7 @@ export class Strategy implements StrategyInstance {
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       {
         role: "user",
-        content: getMultiModalInput(context.record),
+        content: getMultiModalInput(context.record, this.options.skipImages),
       },
       {
         role: "user",

@@ -125,6 +125,27 @@ function PromptStrategy({ control, index }: { control: Control<RuleFormValues>; 
           </FormItem>
         )}
       />
+      <FormField
+        control={control}
+        name={`strategies.${index}.options.skipImages`}
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-center space-x-2">
+            <FormControl>
+              <input
+                type="checkbox"
+                checked={field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+                onBlur={field.onBlur}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+            </FormControl>
+            <div className="space-y-0.5">
+              <div className="text-sm font-medium">Skip images</div>
+              <div className="text-sm text-gray-500">Ignore images when processing content</div>
+            </div>
+          </FormItem>
+        )}
+      />
     </div>
   );
 }
@@ -173,7 +194,9 @@ export function StrategiesList({ control }: StrategiesListProps) {
                   <DropdownMenuItem onClick={() => append({ type: "Blocklist", options: { blocklist: [] } })}>
                     Blocklist
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => append({ type: "Prompt", options: { topic: "", prompt: "" } })}>
+                  <DropdownMenuItem
+                    onClick={() => append({ type: "Prompt", options: { topic: "", prompt: "", skipImages: false } })}
+                  >
                     Prompt
                   </DropdownMenuItem>
                 </DropdownMenuContent>

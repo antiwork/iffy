@@ -13,21 +13,6 @@ const openai = new OpenAI({
 
 const MODEL = "omni-moderation-latest";
 
-const getMultiModalInput = (
-  record: typeof schema.records.$inferSelect,
-): OpenAI.Moderations.ModerationMultiModalInput[] => {
-  return [
-    {
-      type: "text",
-      text: record.text,
-    },
-    ...(record.imageUrls ?? []).map((url) => ({
-      type: "image_url" as const,
-      image_url: { url },
-    })),
-  ];
-};
-
 const reasons = {
   harassment: "Content expresses, incites, or promotes harassing language towards any target",
   "harassment/threatening": "Harassment content that also includes violence or serious harm towards any target",
@@ -76,7 +61,7 @@ export class Strategy implements StrategyInstance {
 
     const moderation = await openai.moderations.create({
       model: MODEL,
-      input: getMultiModalInput(context.record),
+      input: context.record.text,
     });
 
     const result = moderation.results[0];
