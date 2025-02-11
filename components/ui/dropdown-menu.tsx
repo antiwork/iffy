@@ -6,12 +6,7 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const DropdownMenu = ({ children, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) => (
-  <DropdownMenuPrimitive.Root modal={false} {...props}>
-    {children}
-  </DropdownMenuPrimitive.Root>
-);
-DropdownMenu.displayName = DropdownMenuPrimitive.Root.displayName;
+const DropdownMenu = DropdownMenuPrimitive.Root;
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
