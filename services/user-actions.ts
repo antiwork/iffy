@@ -76,7 +76,7 @@ export async function createUserAction({
     return [userAction, lastUserAction];
   });
 
-  if (userAction.status !== lastUserAction?.status) {
+  if (status !== lastUserAction?.status) {
     try {
       await inngest.send({
         name: "user-action/status-changed",

@@ -62,7 +62,7 @@ export async function createAppealAction({
     return [appealAction, lastAppealAction];
   });
 
-  if (appealAction.status !== lastAppealAction?.status) {
+  if (status !== lastAppealAction?.status) {
     try {
       await inngest.send({
         name: "appeal-action/status-changed",
