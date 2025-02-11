@@ -70,8 +70,10 @@ export async function createModeration({
   testMode?: boolean;
   createdAt?: Date;
 } & ViaWithClerkUserOrUser) {
-  // read the last status from the record
-  return await db.transaction(async (tx) => {
+  let lastStatus: ModerationStatus | null = null;
+
+  const moderation = await db.transaction(async (tx) => {
+    // read the last status from the record
     const record = await tx.query.records.findFirst({
       where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
     });
@@ -80,7 +82,7 @@ export async function createModeration({
       throw new Error("Record not found");
     }
 
-    const lastStatus = record.moderationStatus;
+    lastStatus = record.moderationStatus;
 
     const [moderation] = await tx
       .insert(schema.moderations)
@@ -141,25 +143,27 @@ export async function createModeration({
       }
     }
 
-    if (status !== lastStatus && !moderation.testMode) {
-      try {
-        await inngest.send({
-          name: "moderation/status-changed",
-          data: {
-            clerkOrganizationId,
-            id: moderation.id,
-            recordId,
-            status,
-            lastStatus,
-          },
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
     return moderation;
   });
+
+  if (status !== lastStatus && !moderation.testMode) {
+    try {
+      await inngest.send({
+        name: "moderation/status-changed",
+        data: {
+          clerkOrganizationId,
+          id: moderation.id,
+          recordId,
+          status,
+          lastStatus,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return moderation;
 }
 
 export async function createPendingModeration({
@@ -223,7 +227,10 @@ export async function updatePendingModeration({
   testMode?: boolean;
   tokens?: number;
 }) {
-  return await db.transaction(async (tx) => {
+  let statusChanged = false;
+  let lastStatus: ModerationStatus | null = null;
+
+  const moderation = await db.transaction(async (tx) => {
     const [moderation] = await tx
       .update(schema.moderations)
       .set({
@@ -261,11 +268,10 @@ export async function updatePendingModeration({
       throw new Error("Record not found");
     }
 
-    let statusChanged = false;
     let updateData: Partial<typeof schema.records.$inferInsert> = {};
 
     // read the last status from the record
-    const lastStatus = record.moderationStatus;
+    lastStatus = record.moderationStatus;
 
     // if the moderation is newer than the one that last updated the status,
     // update the status
@@ -319,25 +325,27 @@ export async function updatePendingModeration({
       }
     }
 
-    if (statusChanged && !moderation.testMode) {
-      try {
-        await inngest.send({
-          name: "moderation/status-changed",
-          data: {
-            clerkOrganizationId,
-            id,
-            recordId: moderation.recordId,
-            status,
-            lastStatus,
-          },
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
     return moderation;
   });
+
+  if (statusChanged && !moderation.testMode) {
+    try {
+      await inngest.send({
+        name: "moderation/status-changed",
+        data: {
+          clerkOrganizationId,
+          id,
+          recordId: moderation.recordId,
+          status,
+          lastStatus,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return moderation;
 }
 
 type ModerationResult = {

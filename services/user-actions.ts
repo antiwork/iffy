@@ -17,7 +17,7 @@ export async function createUserAction({
   userId: string;
   status: ActionStatus;
 } & ViaWithClerkUserOrUser) {
-  return await db.transaction(async (tx) => {
+  const [userAction, lastUserAction] = await db.transaction(async (tx) => {
     const user = await tx.query.users.findFirst({
       where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)),
       columns: {
@@ -33,22 +33,20 @@ export async function createUserAction({
       throw new Error("User is protected");
     }
 
-    const lastAction = await tx.query.userActions.findFirst({
+    const lastUserAction = await tx.query.userActions.findFirst({
       where: and(
         eq(schema.userActions.clerkOrganizationId, clerkOrganizationId),
         eq(schema.userActions.userId, userId),
       ),
       orderBy: desc(schema.userActions.createdAt),
       columns: {
+        id: true,
         status: true,
       },
     });
 
-    // read the last status
-    const lastStatus = lastAction?.status;
-
-    if (lastStatus === status) {
-      return lastAction;
+    if (lastUserAction?.status === status) {
+      return [lastUserAction, undefined];
     }
 
     const [userAction] = await tx
@@ -75,23 +73,23 @@ export async function createUserAction({
       })
       .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)));
 
-    if (status !== lastStatus) {
-      try {
-        await inngest.send({
-          name: "user-action/status-changed",
-          data: {
-            clerkOrganizationId,
-            id: userAction.id,
-            userId,
-            status,
-            lastStatus: lastStatus ?? null,
-          },
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    return userAction;
+    return [userAction, lastUserAction];
   });
+
+  if (userAction.status !== lastUserAction?.status) {
+    try {
+      await inngest.send({
+        name: "user-action/status-changed",
+        data: {
+          clerkOrganizationId,
+          id: userAction.id,
+          userId,
+          status,
+          lastStatus: lastUserAction?.status ?? null,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }

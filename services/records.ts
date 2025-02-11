@@ -27,7 +27,7 @@ export async function createOrUpdateRecord({
   userId?: string;
   createdAt?: Date;
 }) {
-  return await db.transaction(async (tx) => {
+  const record = await db.transaction(async (tx) => {
     const lastRecord = await tx.query.records.findFirst({
       where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.clientId, clientId)),
       columns: {
@@ -95,6 +95,17 @@ export async function createOrUpdateRecord({
 
     return record;
   });
+
+  try {
+    await inngest.send({
+      name: "record/deleted",
+      data: { clerkOrganizationId, id: record.id },
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
+  return record;
 }
 
 export async function deleteRecord(clerkOrganizationId: string, recordId: string) {
@@ -118,15 +129,6 @@ export async function deleteRecord(clerkOrganizationId: string, recordId: string
           flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
         })
         .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
-    }
-
-    try {
-      await inngest.send({
-        name: "record/deleted",
-        data: { clerkOrganizationId, id: recordId },
-      });
-    } catch (error) {
-      console.error(error);
     }
 
     return record;
