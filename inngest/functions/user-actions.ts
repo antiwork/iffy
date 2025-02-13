@@ -12,6 +12,7 @@ import { getAbsoluteUrl } from "@/lib/url";
 import { createAppealAction } from "@/services/appeal-actions";
 import { eq, and } from "drizzle-orm";
 import { decrypt } from "@/services/encrypt";
+import { parseMetadata } from "@/services/metadata";
 
 const updateStripePaymentsAndPayouts = inngest.createFunction(
   { id: "update-stripe-payments-payouts" },
@@ -116,6 +117,7 @@ const sendUserActionWebhook = inngest.createFunction(
             clientId: user.clientId,
             clientUrl: user.clientUrl ?? undefined,
             protected: user.protected,
+            metadata: user.metadata ? parseMetadata(user.metadata) : undefined,
             status: userAction.status,
             statusUpdatedAt: new Date(userAction.createdAt).getTime().toString(),
             statusUpdatedVia: userAction.via,

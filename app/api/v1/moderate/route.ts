@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { ZodSchema } from "zod";
-import { fromZodError } from "zod-validation-error";
 
 import { moderateAdapter, ModerateRequestData } from "./schema";
-import db from "@/db";
 import * as schema from "@/db/schema";
 import { validateApiKey } from "@/services/api-keys";
 import { createModeration, moderate } from "@/services/moderations";
 import { createOrUpdateRecord } from "@/services/records";
+import { createOrUpdateUser } from "@/services/users";
 import { parseRequestDataWithSchema } from "@/app/api/parse";
 
 export async function POST(req: NextRequest) {
@@ -28,30 +26,17 @@ export async function POST(req: NextRequest) {
 
   let user: typeof schema.users.$inferSelect | undefined;
   if (data.user) {
-    [user] = await db
-      .insert(schema.users)
-      .values({
-        clerkOrganizationId,
-        clientId: data.user.clientId,
-        clientUrl: data.user.clientUrl,
-        email: data.user.email,
-        name: data.user.name,
-        username: data.user.username,
-        protected: data.user.protected,
-        stripeAccountId: data.user.stripeAccountId,
-      })
-      .onConflictDoUpdate({
-        target: schema.users.clientId,
-        set: {
-          clientUrl: data.user.clientUrl,
-          email: data.user.email,
-          name: data.user.name,
-          username: data.user.username,
-          protected: data.user.protected,
-          stripeAccountId: data.user.stripeAccountId,
-        },
-      })
-      .returning();
+    user = await createOrUpdateUser({
+      clerkOrganizationId,
+      clientId: data.user.clientId,
+      clientUrl: data.user.clientUrl,
+      email: data.user.email,
+      name: data.user.name,
+      username: data.user.username,
+      protected: data.user.protected,
+      stripeAccountId: data.user.stripeAccountId,
+      metadata: data.user.metadata,
+    });
   }
 
   const content = typeof data.content === "string" ? { text: data.content } : data.content;
@@ -65,6 +50,7 @@ export async function POST(req: NextRequest) {
     imageUrls: content.imageUrls,
     clientUrl: data.clientUrl,
     userId: user?.id,
+    metadata: data.metadata,
   });
 
   const result = await moderate({
@@ -72,7 +58,7 @@ export async function POST(req: NextRequest) {
     recordId: record.id,
   });
 
-  await createModeration({
+  const moderation = await createModeration({
     clerkOrganizationId,
     recordId: record.id,
     ...result,
@@ -82,6 +68,8 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(
     {
       status: result.status,
+      moderationId: moderation.id,
+      message: "Success",
       // TODO(s3ththompson): deprecate
       flagged: result.status === "Flagged",
       categoryIds: result.ruleIds,

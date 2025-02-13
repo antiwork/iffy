@@ -3,6 +3,7 @@ import { inngest } from "@/inngest/client";
 import * as schema from "@/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { findUrlsInText } from "@/services/url-moderation";
+import { mergeMetadata } from "./metadata";
 
 export async function createOrUpdateRecord({
   clerkOrganizationId,
@@ -15,6 +16,7 @@ export async function createOrUpdateRecord({
   clientUrl,
   userId,
   createdAt,
+  metadata,
 }: {
   clerkOrganizationId: string;
   clientId: string;
@@ -26,14 +28,20 @@ export async function createOrUpdateRecord({
   externalUrls?: string[];
   userId?: string;
   createdAt?: Date;
+  metadata?: Record<string, unknown>;
 }) {
   const record = await db.transaction(async (tx) => {
     const lastRecord = await tx.query.records.findFirst({
       where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.clientId, clientId)),
       columns: {
         userId: true,
+        metadata: true,
       },
     });
+
+    if (lastRecord && metadata) {
+      metadata = mergeMetadata(lastRecord.metadata, metadata);
+    }
 
     const [record] = await tx
       .insert(schema.records)
@@ -46,18 +54,20 @@ export async function createOrUpdateRecord({
         text,
         imageUrls,
         externalUrls,
+        metadata,
         userId,
         createdAt,
       })
       .onConflictDoUpdate({
         target: schema.records.clientId,
         set: {
+          clientUrl,
           name,
           entity,
           text,
           imageUrls,
           externalUrls,
-          clientUrl,
+          metadata,
           userId,
         },
       })

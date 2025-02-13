@@ -11,6 +11,7 @@ type PublicUser = {
   clientId: string;
   clientUrl?: string;
   protected: boolean;
+  metadata?: Record<string, string>;
   status?: (typeof schema.userActionStatus.enumValues)[number];
   statusUpdatedAt?: string;
   statusUpdatedVia?: (typeof schema.via.enumValues)[number];
@@ -22,6 +23,7 @@ type PublicRecord = {
   clientUrl?: string;
   name: string;
   entity: string;
+  metadata?: Record<string, string>;
   status?: (typeof schema.moderationStatus.enumValues)[number];
   statusUpdatedAt?: string;
   statusUpdatedVia?: (typeof schema.via.enumValues)[number];

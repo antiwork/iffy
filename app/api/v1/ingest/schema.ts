@@ -1,4 +1,10 @@
 import { z } from "zod";
+import { isValidMetadata } from "@/services/metadata";
+
+const MetadataSchema = z.record(z.string(), z.unknown()).refine(isValidMetadata, {
+  message:
+    "Metadata keys can't be more than 40 characters or include '[' or ']'. Metadata values must be serializable and can't be more than 500 characters. The total number of keys can't be more than 50.",
+});
 
 export const IngestUpdateRequestData = z
   .object({
@@ -14,6 +20,7 @@ export const IngestUpdateRequestData = z
         externalUrls: z.array(z.string().url()).optional(),
       }),
     ]),
+    metadata: MetadataSchema.optional(),
     user: z
       .object({
         clientId: z.string(),
@@ -23,6 +30,7 @@ export const IngestUpdateRequestData = z
         name: z.string().optional(),
         username: z.string().optional(),
         protected: z.boolean().optional(),
+        metadata: MetadataSchema.optional(),
       })
       .optional(),
   })

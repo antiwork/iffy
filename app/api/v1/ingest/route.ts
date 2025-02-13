@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { ZodSchema } from "zod";
-import { fromZodError } from "zod-validation-error";
 
 import { IngestDeleteRequestData, ingestUpdateAdapter, IngestUpdateRequestData } from "./schema";
 import db from "@/db";
@@ -8,6 +6,7 @@ import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { validateApiKey } from "@/services/api-keys";
 import { createPendingModeration } from "@/services/moderations";
+import { createOrUpdateUser } from "@/services/users";
 import { createOrUpdateRecord, deleteRecord } from "@/services/records";
 import { inngest } from "@/inngest/client";
 import { parseRequestDataWithSchema } from "@/app/api/parse";
@@ -30,30 +29,17 @@ export async function POST(req: NextRequest) {
 
   let user: typeof schema.users.$inferSelect | undefined;
   if (data.user) {
-    [user] = await db
-      .insert(schema.users)
-      .values({
-        clerkOrganizationId,
-        clientId: data.user.clientId,
-        clientUrl: data.user.clientUrl,
-        email: data.user.email,
-        name: data.user.name,
-        username: data.user.username,
-        protected: data.user.protected,
-        stripeAccountId: data.user.stripeAccountId,
-      })
-      .onConflictDoUpdate({
-        target: schema.users.clientId,
-        set: {
-          clientUrl: data.user.clientUrl,
-          email: data.user.email,
-          name: data.user.name,
-          username: data.user.username,
-          protected: data.user.protected,
-          stripeAccountId: data.user.stripeAccountId,
-        },
-      })
-      .returning();
+    user = await createOrUpdateUser({
+      clerkOrganizationId,
+      clientId: data.user.clientId,
+      clientUrl: data.user.clientUrl,
+      email: data.user.email,
+      name: data.user.name,
+      username: data.user.username,
+      protected: data.user.protected,
+      stripeAccountId: data.user.stripeAccountId,
+      metadata: data.user.metadata,
+    });
   }
 
   const content = typeof data.content === "string" ? { text: data.content } : data.content;
@@ -68,6 +54,7 @@ export async function POST(req: NextRequest) {
     externalUrls: content.externalUrls,
     clientUrl: data.clientUrl,
     userId: user?.id,
+    metadata: data.metadata,
   });
 
   const organizationSettings = await db.query.organizationSettings.findFirst({
@@ -91,8 +78,9 @@ export async function POST(req: NextRequest) {
     moderationThreshold = true;
   }
 
+  let pendingModeration: typeof schema.moderations.$inferSelect | undefined;
   if (moderationThreshold) {
-    const pendingModeration = await createPendingModeration({
+    pendingModeration = await createPendingModeration({
       clerkOrganizationId,
       recordId: record.id,
       via: "AI",
@@ -111,7 +99,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ message: "Success" }, { status: 200 });
+  return NextResponse.json({ moderationId: pendingModeration?.id ?? null, message: "Success" }, { status: 200 });
 }
 
 export async function DELETE(req: NextRequest) {

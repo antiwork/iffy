@@ -7,6 +7,7 @@ import { createUserAction } from "@/services/user-actions";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import * as service from "@/services/moderations";
+import { parseMetadata } from "@/services/metadata";
 
 const moderate = inngest.createFunction(
   { id: "moderate" },
@@ -132,6 +133,7 @@ const sendModerationWebhook = inngest.createFunction(
             clientUrl: record.clientUrl ?? undefined,
             name: record.name,
             entity: record.entity,
+            metadata: record.metadata ? parseMetadata(record.metadata) : undefined,
             status: moderation.status,
             statusUpdatedAt: new Date(moderation.updatedAt).getTime().toString(),
             statusUpdatedVia: moderation.via,

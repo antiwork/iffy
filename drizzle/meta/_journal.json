@@ -127,6 +127,13 @@
       "when": 1738855942103,
       "tag": "0017_foamy_silver_centurion",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1739487886311,
+      "tag": "0018_nifty_micromacro",
+      "breakpoints": true
     }
   ]
 }
