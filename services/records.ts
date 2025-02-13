@@ -39,7 +39,7 @@ export async function createOrUpdateRecord({
       },
     });
 
-    if (lastRecord && metadata) {
+    if (metadata && lastRecord?.metadata) {
       metadata = mergeMetadata(lastRecord.metadata, metadata);
     }
 

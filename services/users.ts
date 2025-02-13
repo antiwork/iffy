@@ -34,7 +34,7 @@ export async function createOrUpdateUser({
       },
     });
 
-    if (lastUser && metadata) {
+    if (metadata && lastUser?.metadata) {
       metadata = mergeMetadata(lastUser.metadata, metadata);
     }
 
