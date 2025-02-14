@@ -108,7 +108,8 @@ export async function sendWebhook<T extends keyof WebhookEvents>({
 
     webhook.secret = decrypt(webhook.secret);
 
-    const body = JSON.stringify({ event, ...data });
+    const timestamp = Date.now().toString();
+    const body = JSON.stringify({ event, timestamp, ...data });
     const signature = crypto.createHmac("sha256", webhook.secret).update(body).digest("hex");
 
     try {
