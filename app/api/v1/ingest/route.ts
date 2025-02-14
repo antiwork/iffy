@@ -99,7 +99,15 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ moderationId: pendingModeration?.id ?? null, message: "Success" }, { status: 200 });
+  return NextResponse.json(
+    {
+      id: record.id,
+      moderation: pendingModeration?.id ?? null,
+      ...(user ? { user: user.id } : {}),
+      message: "Success",
+    },
+    { status: 200 },
+  );
 }
 
 export async function DELETE(req: NextRequest) {

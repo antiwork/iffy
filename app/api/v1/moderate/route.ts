@@ -68,7 +68,9 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(
     {
       status: result.status,
-      moderationId: moderation.id,
+      id: record.id,
+      moderation: moderation.id,
+      ...(user ? { user: user.id } : {}),
       message: "Success",
       // TODO(s3ththompson): deprecate
       flagged: result.status === "Flagged",

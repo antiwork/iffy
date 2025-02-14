@@ -4,6 +4,7 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { validateApiKey } from "@/services/api-keys";
 import { parseRequestDataWithSchema } from "@/app/api/parse";
+import { createOrUpdateUser } from "@/services/users";
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("Authorization");
@@ -21,30 +22,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const [user] = await db
-    .insert(schema.users)
-    .values({
-      clerkOrganizationId,
-      clientId: data.clientId,
-      clientUrl: data.clientUrl,
-      email: data.email,
-      name: data.name,
-      username: data.username,
-      protected: data.protected,
-      stripeAccountId: data.stripeAccountId,
-    })
-    .onConflictDoUpdate({
-      target: schema.users.clientId,
-      set: {
-        clientUrl: data.clientUrl,
-        email: data.email,
-        name: data.name,
-        username: data.username,
-        protected: data.protected,
-        stripeAccountId: data.stripeAccountId,
-      },
-    })
-    .returning();
+  const user = await createOrUpdateUser({
+    clerkOrganizationId,
+    clientId: data.clientId,
+    clientUrl: data.clientUrl,
+    email: data.email,
+    name: data.name,
+    username: data.username,
+    protected: data.protected,
+    stripeAccountId: data.stripeAccountId,
+    metadata: data.metadata,
+  });
 
-  return NextResponse.json({ message: "Success" }, { status: 200 });
+  return NextResponse.json({ id: user.id, message: "Success" }, { status: 200 });
 }
