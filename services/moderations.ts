@@ -33,22 +33,6 @@ export interface StrategyResult {
   reasoning?: string[];
 }
 
-export const getRecordContent = (record: {
-  text: string;
-  imageUrls?: string[] | null;
-}): ModerationMultiModalInput[] => {
-  return [
-    {
-      type: "text",
-      text: record.text,
-    },
-    ...(record.imageUrls ?? []).map((url) => ({
-      type: "image_url" as const,
-      image_url: { url },
-    })),
-  ];
-};
-
 export async function createModeration({
   clerkOrganizationId,
   recordId,

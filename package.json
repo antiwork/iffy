@@ -30,6 +30,7 @@
   "type": "module",
   "dependencies": {
     "@47ng/cloak": "^1.2.0",
+    "@ai-sdk/openai": "^1.1.5",
     "@clerk/nextjs": "^6.9.13",
     "@faker-js/faker": "^8.4.1",
     "@hookform/resolvers": "^3.9.0",
@@ -58,6 +59,7 @@
     "@trpc/next": "11.0.0-rc.553",
     "@trpc/react-query": "11.0.0-rc.553",
     "@trpc/server": "11.0.0-rc.553",
+    "ai": "^4.1.17",
     "cheerio": "^1.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

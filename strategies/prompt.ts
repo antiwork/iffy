@@ -1,33 +1,30 @@
-import OpenAI from "openai";
-import { zodResponseFormat } from "openai/helpers/zod";
+import { openai } from "@ai-sdk/openai";
+import { generateObject, UserContent } from "ai";
 import { z } from "zod";
 
-import * as schema from "@/db/schema";
 import { StrategyInstance } from "./types";
 import { LinkData, Context, StrategyResult } from "@/services/moderations";
-import { env } from "@/lib/env";
 import sampleSize from "lodash/sampleSize";
 
-const openai = new OpenAI({
-  apiKey: env.OPENAI_API_KEY,
-});
-
-const MODEL = "gpt-4o-mini";
-
-const getMultiModalInput = (
-  record: typeof schema.records.$inferSelect,
-  skipImages?: boolean,
-): OpenAI.Chat.Completions.ChatCompletionContentPart[] => {
-  const images = skipImages ? [] : sampleSize(record.imageUrls, 3);
+const getMultiModalInput = (context: Context, skipImages?: boolean): UserContent => {
+  const images = skipImages ? [] : sampleSize(context.record.imageUrls, 3);
   return [
     {
       type: "text" as const,
-      text: record.text,
+      text: context.record.text,
     },
     ...images.map((url) => ({
-      type: "image_url" as const,
-      image_url: { url },
+      type: "image" as const,
+      image: url,
     })),
+    ...(context.externalLinks.length > 0
+      ? [
+          {
+            type: "text" as const,
+            text: formatExternalLinksAsXml(context.externalLinks),
+          },
+        ]
+      : []),
   ];
 };
 
@@ -63,42 +60,7 @@ export class Strategy implements StrategyInstance {
   }
 
   async accepts(context: Context): Promise<boolean> {
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-      {
-        role: "user",
-        content: getMultiModalInput(context.record, this.options.skipImages),
-      },
-      {
-        role: "user",
-        content: formatExternalLinksAsXml(context.externalLinks),
-      },
-      {
-        role: "system",
-        content: `You are an AI assistant tasked with determining if the above content is related to a specific topic. The topic is: ${this.options.topic}.`,
-      },
-      {
-        role: "user",
-        content: `Is the above content related to the topic "${this.options.topic}"? Respond with true or false only.`,
-      },
-    ];
-
-    const response = await openai.beta.chat.completions.parse({
-      model: MODEL,
-      messages,
-      response_format: zodResponseFormat(
-        z.object({
-          isRelated: z.boolean().describe("True if the content is related to the topic, false otherwise"),
-        }),
-        "result",
-      ),
-    });
-
-    context.tokens += response.usage?.total_tokens ?? 0;
-
-    const result = response.choices[0]?.message?.parsed;
-    if (!result) throw new Error("Unexpected OpenAI response");
-
-    return result.isRelated;
+    return true;
   }
 
   async test(context: Context): Promise<StrategyResult> {
@@ -112,84 +74,58 @@ export class Strategy implements StrategyInstance {
       overrideWarning = `${message}. Unless you are ABSOLUTELY sure that the human moderator made a mistake, you should not override their decision. Regardless of the position you take, you should be EXTREMELY certain in your reasoning, and provide definitive reasoning for why you agree or disagree with the human moderator. Emphasize this certainty in your reasoning.`;
     }
 
-    const externalLinksXml = formatExternalLinksAsXml(context.externalLinks);
+    const { object, usage } = await generateObject({
+      model: openai("gpt-4o"),
+      schema: z.object({
+        flagged: z.boolean().describe("True if the content is not acceptable, false otherwise"),
+        reasoning: z.string().optional().describe("A brief explanation of why the content is not acceptable"),
+      }),
+      messages: [
+        {
+          role: "user",
+          content: getMultiModalInput(context),
+        },
+      ],
+      system: `You are a content moderation expert, trained to identify examples of ${this.options.topic} that are not allowed.
 
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-      {
-        role: "user",
-        content: getMultiModalInput(context.record, this.options.skipImages),
-      },
-      {
-        role: "user",
-        content: externalLinksXml,
-      },
-      {
-        role: "system",
-        content: `You are a content moderation expert for the topic: ${this.options.topic}.
+      Here are the rules you must follow:
+      ${this.options.prompt}
 
-              Here are the rules for this category:
-              ${this.options.prompt}
+      You will be asked to moderate the following content based on these rules.
 
-              You will be asked to moderate the above content based on these rules.
+      Is the content acceptable? If it isn't OBVIOUSLY unacceptable, mark the content as not flagged.
 
-              Is the content acceptable for the topic ${this.options.topic}? If it isn't OBVIOUSLY unacceptable, mark the content as not flagged.
-
-              ${externalLinksXml ? "For external links in <externalLink> tags, flag if ANY content is questionable - zero tolerance. When writing your reasoning, write in EXTREMELY certain terms that the content is unacceptable." : ""}
-              ${overrideWarning}`,
-      },
-    ];
-
-    const response = await openai.beta.chat.completions.parse({
-      model: MODEL,
-      messages,
-      response_format: zodResponseFormat(
-        z.object({
-          flagged: z.boolean().describe("True if the content is not acceptable, false otherwise"),
-          reasoning: z.string().describe("A brief explanation of why the content is not acceptable"),
-        }),
-        "result",
-      ),
+      ${context.externalLinks.length > 0 ? "For external links in <externalLink> tags, flag if ANY content is questionable - zero tolerance. When writing your reasoning, write in EXTREMELY certain terms that the content is unacceptable." : ""}
+      ${overrideWarning}`,
     });
 
-    context.tokens += response.usage?.total_tokens ?? 0;
+    context.tokens += usage.totalTokens;
 
-    const result = response.choices[0]?.message?.parsed;
-    if (!result) throw new Error("Unexpected OpenAI response");
-
-    if (result.flagged) {
-      const uncertaintyResponse = await openai.beta.chat.completions.parse({
-        model: MODEL,
+    if (object.flagged) {
+      const { object: uncertaintyObject, usage: uncertaintyUsage } = await generateObject({
+        model: openai("gpt-4o-mini"),
+        schema: z.object({
+          uncertain: z.boolean().describe("True if there's uncertainty in the reasoning, false otherwise"),
+        }),
         messages: [
           {
-            role: "system",
-            content: "You are an AI assistant tasked with evaluating the certainty of content moderation decisions.",
-          },
-          {
             role: "user",
-            content: `Given the following moderation reasoning, is there any uncertainty in the decision? Reasoning: ${result.reasoning}`,
+            content: `Given the following moderation reasoning, is there any uncertainty in the decision? Reasoning: ${object.reasoning}`,
           },
         ],
-        response_format: zodResponseFormat(
-          z.object({
-            uncertain: z.boolean().describe("True if there's uncertainty in the reasoning, false otherwise"),
-          }),
-          "result",
-        ),
+        system: "You are an AI assistant tasked with evaluating the certainty of content moderation decisions.",
       });
-      context.tokens += uncertaintyResponse.usage?.total_tokens ?? 0;
-
-      const uncertaintyResult = uncertaintyResponse.choices[0]?.message?.parsed;
-      if (!uncertaintyResult) throw new Error("Unexpected OpenAI response");
+      context.tokens += uncertaintyUsage.totalTokens;
 
       return {
-        status: uncertaintyResult.uncertain ? "Compliant" : "Flagged",
-        reasoning: [result.reasoning],
+        status: uncertaintyObject.uncertain ? "Compliant" : "Flagged",
+        reasoning: object.reasoning ? [object.reasoning] : [],
       };
     }
 
     return {
       status: "Compliant",
-      reasoning: [result.reasoning],
+      reasoning: object.reasoning ? [object.reasoning] : [],
     };
   }
 }
