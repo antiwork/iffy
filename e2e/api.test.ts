@@ -126,7 +126,7 @@ shortest(async () => {
   expect(moderationResponse.ok()).toBeTruthy();
 });
 
-shortest("Successfully ingest a user", async ({ page }) => {
+shortest(async ({ page }) => {
   const email = `user_${faker.string.nanoid(3)}@example.com`;
 
   const response = await apiContext!.post(`/api/v1/ingest/user`, {
