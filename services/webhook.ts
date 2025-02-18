@@ -27,6 +27,7 @@ type PublicRecord = {
   status?: (typeof schema.moderationStatus.enumValues)[number];
   statusUpdatedAt?: string;
   statusUpdatedVia?: (typeof schema.via.enumValues)[number];
+  user?: PublicUser;
 };
 
 type PublicModeration = {
