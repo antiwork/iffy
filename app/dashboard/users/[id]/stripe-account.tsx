@@ -17,7 +17,7 @@ const StripeAccountPaymentsAndPayouts = async ({
   stripeAccountId: string;
   stripeApiKey: string;
 }) => {
-  const { payments, payouts } = await getPaymentsAndPayouts(stripeApiKey, stripeAccountId);
+  const { payments, payouts, reason } = await getPaymentsAndPayouts(stripeApiKey, stripeAccountId);
 
   return (
     <>
@@ -33,6 +33,14 @@ const StripeAccountPaymentsAndPayouts = async ({
           <Badge variant={payouts ? "success" : "failure"}>{payouts ? "Enabled" : "Disabled"}</Badge>
         </dd>
       </div>
+      {reason && (
+        <div className="grid grid-cols-2 gap-4">
+          <dt className="text-stone-500 dark:text-zinc-500">Disabled Reason</dt>
+          <dd className="flex items-center gap-2 break-words">
+            <CodeInline>{reason}</CodeInline>
+          </dd>
+        </div>
+      )}
     </>
   );
 };
