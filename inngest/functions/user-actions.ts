@@ -5,7 +5,7 @@ import * as schema from "@/db/schema";
 import { generateAppealToken } from "@/services/appeals";
 import { createMessage } from "@/services/messages";
 import { sendEmail, renderEmailTemplate } from "@/services/email";
-import { pausePaymentsAndPayouts, resumePaymentsAndPayouts } from "@/services/stripe";
+import { pausePayments, resumePayments } from "@/services/stripe";
 import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
 import { RenderedTemplate } from "@/emails/types";
 import { getAbsoluteUrl } from "@/lib/url";
@@ -47,10 +47,10 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
         switch (status) {
           case "Suspended":
           case "Banned":
-            await pausePaymentsAndPayouts(decrypt(organizationSettings.stripeApiKey), user.stripeAccountId);
+            await pausePayments(decrypt(organizationSettings.stripeApiKey), user.stripeAccountId);
             break;
           case "Compliant":
-            await resumePaymentsAndPayouts(decrypt(organizationSettings.stripeApiKey), user.stripeAccountId);
+            await resumePayments(decrypt(organizationSettings.stripeApiKey), user.stripeAccountId);
             break;
         }
       }
