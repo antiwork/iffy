@@ -5,7 +5,7 @@ import { RecordImages } from "./record-images";
 import { Code, CodeInline } from "@/components/code";
 import { Header, HeaderContent, HeaderPrimary, HeaderSecondary, HeaderActions } from "@/components/sheet/header";
 import { Section, SectionContent, SectionTitle } from "@/components/sheet/section";
-import { formatDateFull } from "@/lib/date";
+import { DayFull } from "@/components/date";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ActionMenu } from "../action-menu";
@@ -128,16 +128,22 @@ export async function RecordDetail({
             )}
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Created At</dt>
-              <dd>{formatDateFull(record.createdAt)}</dd>
+              <dd>
+                <DayFull date={record.createdAt} />
+              </dd>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Updated At</dt>
-              <dd>{formatDateFull(record.updatedAt)}</dd>
+              <dd>
+                <DayFull date={record.updatedAt} />
+              </dd>
             </div>
             {record.deletedAt && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">Deleted At</dt>
-                <dd>{formatDateFull(record.deletedAt)}</dd>
+                <dd>
+                  <DayFull date={record.deletedAt} />
+                </dd>
               </div>
             )}
           </dl>
@@ -178,7 +184,9 @@ export async function RecordDetail({
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <dt className="text-stone-500 dark:text-zinc-500">Created At</dt>
-                  <dd>{formatDateFull(record.moderations[0].createdAt)}</dd>
+                  <dd>
+                    <DayFull date={record.moderations[0].createdAt} />
+                  </dd>
                 </div>
               </dl>
             </SectionContent>

@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 import { formatUserActionStatus, formatUserVia, formatVia } from "@/lib/badges";
 import { ActionMenu } from "./action-menu";
-import { formatDate } from "@/lib/date";
+import { Date } from "@/components/date";
 import type { User } from "./types";
 import { formatUserCompact } from "@/lib/record-user";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
@@ -95,7 +95,7 @@ export const columns = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Created At" />,
     cell: (props) => {
       const date = props.getValue();
-      return formatDate(date);
+      return <Date date={date} />;
     },
   }),
   columnHelper.display({

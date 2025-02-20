@@ -10,7 +10,7 @@ import { formatRecordStatus, formatRecordVia } from "@/lib/badges";
 import { ActionMenu } from "../records/action-menu";
 import type { Record } from "../records/types";
 import { FlaskConical } from "lucide-react";
-import { formatDate } from "@/lib/date";
+import { Date } from "@/components/date";
 
 const columnHelper = createColumnHelper<Record>();
 
@@ -100,7 +100,7 @@ export const columns = [
         return (
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger className="w-36 text-left">{content}</TooltipTrigger>
+              <TooltipTrigger className="w-36">{content}</TooltipTrigger>
               <TooltipContent>
                 <p>{content}</p>
               </TooltipContent>
@@ -116,7 +116,7 @@ export const columns = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Created At" />,
     cell: (props) => {
       const date = props.getValue();
-      return formatDate(date);
+      return <Date date={date} />;
     },
   }),
   columnHelper.display({
