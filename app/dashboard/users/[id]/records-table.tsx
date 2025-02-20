@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { FlaskConical } from "lucide-react";
-import { formatDate } from "@/lib/date";
+import { Date } from "@/components/date";
 import { ActionMenu } from "../../records/action-menu";
 
 export function RecordsTable({ clerkOrganizationId, userId }: { clerkOrganizationId: string; userId: string }) {
@@ -106,7 +106,9 @@ export function RecordsTable({ clerkOrganizationId, userId }: { clerkOrganizatio
                     </div>
                   </TableCell>
                   <TableCell className="px-2 py-1">
-                    <div className="py-1">{formatDate(record.createdAt)}</div>
+                    <div className="py-1">
+                      <Date date={record.createdAt} />
+                    </div>
                   </TableCell>
                   <TableCell className="px-2 py-1">
                     <ActionMenu record={record} />

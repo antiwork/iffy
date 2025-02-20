@@ -1,5 +1,5 @@
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { formatDate } from "@/lib/date";
+import { Date } from "@/components/date";
 import { formatModerationStatus, formatVia } from "@/lib/badges";
 import type { Record } from "../types";
 
@@ -30,7 +30,9 @@ export function ModerationsTable({ moderations }: { moderations: Record["moderat
                 <div className="py-1">{names}</div>
               </TableCell>
               <TableCell className="px-2 py-1">
-                <div className="py-1">{formatDate(moderation.createdAt)}</div>
+                <div className="py-1">
+                  <Date date={moderation.createdAt} />
+                </div>
               </TableCell>
             </TableRow>
           );

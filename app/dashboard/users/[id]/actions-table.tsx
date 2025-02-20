@@ -1,7 +1,7 @@
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { UserDetail } from "../types";
-import { formatDate } from "@/lib/date";
 import { formatUserActionStatus, formatVia } from "@/lib/badges";
+import { Date } from "@/components/date";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -38,7 +38,9 @@ export function ActionsTable({ actions }: Pick<UserDetail, "actions">) {
                 </div>
               </TableCell>
               <TableCell className="px-2 py-1">
-                <div className="py-1">{formatDate(action.createdAt)}</div>
+                <div className="py-1">
+                  <Date date={action.createdAt} />
+                </div>
               </TableCell>
             </TableRow>
           );

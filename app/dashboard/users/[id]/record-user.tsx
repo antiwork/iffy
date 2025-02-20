@@ -10,7 +10,7 @@ import { CodeInline } from "@/components/code";
 import { ActionMenu } from "../action-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { formatDateFull } from "@/lib/date";
+import { DayFull } from "@/components/date";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ActionsTable } from "./actions-table";
 import { RecordsTable } from "./records-table";
@@ -101,11 +101,15 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
             )}
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Created At</dt>
-              <dd>{formatDateFull(user.createdAt)}</dd>
+              <dd>
+                <DayFull date={user.createdAt} />
+              </dd>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Updated At</dt>
-              <dd>{formatDateFull(user.updatedAt)}</dd>
+              <dd>
+                <DayFull date={user.updatedAt} />
+              </dd>
             </div>
           </dl>
         </SectionContent>
@@ -133,7 +137,9 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <dt className="text-stone-500 dark:text-zinc-500">Created At</dt>
-                  <dd>{formatDateFull(user.actions[0].createdAt)}</dd>
+                  <dd>
+                    <DayFull date={user.actions[0].createdAt} />
+                  </dd>
                 </div>
                 {user.actions[0].appeal && (
                   <div className="grid grid-cols-2 gap-4">

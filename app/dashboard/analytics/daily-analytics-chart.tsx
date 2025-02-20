@@ -6,7 +6,7 @@ import config from "@/lib/tailwind";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { formatDay, formatDayFull } from "@/lib/date";
+import { Day, DayFull } from "@/components/date";
 
 export interface DailyAnalyticsChartProps {
   stats: {
@@ -76,7 +76,14 @@ export function DailyAnalyticsChart({ stats }: DailyAnalyticsChartProps) {
               axisLine={false}
               tickMargin={8}
               minTickGap={24}
-              tickFormatter={(value: Date) => formatDay(value)}
+              tickFormatter={(value: Date) => {
+                const span = document.createElement("span");
+                span.textContent = value.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+                return span.textContent || "";
+              }}
             />
             <ChartTooltip
               content={
@@ -85,7 +92,13 @@ export function DailyAnalyticsChart({ stats }: DailyAnalyticsChartProps) {
                   labelKey="date"
                   labelFormatter={(_, payload) => {
                     const date = payload[0]!.payload.date;
-                    return formatDayFull(date);
+                    const span = document.createElement("span");
+                    span.textContent = date.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    });
+                    return span.textContent || "";
                   }}
                 />
               }
