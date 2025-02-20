@@ -92,13 +92,13 @@ Instead of using a custom date formatting approach:
 const formattedDate = new Date(record.createdAt).toDateString();
 ```
 
-Use the `formatDate` utility:
+Use the `Date` component:
 
-```typescript
-import { formatDate } from "@/lib/date";
+```tsx
+import { Date } from "@/components/date";
 
 // Preferred - consistent formatting
-const formattedDate = formatDate(record.createdAt);
+<Date date={record.createdAt} />;
 ```
 
-By consistently using these utilities and following established patterns, you'll contribute to a more maintainable, robust, and consistent codebase. Remember to consult the existing code for examples and refer to the documentation for more specific guidance.
+By consistently using these components and following established patterns, you'll contribute to a more maintainable, robust, and consistent codebase. Remember to consult the existing code for examples and refer to the documentation for more specific guidance.

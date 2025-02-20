@@ -100,7 +100,7 @@ export const columns = [
         return (
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger className="w-36 text-left">{content}</TooltipTrigger>
+              <TooltipTrigger className="w-36">{content}</TooltipTrigger>
               <TooltipContent>
                 <p>{content}</p>
               </TooltipContent>
