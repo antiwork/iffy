@@ -18,6 +18,7 @@ type UserPage = {
 
 export function UsersCollectionNavigation({ currentUserId }: UsersCollectionNavigationProps) {
   const { query } = useActiveCollection<InfiniteData<UserPage>>();
+  const isUsersActiveCollection = query?.data?.pages[0]?.users;
   const { data, fetchNextPage, hasNextPage } = query ?? {};
   const users: User[] = React.useMemo(() => data?.pages?.flatMap((page) => page.users) ?? [], [query?.data]);
 
@@ -39,6 +40,7 @@ export function UsersCollectionNavigation({ currentUserId }: UsersCollectionNavi
     }
   };
 
+  if (!isUsersActiveCollection) return null;
   return (
     <div className="fixed bottom-6 right-6">
       <PrevNextButtons
