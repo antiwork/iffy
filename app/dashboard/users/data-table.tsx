@@ -45,7 +45,7 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
 
   useEffect(() => {
     setQuery(queryResult);
-  }, [JSON.stringify(queryResult.data)]);
+  }, [queryResult.isFetching]);
 
   const table = useReactTable({
     data: users,
