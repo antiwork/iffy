@@ -6,7 +6,7 @@ const strategySchema = z.discriminatedUnion("type", [
     options: z.object({
       blocklist: z.array(z.string()).refine((value) => value.length > 0, "Blocklist must have at least one word"),
       matcher: z.object({
-        exactMatch: z.boolean().default(false),
+        onlyMatchWords: z.boolean().default(false),
       }),
     }),
   }),

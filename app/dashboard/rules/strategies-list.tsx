@@ -98,7 +98,7 @@ function BlocklistStrategy({ control, index }: { control: Control<RuleFormValues
       />
       <FormField
         control={control}
-        name={`strategies.${index}.options.matcher.exactMatch`}
+        name={`strategies.${index}.options.matcher.onlyMatchWords`}
         render={({ field }) => (
           <FormItem className="flex flex-row items-center space-x-2">
             <FormControl>
@@ -111,8 +111,10 @@ function BlocklistStrategy({ control, index }: { control: Control<RuleFormValues
               />
             </FormControl>
             <div className="space-y-0.5">
-              <div className="text-sm font-medium">Exact match</div>
-              <div className="text-sm text-gray-500">When checked, only full-word occurrences will trigger a block</div>
+              <div className="text-sm font-medium">Only match full words</div>
+              <div className="text-sm text-gray-500">
+                When checked, only full word matches will be blocked. Otherwise, any substring matches will be blocked
+              </div>
             </div>
           </FormItem>
         )}
@@ -215,7 +217,9 @@ export function StrategiesList({ control }: StrategiesListProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="max-h-[var(--radix-dropdown-menu-content-available-height)] w-[var(--radix-dropdown-menu-trigger-width)]">
                   <DropdownMenuItem
-                    onClick={() => append({ type: "Blocklist", options: { blocklist: [], exactMatch: false } })}
+                    onClick={() =>
+                      append({ type: "Blocklist", options: { blocklist: [], matcher: { onlyMatchWords: false } } })
+                    }
                   >
                     Blocklist
                   </DropdownMenuItem>

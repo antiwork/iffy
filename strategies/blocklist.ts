@@ -37,8 +37,8 @@ const escapeRegExp = (s: string) => {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
 
-const createNaiveMatcher = (blocklist: string[], exactMatch: boolean) => {
-  if (exactMatch) {
+const createNaiveMatcher = (blocklist: string[], onlyMatchWords: boolean) => {
+  if (onlyMatchWords) {
     const regexes = blocklist.map((word) => ({
       word,
       regex: new RegExp(`\\b${escapeRegExp(word)}\\b`, "i"),
@@ -86,7 +86,7 @@ const isSupportedByObscenityMatcher = (word: string) => {
 export const checkBlocklist = async (
   text: string,
   blocklist: string[],
-  exactMatch: boolean,
+  onlyMatchWords: boolean,
 ): Promise<[true, string[]] | [false, null]> => {
   if (blocklist.length === 0) {
     return [false, null];
@@ -99,7 +99,7 @@ export const checkBlocklist = async (
   [obscenityBlocklist, blocklist] = partition(blocklist, (word) => isSupportedByObscenityMatcher(word));
 
   const obscenityMatcher = createObscenityMatcher(obscenityBlocklist);
-  const naiveMatcher = createNaiveMatcher(blocklist, exactMatch);
+  const naiveMatcher = createNaiveMatcher(blocklist, onlyMatchWords);
 
   matches = obscenityMatcher(text);
   matches.forEach((item) => blockedWords.add(item));
@@ -120,9 +120,9 @@ export const optionsSchema = z.object({
   blocklist: z.array(z.string()),
   matcher: z
     .object({
-      exactMatch: z.boolean().default(false),
+      onlyMatchWords: z.boolean().default(false),
     })
-    .default({ exactMatch: false }),
+    .default({ onlyMatchWords: false }),
 });
 
 export type Options = z.infer<typeof optionsSchema>;
@@ -144,7 +144,7 @@ export class Strategy implements StrategyInstance {
     const [isBlocked, blockedWords] = await checkBlocklist(
       context.record.text,
       this.options.blocklist,
-      this.options.matcher.exactMatch,
+      this.options.matcher.onlyMatchWords,
     );
     return {
       status: isBlocked ? "Flagged" : "Compliant",
