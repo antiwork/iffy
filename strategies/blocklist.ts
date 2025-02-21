@@ -86,7 +86,7 @@ const isSupportedByObscenityMatcher = (word: string) => {
 export const checkBlocklist = async (
   text: string,
   blocklist: string[],
-  onlyMatchWords: boolean,
+  onlyMatchWords: boolean = false,
 ): Promise<[true, string[]] | [false, null]> => {
   if (blocklist.length === 0) {
     return [false, null];
