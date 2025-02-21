@@ -33,7 +33,6 @@ const createObscenityMatcher = (blocklist: string[]) => {
   };
 };
 
-// utility function to escape special regex characters
 const escapeRegExp = (s: string) => {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
