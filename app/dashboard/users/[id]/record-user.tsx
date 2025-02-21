@@ -18,8 +18,17 @@ import { CopyButton } from "@/components/copy-button";
 import { eq, and, desc } from "drizzle-orm";
 import { StripeAccount } from "./stripe-account";
 import { notFound } from "next/navigation";
+import { UsersCollectionNavigation } from "./users-collection-navigation";
 
-export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
+export async function UserDetail({
+  clerkOrganizationId,
+  id,
+  isModal = false,
+}: {
+  clerkOrganizationId: string;
+  id: string;
+  isModal: boolean;
+}) {
   const user = await db.query.users.findFirst({
     where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, id)),
     with: {
@@ -37,7 +46,7 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
   }
 
   return (
-    <div>
+    <div className="relative">
       <Header>
         <HeaderContent>
           <HeaderPrimary>{formatUser(user)}</HeaderPrimary>
@@ -168,6 +177,7 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
           <RecordsTable clerkOrganizationId={clerkOrganizationId} userId={user.id} />
         </SectionContent>
       </Section>
+      {isModal && <UsersCollectionNavigation currentUserId={id} />}
     </div>
   );
 }

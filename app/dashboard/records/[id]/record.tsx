@@ -18,8 +18,17 @@ import { CopyButton } from "@/components/copy-button";
 import * as schema from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import db from "@/db";
+import { RecordsCollectionNavigation } from "./records-collection-navigation";
 
-export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
+export async function RecordDetail({
+  clerkOrganizationId,
+  id,
+  isModal = false,
+}: {
+  clerkOrganizationId: string;
+  id: string;
+  isModal?: boolean;
+}) {
   const record = await db.query.records.findFirst({
     where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, id)),
     with: {
@@ -187,6 +196,7 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
           </Section>
         </>
       )}
+      {isModal && <RecordsCollectionNavigation currentRecordId={id} />}
     </div>
   );
 }
