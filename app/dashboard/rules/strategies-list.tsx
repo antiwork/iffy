@@ -34,20 +34,64 @@ function Blocklist({
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // When appended, word would be considered complete
+  const FORCE_DELIMITER = " ";
+  // Regex to match one or more delimiters: comma, whitespace, or semicolon.
+  const DELIMITER_REGEX = /[,\s;]+/;
+
+  // Helper: process the current input by splitting on commas, semicolons, and whitespace.
+  // If the input does not end with a delimiter, the last segment is considered incomplete.
+  const processInput = (input: string) => {
+    const hasTrailingDelimiter = /[,\s;]$/.test(input);
+
+    const wordsToAdd = input.split(DELIMITER_REGEX).filter((w) => w.trim() !== "");
+
+    if (!hasTrailingDelimiter && wordsToAdd.length > 0) {
+      const incompleteToken = wordsToAdd.pop()!;
+      return { wordsToAdd, remaining: incompleteToken };
+    }
+    return { wordsToAdd, remaining: "" };
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    const { wordsToAdd, remaining } = processInput(newValue);
+    if (wordsToAdd.length > 0) {
+      onChange([...value, ...wordsToAdd]);
+    }
+    setInputValue(remaining);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (inputValue.trim()) {
-        onChange([...value, inputValue.trim()]);
-        setInputValue("");
+      const { wordsToAdd } = processInput(inputValue + FORCE_DELIMITER);
+      if (wordsToAdd.length > 0) {
+        onChange([...value, ...wordsToAdd]);
+        resetInput();
         onBlur();
       }
     }
   };
 
+  const handleBlur = () => {
+    if (inputValue.trim()) {
+      const { wordsToAdd } = processInput(inputValue + FORCE_DELIMITER);
+      if (wordsToAdd.length > 0) {
+        onChange([...value, ...wordsToAdd]);
+      }
+      resetInput();
+    }
+    onBlur();
+  };
+
+  const resetInput = () => {
+    setInputValue("");
+  };
+
   return (
     <div className={`border-input rounded-md border px-3 py-2 ${error ? "border-destructive" : ""}`}>
-      <div className="flex flex-wrap gap-2" onClick={() => inputRef.current?.focus()}>
+      <div className="flex flex-wrap items-center gap-2" onClick={() => inputRef.current?.focus()}>
         {value.map((word, index) => (
           <div key={index} className="flex items-center rounded-full bg-gray-200 px-2 py-1 text-sm">
             <span>{word}</span>
@@ -68,13 +112,13 @@ function Blocklist({
         ))}
         <Input
           type="text"
-          placeholder={value.length === 0 ? "Add words to blocklist" : ""}
+          placeholder={value.length === 0 ? "Type words and press comma or Enter to include them" : ""}
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onBlur={onBlur}
+          onBlur={handleBlur}
           ref={inputRef}
-          className="flex-grow border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className={`${value.length ? "w-auto min-w-[200px]" : "flex-grow"} border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0`}
         />
       </div>
     </div>
