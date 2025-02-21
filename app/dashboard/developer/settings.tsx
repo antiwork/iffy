@@ -16,6 +16,7 @@ import { KeyCreationDialog } from "./key-creation-dialog";
 import { KeyDeletionDialog } from "./key-deletion-dialog";
 import { createWebhook, updateWebhookUrl, createApiKey, deleteApiKey, updateOrganizationSettings } from "./actions";
 import * as schema from "@/db/schema";
+import { DayFull } from "@/components/date";
 
 export type Key = Omit<typeof schema.apiKeys.$inferSelect, "encryptedKey"> & {
   previewKey: string;
@@ -28,8 +29,10 @@ const KeyRow = ({ value, onDelete }: { value: Key; onDelete: (id: string) => voi
     <TableCell>
       <pre>{value.previewKey}</pre>
     </TableCell>
-    <TableCell>{value.lastUsedAt ? value.lastUsedAt.toLocaleDateString() : "Never"}</TableCell>
-    <TableCell>{value.createdAt.toLocaleDateString()}</TableCell>
+    <TableCell>{value.lastUsedAt ? <DayFull date={value.lastUsedAt} /> : "Never"}</TableCell>
+    <TableCell>
+      <DayFull date={value.createdAt} />
+    </TableCell>
     <TableCell>{value.createdBy}</TableCell>
     <TableCell>
       <DropdownMenu>

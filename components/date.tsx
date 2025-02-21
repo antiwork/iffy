@@ -27,7 +27,7 @@ export function DayFull({ date }: DateProps) {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>
+        <TooltipTrigger className="whitespace-nowrap">
           <span>{formatDayFull(date)}</span>
         </TooltipTrigger>
         <TooltipContent>
