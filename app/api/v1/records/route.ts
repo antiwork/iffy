@@ -1,0 +1,126 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { and, desc, eq, gt, isNull, lt } from "drizzle-orm";
+import { SQL } from "drizzle-orm";
+
+import db from "@/db";
+import * as schema from "@/db/schema";
+import { validateApiKey } from "@/services/api-keys";
+import { parseRequestDataWithSchema } from "@/app/api/parse";
+
+const ListRecordsRequestData = z.object({
+  limit: z.coerce.number().min(1).max(100).default(10),
+  starting_after: z.string().optional(),
+  ending_before: z.string().optional(),
+  clientId: z.string().optional(),
+  user: z.string().optional(),
+  entity: z.string().optional(),
+  status: z.enum(["Compliant", "Flagged"]).optional(),
+});
+
+export async function GET(req: NextRequest) {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
+  }
+  const apiKey = authHeader.split(" ")[1];
+  const clerkOrganizationId = await validateApiKey(apiKey);
+  if (!clerkOrganizationId) {
+    return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
+  }
+
+  const { data, error } = await parseRequestDataWithSchema(req, ListRecordsRequestData);
+  if (error) {
+    return NextResponse.json({ error }, { status: 400 });
+  }
+
+  const { limit, starting_after, ending_before, user, entity, clientId, status } = data as z.infer<
+    typeof ListRecordsRequestData
+  >;
+
+  let conditions: SQL<unknown>[] = [
+    eq(schema.records.clerkOrganizationId, clerkOrganizationId),
+    isNull(schema.records.deletedAt),
+  ];
+
+  if (user) {
+    const userExists = await db.query.users.findFirst({
+      where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, user)),
+      columns: { id: true },
+    });
+    if (!userExists) {
+      return NextResponse.json({ error: { message: "Invalid user ID" } }, { status: 400 });
+    }
+    conditions.push(eq(schema.records.userId, user));
+  }
+
+  if (entity) {
+    conditions.push(eq(schema.records.entity, entity));
+  }
+
+  if (clientId) {
+    conditions.push(eq(schema.records.clientId, clientId));
+  }
+
+  if (status) {
+    conditions.push(eq(schema.records.moderationStatus, status));
+  }
+
+  if (starting_after) {
+    const cursor = await db.query.records.findFirst({
+      where: eq(schema.records.id, starting_after),
+      columns: { sort: true },
+    });
+    if (!cursor) {
+      return NextResponse.json({ error: { message: "Invalid starting_after cursor" } }, { status: 400 });
+    }
+    conditions.push(gt(schema.records.sort, cursor.sort));
+  } else if (ending_before) {
+    const cursor = await db.query.records.findFirst({
+      where: eq(schema.records.id, ending_before),
+      columns: { sort: true },
+    });
+    if (!cursor) {
+      return NextResponse.json({ error: { message: "Invalid ending_before cursor" } }, { status: 400 });
+    }
+    conditions.push(lt(schema.records.sort, cursor.sort));
+  }
+
+  const records = await db
+    .select({
+      id: schema.records.id,
+      clientId: schema.records.clientId,
+      clientUrl: schema.records.clientUrl,
+      name: schema.records.name,
+      entity: schema.records.entity,
+      metadata: schema.records.metadata,
+      createdAt: schema.records.createdAt,
+      updatedAt: schema.records.updatedAt,
+      moderationStatus: schema.records.moderationStatus,
+      moderationStatusCreatedAt: schema.records.moderationStatusCreatedAt,
+      moderationPending: schema.records.moderationPending,
+      moderationPendingCreatedAt: schema.records.moderationPendingCreatedAt,
+      userId: schema.records.userId,
+    })
+    .from(schema.records)
+    .where(and(...conditions))
+    .orderBy(ending_before ? desc(schema.records.sort) : schema.records.sort)
+    .limit(limit + 1);
+
+  const hasMore = records.length > limit;
+  if (hasMore) {
+    records.pop();
+  }
+
+  if (ending_before) {
+    records.reverse();
+  }
+
+  return NextResponse.json({
+    data: records.map(({ userId, ...record }) => ({
+      ...record,
+      user: userId,
+    })),
+    has_more: hasMore,
+  });
+}
