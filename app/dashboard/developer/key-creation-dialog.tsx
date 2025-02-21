@@ -95,37 +95,33 @@ export const KeyCreationDialog = ({
               <DialogTitle>Copy API key</DialogTitle>
             </DialogHeader>
             <DialogDescription className="space-y-4">
-              <p>
-                Here&apos;s your key! Copy it before closing this dialog. You won&apos;t be able to access it again.
-              </p>
-              <CopyButton text={raw} />
+              Here&apos;s your key! Copy it before closing this dialog. You won&apos;t be able to access it again.
             </DialogDescription>
+            <CopyButton text={raw} />
           </>
         ) : (
           <>
             <DialogHeader>
               <DialogTitle>Create API key</DialogTitle>
             </DialogHeader>
-            <DialogDescription>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Development" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit">Create</Button>
-                </form>
-              </Form>
-            </DialogDescription>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Development" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit">Create</Button>
+              </form>
+            </Form>
           </>
         )}
       </DialogContent>
