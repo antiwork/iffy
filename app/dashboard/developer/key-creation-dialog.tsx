@@ -95,11 +95,9 @@ export const KeyCreationDialog = ({
               <DialogTitle>Copy API key</DialogTitle>
             </DialogHeader>
             <DialogDescription className="space-y-4">
-              <p>
-                Here&apos;s your key! Copy it before closing this dialog. You won&apos;t be able to access it again.
-              </p>
-              <CopyButton text={raw} />
+              Here&apos;s your key! Copy it before closing this dialog. You won&apos;t be able to access it again.
             </DialogDescription>
+            <CopyButton text={raw} />
           </>
         ) : (
           <>
