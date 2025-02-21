@@ -5,7 +5,7 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { validateApiKey } from "@/services/api-keys";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
@@ -16,8 +16,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
+  const { id } = await params;
+
   const user = await db.query.users.findFirst({
-    where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, params.id)),
+    where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, id)),
     columns: {
       id: true,
       clientId: true,

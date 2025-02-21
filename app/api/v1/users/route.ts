@@ -15,6 +15,7 @@ const ListUsersRequestData = z.object({
   clientId: z.string().optional(),
   email: z.string().optional(),
   status: z.enum(["Compliant", "Suspended", "Banned"]).optional(),
+  user: z.string().optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const { limit, starting_after, ending_before, email, clientId, status } = data as z.infer<
+  const { limit, starting_after, ending_before, email, clientId, status, user } = data as z.infer<
     typeof ListUsersRequestData
   >;
 
@@ -49,6 +50,16 @@ export async function GET(req: NextRequest) {
 
   if (status) {
     conditions.push(eq(schema.users.actionStatus, status));
+  }
+
+  if (user) {
+    const userExists = await db.query.users.findFirst({
+      where: eq(schema.users.id, user),
+    });
+    if (!userExists) {
+      return NextResponse.json({ error: { message: "Invalid user" } }, { status: 400 });
+    }
+    conditions.push(eq(schema.users.id, user));
   }
 
   if (starting_after) {
