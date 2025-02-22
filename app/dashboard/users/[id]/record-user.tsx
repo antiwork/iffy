@@ -120,47 +120,11 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
           <StripeAccount clerkOrganizationId={clerkOrganizationId} stripeAccountId={user.stripeAccountId} />
         </>
       )}
-      {user.actions[0] && (
+      {user.actions.length > 0 && (
         <>
           <Separator className="my-2" />
           <Section>
-            <SectionTitle>Latest User Action</SectionTitle>
-            <SectionContent>
-              <dl className="grid gap-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <dt className="text-stone-500 dark:text-zinc-500">Status</dt>
-                  <dd>{formatUserActionStatus(user.actions[0])}</dd>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
-                  <dd>{formatVia(user.actions[0])}</dd>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <dt className="text-stone-500 dark:text-zinc-500">Created At</dt>
-                  <dd>
-                    <DateFull date={user.actions[0].createdAt} />
-                  </dd>
-                </div>
-                {user.actions[0].appeal && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <dt className="text-stone-500 dark:text-zinc-500">Appeal</dt>
-                    <dd>
-                      <Button asChild variant="link" className="text-md -mx-4 -my-2 block w-full truncate font-normal">
-                        <Link href={`/dashboard/inbox/${user.actions[0].appeal.id}`}>Appeal</Link>
-                      </Button>
-                    </dd>
-                  </div>
-                )}
-              </dl>
-            </SectionContent>
-          </Section>
-        </>
-      )}
-      {user.actions.length > 1 && (
-        <>
-          <Separator className="my-2" />
-          <Section>
-            <SectionTitle>All Actions</SectionTitle>
+            <SectionTitle>Actions</SectionTitle>
             <SectionContent>
               <ActionsTable actions={user.actions} />
             </SectionContent>

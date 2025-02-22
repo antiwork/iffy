@@ -148,47 +148,11 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
           {record.imageUrls.length > 0 ? <RecordImages imageUrls={record.imageUrls} /> : null}
         </SectionContent>
       </Section>
-      {record.moderations[0] && (
+      {record.moderations.length > 0 && (
         <>
           <Separator className="my-2" />
           <Section>
-            <SectionTitle>Latest Moderation</SectionTitle>
-            <SectionContent>
-              <dl className="grid gap-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <dt className="text-stone-500 dark:text-zinc-500">Status</dt>
-                  <dd>{formatModerationStatus(record.moderations[0])}</dd>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
-                  <dd>{formatVia(record.moderations[0])}</dd>
-                </div>
-                {rules && rules.length > 0 && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <dt className="text-stone-500 dark:text-zinc-500">Rules</dt>
-                    <dd>{rules.map((rule) => (rule.preset ? rule.preset.name : rule.name)).join(", ")}</dd>
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-4">
-                  <dt className="text-stone-500 dark:text-zinc-500">Reasoning</dt>
-                  <dd>{record.moderations[0]?.reasoning}</dd>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <dt className="text-stone-500 dark:text-zinc-500">Created At</dt>
-                  <dd>
-                    <DateFull date={record.moderations[0].createdAt} />
-                  </dd>
-                </div>
-              </dl>
-            </SectionContent>
-          </Section>
-        </>
-      )}
-      {record.moderations.length > 1 && (
-        <>
-          <Separator className="my-2" />
-          <Section>
-            <SectionTitle>All Moderations</SectionTitle>
+            <SectionTitle>Moderations</SectionTitle>
             <SectionContent>
               <ModerationsTable moderations={record.moderations} />
             </SectionContent>
