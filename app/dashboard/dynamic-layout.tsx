@@ -183,7 +183,7 @@ const Nav = ({
                   {link.badge ? (
                     <Badge
                       variant="default"
-                      className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center p-0 text-[10px]"
+                      className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center p-0 text-[10px]"
                     >
                       {link.badge}
                     </Badge>

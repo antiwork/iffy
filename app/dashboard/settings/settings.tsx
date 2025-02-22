@@ -128,7 +128,7 @@ export const Settings = ({
               className={`pr-8 ${hasModerationPercentageError ? "border-red-500" : ""}`}
             />
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <span className="text-gray-500 dark:text-stone-50 sm:text-sm">%</span>
+              <span className="text-gray-500 sm:text-sm dark:text-stone-50">%</span>
             </div>
           </div>
           {hasModerationPercentageError && <p className="mt-2 text-sm text-red-600">Invalid percentage</p>}

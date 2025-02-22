@@ -71,7 +71,7 @@ export function Appeals({ clerkOrganizationId, defaultLayout = [20, 32, 48], chi
               <div className="bg-background/95 supports-backdrop-filter:bg-background/60 backdrop-blur-sm">
                 <form>
                   <div className="relative">
-                    <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
+                    <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
                     <DebouncedInput
                       value={search}
                       type="search"

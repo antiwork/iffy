@@ -1,6 +1,6 @@
 export function Code({ children }: { children: string }) {
   return (
-    <div className="-mx-2 whitespace-pre-wrap break-all rounded-md border border-stone-200 bg-white px-6 py-4 font-mono dark:border-zinc-700 dark:bg-zinc-800 dark:text-stone-50">
+    <div className="-mx-2 rounded-md border border-stone-200 bg-white px-6 py-4 font-mono break-all whitespace-pre-wrap dark:border-zinc-700 dark:bg-zinc-800 dark:text-stone-50">
       {children}
     </div>
   );

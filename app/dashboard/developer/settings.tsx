@@ -233,7 +233,7 @@ export const Settings = ({
       </Table>
       <KeyCreationDialog onCreate={handleCreateKey} />
 
-      <h2 className="mb-2 mt-8 text-2xl font-bold">Stripe Integration</h2>
+      <h2 className="mt-8 mb-2 text-2xl font-bold">Stripe Integration</h2>
       <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
         Connect a Stripe API key to enable Iffy to pause payments and payouts for users with connected accounts who are
         suspended or banned
