@@ -8,7 +8,7 @@ export function Code({ children }: { children: string }) {
 
 export function CodeInline({ children }: { children: string }) {
   return (
-    <span className="-mx-1 -my-0.5 rounded border bg-neutral-50 px-1 py-0.5 font-mono dark:border-zinc-700 dark:bg-zinc-800 dark:text-stone-50">
+    <span className="-mx-1 -my-0.5 rounded-sm border bg-neutral-50 px-1 py-0.5 font-mono dark:border-zinc-700 dark:bg-zinc-800 dark:text-stone-50">
       {children}
     </span>
   );

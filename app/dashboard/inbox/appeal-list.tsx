@@ -20,7 +20,7 @@ export function AppealList({ items }: { items: AppealWithMessages[] }) {
             <button
               key={item.id}
               className={cn(
-                "flex flex-col items-stretch gap-2 border-b border-stone-300 p-4 text-left text-sm text-gray-950 ring-offset-green-950/80 transition-all hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-green-950/20 focus-visible:ring-offset-2 dark:border-b-zinc-800 dark:text-white/80 dark:ring-offset-stone-950 dark:hover:bg-white/5 dark:focus-visible:ring-stone-300 dark:focus-visible:ring-offset-stone-950",
+                "flex flex-col items-stretch gap-2 border-b border-stone-300 p-4 text-left text-sm text-gray-950 ring-offset-green-950/80 transition-all hover:bg-stone-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-green-950/20 focus-visible:ring-offset-2 dark:border-b-zinc-800 dark:text-white/80 dark:ring-offset-stone-950 dark:hover:bg-white/5 dark:focus-visible:ring-stone-300 dark:focus-visible:ring-offset-stone-950",
                 selectedAppealId === item.id && "bg-stone-100 dark:bg-white/5",
               )}
               onClick={() => {

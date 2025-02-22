@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import config from "@/lib/tailwind";
+import defaultTheme from "tailwindcss/defaultTheme";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
@@ -19,11 +19,11 @@ export interface DailyAnalyticsChartProps {
 const chartConfig = {
   moderations: {
     label: "Moderations",
-    color: config.theme.colors.black,
+    color: defaultTheme.colors().black,
   },
   flagged: {
     label: "Flagged",
-    color: config.theme.colors.red[600],
+    color: defaultTheme.colors().red[600],
   },
 } satisfies ChartConfig;
 
@@ -36,24 +36,24 @@ export function DailyAnalyticsChart({ stats }: DailyAnalyticsChartProps) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 dark:border-zinc-700 sm:flex-row">
+      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row dark:border-zinc-700">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle className="dark:text-stone-100">Moderations</CardTitle>
           <CardDescription className="dark:text-stone-400">Last 30 days</CardDescription>
         </div>
         <div className="flex">
-          <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l dark:border-zinc-700 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+          <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 dark:border-zinc-700">
             <span className="text-muted-foreground text-xs">{chartConfig.moderations.label}</span>
             <span
-              className="text-lg font-bold leading-none sm:text-3xl"
+              className="text-lg leading-none font-bold sm:text-3xl"
               style={{ color: chartConfig.moderations.color }}
             >
               {totalModerations.toLocaleString()}
             </span>
           </div>
-          <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l dark:border-zinc-700 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+          <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 dark:border-zinc-700">
             <span className="text-muted-foreground text-xs">{chartConfig.flagged.label}</span>
-            <span className="text-lg font-bold leading-none sm:text-3xl" style={{ color: chartConfig.flagged.color }}>
+            <span className="text-lg leading-none font-bold sm:text-3xl" style={{ color: chartConfig.flagged.color }}>
               {totalFlagged.toLocaleString()}
             </span>
           </div>

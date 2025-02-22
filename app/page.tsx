@@ -88,7 +88,7 @@ export default async function Page() {
                   </Link>
                 </Button>
               </div>
-              <div className="flex-shrink-0 space-y-4">
+              <div className="shrink-0 space-y-4">
                 <h2 className="text-balance font-sans text-sm font-normal text-gray-500">
                   Trusted by leading companies to help keep the Internet clean and safe.
                 </h2>

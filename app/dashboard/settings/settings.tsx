@@ -116,7 +116,7 @@ export const Settings = ({
           >
             Moderation percentage
           </label>
-          <div className="relative mt-1 rounded-md shadow-sm">
+          <div className="relative mt-1 rounded-md shadow-xs">
             <Input
               id="moderationPercentage"
               type="number"

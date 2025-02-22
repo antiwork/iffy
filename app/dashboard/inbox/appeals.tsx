@@ -68,7 +68,7 @@ export function Appeals({ clerkOrganizationId, defaultLayout = [20, 32, 48], chi
                   All
                 </TabsTrigger>
               </TabsList>
-              <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur">
+              <div className="bg-background/95 supports-backdrop-filter:bg-background/60 backdrop-blur-sm">
                 <form>
                   <div className="relative">
                     <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />

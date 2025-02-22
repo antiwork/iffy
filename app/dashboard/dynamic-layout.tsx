@@ -127,7 +127,7 @@ export default function DynamicLayout({
           <ResizablePanel defaultSize={80}>
             <div className={cn("flex h-[52px] items-center justify-end px-4 dark:bg-zinc-900")}>
               <ClerkLoading>
-                <Skeleton className="mr-2 h-[20px] w-[125px] rounded" />
+                <Skeleton className="mr-2 h-[20px] w-[125px] rounded-sm" />
               </ClerkLoading>
               <ClerkLoaded>
                 <OrganizationSwitcher appearance={{ elements: { organizationSwitcherTrigger: "dark:text-white" } }} />
@@ -159,7 +159,7 @@ const Nav = ({
 
   return (
     <div data-collapsed={isCollapsed} className="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2">
-      <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
+      <nav className="grid gap-1 px-2 group-data-[collapsed=true]:justify-center group-data-[collapsed=true]:px-2">
         {links.map((link, index) => {
           const href = `/dashboard/${link.slug}`;
           const isActive = segment === link.slug;
