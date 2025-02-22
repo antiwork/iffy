@@ -18,6 +18,7 @@ type RecordsPage = {
 
 export function RecordsCollectionNavigation({ currentRecordId }: RecordsCollectionNavigationProps) {
   const { query } = useActiveCollection<InfiniteData<RecordsPage>>();
+  const isRecordsActiveCollection = query?.data?.pages[0]?.records;
   const { data, fetchNextPage, hasNextPage } = query ?? {};
 
   const records: Record[] = React.useMemo(() => data?.pages?.flatMap((page) => page.records) ?? [], [data]);
@@ -40,6 +41,7 @@ export function RecordsCollectionNavigation({ currentRecordId }: RecordsCollecti
     }
   };
 
+  if (!isRecordsActiveCollection) return null;
   return (
     <div className="fixed bottom-6 right-6">
       <PrevNextButtons
