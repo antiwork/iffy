@@ -14,4 +14,4 @@ export default async function ModerationPage({ params }: { params: { id: string 
   }
 
   return <ModerationDetail clerkOrganizationId={orgId} id={params.id} />;
-} 
+}

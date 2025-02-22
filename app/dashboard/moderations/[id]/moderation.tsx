@@ -94,4 +94,4 @@ export async function ModerationDetail({ clerkOrganizationId, id }: { clerkOrgan
       </Section>
     </div>
   );
-} 
+}

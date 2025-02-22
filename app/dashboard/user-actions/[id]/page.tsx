@@ -14,4 +14,4 @@ export default async function UserActionPage({ params }: { params: { id: string 
   }
 
   return <UserActionDetail clerkOrganizationId={orgId} id={params.id} />;
-} 
+}

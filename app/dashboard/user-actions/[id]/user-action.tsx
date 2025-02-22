@@ -74,4 +74,4 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
       </Section>
     </div>
   );
-} 
+}
