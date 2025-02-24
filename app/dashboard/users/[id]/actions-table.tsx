@@ -31,6 +31,12 @@ export function ActionsTable({ actions }: ActionsTableProps) {
               <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
               <dd>{formatVia({ via: latestAction.via, clerkUserId: latestAction.clerkUserId })}</dd>
             </div>
+            {latestAction.reasoning && (
+              <div className="grid grid-cols-2 gap-4">
+                <dt className="text-stone-500 dark:text-zinc-500">Reasoning</dt>
+                <dd>{latestAction.reasoning}</dd>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Created at</dt>
               <dd>
@@ -65,6 +71,7 @@ export function ActionsTable({ actions }: ActionsTableProps) {
             <TableRow>
               <TableHead className="px-2 py-1">Status</TableHead>
               <TableHead className="px-2 py-1">Via</TableHead>
+              <TableHead className="px-2 py-1">Reasoning</TableHead>
               <TableHead className="px-2 py-1">Appeal</TableHead>
               <TableHead className="px-2 py-1">Created at</TableHead>
               <TableHead className="px-2 py-1"></TableHead>
@@ -78,6 +85,9 @@ export function ActionsTable({ actions }: ActionsTableProps) {
                 </TableCell>
                 <TableCell className="px-2 py-1">
                   <div className="py-1">{formatVia({ via: action.via, clerkUserId: action.clerkUserId })}</div>
+                </TableCell>
+                <TableCell className="px-2 py-1">
+                  <div className="py-1">{action.reasoning || "—"}</div>
                 </TableCell>
                 <TableCell className="px-2 py-1">
                   <div className="py-1">

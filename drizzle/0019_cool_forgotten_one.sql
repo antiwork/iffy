@@ -1,0 +1,1 @@
+ALTER TABLE "user_actions" ADD COLUMN "reasoning" text;

@@ -12,10 +12,12 @@ export async function createUserAction({
   status,
   via,
   clerkUserId,
+  reasoning,
 }: {
   clerkOrganizationId: string;
   userId: string;
   status: ActionStatus;
+  reasoning?: string;
 } & ViaWithClerkUserOrUser) {
   const [userAction, lastUserAction] = await db.transaction(async (tx) => {
     const user = await tx.query.users.findFirst({
@@ -57,6 +59,7 @@ export async function createUserAction({
         userId,
         via,
         clerkUserId,
+        reasoning,
       })
       .returning();
 

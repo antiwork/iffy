@@ -32,7 +32,7 @@ interface HeaderPrimaryProps extends React.HTMLAttributes<HTMLDivElement> {
 const HeaderPrimary = React.forwardRef<HTMLDivElement, HeaderPrimaryProps>(({ className, children, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("line-clamp-3 text-xl font-semibold leading-none tracking-tight dark:text-zinc-50", className)}
+    className={cn("line-clamp-3 text-xl leading-none font-semibold tracking-tight dark:text-zinc-50", className)}
     {...props}
   >
     {children}

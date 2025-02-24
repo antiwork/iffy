@@ -31,6 +31,7 @@ export const createUserActions = actionClient
             status,
             via: "Manual",
             clerkUserId,
+            reasoning,
           }),
         ),
       );

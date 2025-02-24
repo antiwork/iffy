@@ -173,7 +173,7 @@ export const Settings = ({
               placeholder="Enter webhook URL"
               value={webhookUrl}
               onChange={(e) => setWebhookUrl(e.target.value)}
-              className="flex-grow"
+              className="grow"
             />
             <Button type="submit" disabled={!webhookUrl.trim()}>
               Save webhook
@@ -181,7 +181,7 @@ export const Settings = ({
           </form>
         ) : (
           <div className="flex items-center gap-4">
-            <div className="flex-grow text-xs">
+            <div className="grow text-xs">
               <div className="text-sm">
                 <strong className="text-base">URL:</strong> {webhookEndpoint?.url || "No webhook set"}
               </div>
@@ -233,7 +233,7 @@ export const Settings = ({
       </Table>
       <KeyCreationDialog onCreate={handleCreateKey} />
 
-      <h2 className="mb-2 mt-8 text-2xl font-bold">Stripe Integration</h2>
+      <h2 className="mt-8 mb-2 text-2xl font-bold">Stripe Integration</h2>
       <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
         Connect a Stripe API key to enable Iffy to pause payments and payouts for users with connected accounts who are
         suspended or banned
@@ -242,7 +242,7 @@ export const Settings = ({
         <label htmlFor="stripeApiKey" className="block text-sm font-medium text-gray-950 dark:text-stone-50">
           API key
         </label>
-        <div className="relative mt-1 rounded-md shadow-sm">
+        <div className="relative mt-1 rounded-md shadow-xs">
           <Input
             id="stripeApiKey"
             type={showStripeApiKey ? "text" : "password"}

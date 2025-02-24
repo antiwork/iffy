@@ -32,7 +32,7 @@ const SelectButton = React.forwardRef<HTMLDivElement, SelectButtonProps>(
     return (
       <SelectButtonContext.Provider value={{ variant, selectedItem, setSelectedItem }}>
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen} {...props}>
-          <div ref={ref} className="inline-flex rounded-md shadow-sm">
+          <div ref={ref} className="inline-flex rounded-md shadow-xs">
             {children}
           </div>
         </DropdownMenu>
