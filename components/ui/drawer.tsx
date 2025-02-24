@@ -38,7 +38,7 @@ const DrawerContent = React.forwardRef<
       )}
       {...props}
     >
-      <div className="mx-auto -mb-8 mt-6 h-2 w-[100px] rounded-full bg-stone-100 dark:bg-stone-800" />
+      <div className="mx-auto mt-6 -mb-8 h-2 w-[100px] rounded-full bg-stone-100 dark:bg-stone-800" />
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>
@@ -61,7 +61,7 @@ const DrawerTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn("text-lg leading-none font-semibold tracking-tight", className)}
     {...props}
   />
 ));

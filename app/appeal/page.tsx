@@ -56,7 +56,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
   if (latestAction?.status === "Banned") {
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-16">
-        <Card className="w-full max-w-screen-sm">
+        <Card className="w-full max-w-(--breakpoint-sm)">
           <CardHeader className="flex flex-row items-start justify-between gap-4">
             <div>
               <CardTitle className="text-lg lowercase">{user.email}</CardTitle>
@@ -72,7 +72,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
   if (latestAction?.status === "Compliant") {
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-16">
-        <Card className="w-full max-w-screen-sm">
+        <Card className="w-full max-w-(--breakpoint-sm)">
           <CardHeader className="flex flex-row items-start justify-between gap-4">
             <div>
               <CardTitle className="text-lg lowercase">{user.email}</CardTitle>
@@ -88,7 +88,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
   if (latestAppeal) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-16">
-        <Card className="w-full max-w-screen-sm">
+        <Card className="w-full max-w-(--breakpoint-sm)">
           <CardHeader className="flex flex-row items-start justify-between gap-4">
             <div>
               <CardTitle className="text-lg lowercase">{user.email}</CardTitle>
@@ -117,7 +117,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-16">
-      <Card className="w-full max-w-screen-sm">
+      <Card className="w-full max-w-(--breakpoint-sm)">
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div>
             <CardTitle className="text-lg lowercase">{user.email}</CardTitle>
