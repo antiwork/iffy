@@ -6,5 +6,5 @@ export default {
   testPattern: "e2e/**/*.test.ts",
   ai: {
     provider: "anthropic",
-  }
+  },
 } satisfies ShortestConfig;
