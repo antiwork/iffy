@@ -3,7 +3,7 @@ import { shortest } from "@antiwork/shortest";
 const loginEmail = `shortest+clerk_test@${process.env.MAILOSAUR_SERVER_ID}.mailosaur.net`;
 shortest("Log in", { email: loginEmail });
 
-shortest("Check the Moderations dashboard UI")
+shortest("Check the Dashboard Moderations UI at /dashboard/moderations")
   .expect("Verify sidebar navigation and table headers are present")
   .expect("Confirm table has Record, Status, Via, Entity, and Created At columns")
   .expect("Verify AI appears in the Via column")

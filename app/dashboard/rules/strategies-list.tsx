@@ -74,7 +74,7 @@ function Blocklist({
           onKeyDown={handleKeyDown}
           onBlur={onBlur}
           ref={inputRef}
-          className="flex-grow border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="grow border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         />
       </div>
     </div>
@@ -83,18 +83,43 @@ function Blocklist({
 
 function BlocklistStrategy({ control, index }: { control: Control<RuleFormValues>; index: number }) {
   return (
-    <FormField
-      control={control}
-      name={`strategies.${index}.options.blocklist`}
-      render={({ field, fieldState }) => (
-        <FormItem>
-          <FormControl>
-            <Blocklist value={field.value} onChange={field.onChange} onBlur={field.onBlur} error={fieldState.error} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    <div className="space-y-2">
+      <FormField
+        control={control}
+        name={`strategies.${index}.options.blocklist`}
+        render={({ field, fieldState }) => (
+          <FormItem>
+            <FormControl>
+              <Blocklist value={field.value} onChange={field.onChange} onBlur={field.onBlur} error={fieldState.error} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name={`strategies.${index}.options.matcher.onlyMatchWords`}
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-center space-x-2">
+            <FormControl>
+              <input
+                type="checkbox"
+                checked={field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+                onBlur={field.onBlur}
+                className="h-4 w-4 rounded-sm border-gray-300"
+              />
+            </FormControl>
+            <div className="space-y-0.5">
+              <div className="text-sm font-medium">Only match full words</div>
+              <div className="text-sm text-gray-500">
+                When checked, only full word matches will be blocked. Otherwise, any substring matches will be blocked
+              </div>
+            </div>
+          </FormItem>
+        )}
+      />
+    </div>
   );
 }
 
@@ -136,7 +161,7 @@ function PromptStrategy({ control, index }: { control: Control<RuleFormValues>; 
                 checked={field.value}
                 onChange={(e) => field.onChange(e.target.checked)}
                 onBlur={field.onBlur}
-                className="h-4 w-4 rounded border-gray-300"
+                className="h-4 w-4 rounded-sm border-gray-300"
               />
             </FormControl>
             <div className="space-y-0.5">
@@ -191,7 +216,11 @@ export function StrategiesList({ control }: StrategiesListProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="max-h-[var(--radix-dropdown-menu-content-available-height)] w-[var(--radix-dropdown-menu-trigger-width)]">
-                  <DropdownMenuItem onClick={() => append({ type: "Blocklist", options: { blocklist: [] } })}>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      append({ type: "Blocklist", options: { blocklist: [], matcher: { onlyMatchWords: false } } })
+                    }
+                  >
                     Blocklist
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -202,7 +231,7 @@ export function StrategiesList({ control }: StrategiesListProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="divide-y *:py-8 first:*:pt-0 last:*:pb-0">
+            <div className="divide-y *:py-8 *:first:pt-0 *:last:pb-0">
               {fields.length > 0 ? (
                 fields.map((field, index) => (
                   <div key={field.id} className="space-y-4">

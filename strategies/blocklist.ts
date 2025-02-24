@@ -33,21 +33,41 @@ const createObscenityMatcher = (blocklist: string[]) => {
   };
 };
 
-const createNaiveMatcher = (blocklist: string[]) => {
-  return (text: string) => {
-    const blockedWords = new Set<string>();
-    for (let word of blocklist) {
-      if (text.toLowerCase().includes(word.toLowerCase())) {
-        blockedWords.add(word);
+const escapeRegExp = (s: string) => {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
+
+const createNaiveMatcher = (blocklist: string[], onlyMatchWords: boolean) => {
+  if (onlyMatchWords) {
+    const regexes = blocklist.map((word) => ({
+      word,
+      regex: new RegExp(`\\b${escapeRegExp(word)}\\b`, "i"),
+    }));
+
+    return (text: string) => {
+      const blockedWords = new Set<string>();
+      for (const { word, regex } of regexes) {
+        if (regex.test(text)) {
+          blockedWords.add(word);
+        }
       }
-    }
-    return Array.from(blockedWords);
-  };
+      return Array.from(blockedWords);
+    };
+  } else {
+    return (text: string) => {
+      const blockedWords = new Set<string>();
+      for (let word of blocklist) {
+        if (text.toLowerCase().includes(word.toLowerCase())) {
+          blockedWords.add(word);
+        }
+      }
+      return Array.from(blockedWords);
+    };
+  }
 };
 
 const isSupportedByObscenityMatcher = (word: string) => {
   let match = false;
-
   const dataset = generateDataset();
   // weirdly, this is the only way to iterate over the dataset...
   // the boolean return value, and the filtered dataset are unused
@@ -58,13 +78,16 @@ const isSupportedByObscenityMatcher = (word: string) => {
     }
     return false;
   });
-
   return match;
 };
 
 // tier 1: obscenity
 // tier 2: naive, no text transforms
-export const checkBlocklist = async (text: string, blocklist: string[]): Promise<[true, string[]] | [false, null]> => {
+export const checkBlocklist = async (
+  text: string,
+  blocklist: string[],
+  onlyMatchWords: boolean = false,
+): Promise<[true, string[]] | [false, null]> => {
   if (blocklist.length === 0) {
     return [false, null];
   }
@@ -76,7 +99,7 @@ export const checkBlocklist = async (text: string, blocklist: string[]): Promise
   [obscenityBlocklist, blocklist] = partition(blocklist, (word) => isSupportedByObscenityMatcher(word));
 
   const obscenityMatcher = createObscenityMatcher(obscenityBlocklist);
-  const naiveMatcher = createNaiveMatcher(blocklist);
+  const naiveMatcher = createNaiveMatcher(blocklist, onlyMatchWords);
 
   matches = obscenityMatcher(text);
   matches.forEach((item) => blockedWords.add(item));
@@ -88,7 +111,6 @@ export const checkBlocklist = async (text: string, blocklist: string[]): Promise
   if (isBlocked) {
     return [isBlocked, Array.from(blockedWords)];
   }
-
   return [isBlocked, null];
 };
 
@@ -96,6 +118,11 @@ export const type = "Blocklist";
 
 export const optionsSchema = z.object({
   blocklist: z.array(z.string()),
+  matcher: z
+    .object({
+      onlyMatchWords: z.boolean().default(false),
+    })
+    .default({ onlyMatchWords: false }),
 });
 
 export type Options = z.infer<typeof optionsSchema>;
@@ -114,7 +141,11 @@ export class Strategy implements StrategyInstance {
   }
 
   async test(context: Context): Promise<StrategyResult> {
-    const [isBlocked, blockedWords] = await checkBlocklist(context.record.text, this.options.blocklist);
+    const [isBlocked, blockedWords] = await checkBlocklist(
+      context.record.text,
+      this.options.blocklist,
+      this.options.matcher.onlyMatchWords,
+    );
     return {
       status: isBlocked ? "Flagged" : "Compliant",
       reasoning: blockedWords ? blockedWords.map((word) => `Content contains blocked word: ${word}`) : undefined,

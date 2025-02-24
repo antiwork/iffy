@@ -5,7 +5,7 @@ import { RecordImages } from "./record-images";
 import { Code, CodeInline } from "@/components/code";
 import { Header, HeaderContent, HeaderPrimary, HeaderSecondary, HeaderActions } from "@/components/sheet/header";
 import { Section, SectionContent, SectionTitle } from "@/components/sheet/section";
-import { DayFull } from "@/components/date";
+import { DateFull } from "@/components/date";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ActionMenu } from "../action-menu";
@@ -129,20 +129,20 @@ export async function RecordDetail({
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Created At</dt>
               <dd>
-                <DayFull date={record.createdAt} />
+                <DateFull date={record.createdAt} />
               </dd>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Updated At</dt>
               <dd>
-                <DayFull date={record.updatedAt} />
+                <DateFull date={record.updatedAt} />
               </dd>
             </div>
             {record.deletedAt && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">Deleted At</dt>
                 <dd>
-                  <DayFull date={record.deletedAt} />
+                  <DateFull date={record.deletedAt} />
                 </dd>
               </div>
             )}
@@ -185,7 +185,7 @@ export async function RecordDetail({
                 <div className="grid grid-cols-2 gap-4">
                   <dt className="text-stone-500 dark:text-zinc-500">Created At</dt>
                   <dd>
-                    <DayFull date={record.moderations[0].createdAt} />
+                    <DateFull date={record.moderations[0].createdAt} />
                   </dd>
                 </div>
               </dl>

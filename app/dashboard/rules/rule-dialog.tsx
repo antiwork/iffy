@@ -145,7 +145,7 @@ export function RuleDialog({ open, onOpenChange, onSubmit, initialData, presets 
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="My Rule" {...field} />
+                        <Input placeholder="My Rule" {...field} value={field.value ?? ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

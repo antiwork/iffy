@@ -12,6 +12,7 @@ export function ActionsTable({ actions }: Pick<UserDetail, "actions">) {
         <TableRow>
           <TableHead className="px-2 py-1">Status</TableHead>
           <TableHead className="px-2 py-1">Via</TableHead>
+          <TableHead className="px-2 py-1">Reasoning</TableHead>
           <TableHead className="px-2 py-1">Appeal</TableHead>
           <TableHead className="px-2 py-1">Created At</TableHead>
         </TableRow>
@@ -25,6 +26,9 @@ export function ActionsTable({ actions }: Pick<UserDetail, "actions">) {
               </TableCell>
               <TableCell className="px-2 py-1">
                 <div className="py-1">{formatVia(action)}</div>
+              </TableCell>
+              <TableCell className="px-2 py-1">
+                <div className="py-1">{action.reasoning || "—"}</div>
               </TableCell>
               <TableCell className="px-2 py-1">
                 <div className="py-1">
