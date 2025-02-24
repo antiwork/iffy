@@ -53,6 +53,12 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
               <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
               <dd>{formatVia(userAction)}</dd>
             </div>
+            {userAction.reasoning && (
+              <div className="grid grid-cols-2 gap-4">
+                <dt className="text-stone-500 dark:text-zinc-500">Reasoning</dt>
+                <dd>{userAction.reasoning}</dd>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Created at</dt>
               <dd>
