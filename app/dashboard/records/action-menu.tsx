@@ -158,7 +158,7 @@ export const BulkActionMenu = ({ records }: { records: Record[] }) => {
               ) : (
                 <>
                   Confirm
-                  <pre className="flex items-center gap-1 rounded border border-white bg-transparent p-1 text-xs text-white">
+                  <pre className="flex items-center gap-1 rounded-sm border border-white bg-transparent p-1 text-xs text-white">
                     <Command className="h-3 w-3" />
                     <span>+</span>
                     <span>Enter</span>

@@ -77,7 +77,7 @@ const Emails = async () => {
 
   return (
     <div className="p-4">
-      <h2 className="mb-4 pl-8 pt-4 text-2xl font-bold">Email Templates</h2>
+      <h2 className="mb-4 pt-4 pl-8 text-2xl font-bold">Email Templates</h2>
       <Tabs defaultValue="suspended" className="w-full">
         <TabsList className="mb-2 ml-8">
           <TabsTrigger value="suspended">Suspended</TabsTrigger>

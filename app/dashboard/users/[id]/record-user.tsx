@@ -135,6 +135,12 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
                   <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
                   <dd>{formatVia(user.actions[0])}</dd>
                 </div>
+                {user.actions[0].reasoning && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <dt className="text-stone-500 dark:text-zinc-500">Reasoning</dt>
+                    <dd>{user.actions[0].reasoning}</dd>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-4">
                   <dt className="text-stone-500 dark:text-zinc-500">Created At</dt>
                   <dd>

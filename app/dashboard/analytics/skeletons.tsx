@@ -27,17 +27,17 @@ export function TotalsSkeleton() {
 export function ChartSkeleton() {
   return (
     <Card>
-      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 dark:border-zinc-700 sm:flex-row">
+      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row dark:border-zinc-700">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle>Moderations</CardTitle>
           <Skeleton className="h-4 w-[120px]" />
         </div>
         <div className="flex">
-          <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l dark:border-zinc-700 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+          <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 dark:border-zinc-700">
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-8 w-24" />
           </div>
-          <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l dark:border-zinc-700 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+          <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 dark:border-zinc-700">
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-8 w-24" />
           </div>

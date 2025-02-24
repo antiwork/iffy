@@ -92,6 +92,7 @@ export const userActions = pgTable(
     via: via().default("Automation").notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     clerkUserId: text("clerk_user_id"),
+    reasoning: text("reasoning"),
   },
   (table) => {
     return {

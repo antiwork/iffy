@@ -134,6 +134,13 @@
       "when": 1739487886311,
       "tag": "0018_nifty_micromacro",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1740182349143,
+      "tag": "0019_cool_forgotten_one",
+      "breakpoints": true
     }
   ]
 }

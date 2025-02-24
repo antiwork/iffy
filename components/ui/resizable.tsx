@@ -23,13 +23,13 @@ const ResizableHandle = ({
 }) => (
   <ResizablePrimitive.PanelResizeHandle
     className={cn(
-      "group relative flex w-px items-center justify-center bg-stone-300 after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-950 focus-visible:ring-offset-1 data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 dark:bg-zinc-800 dark:focus-visible:ring-stone-300 [&[data-panel-group-direction=vertical]>div]:rotate-90",
+      "group relative flex w-px items-center justify-center bg-stone-300 after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-stone-950 focus-visible:ring-offset-1 focus-visible:outline-hidden data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:translate-x-0 data-[panel-group-direction=vertical]:after:-translate-y-1/2 dark:bg-zinc-800 dark:focus-visible:ring-stone-300 [&[data-panel-group-direction=vertical]>div]:rotate-90",
       className,
     )}
     {...props}
   >
     {withHandle && (
-      <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm bg-stone-300 opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-100 dark:bg-green-900">
+      <div className="z-10 flex h-4 w-3 items-center justify-center rounded-xs bg-stone-300 opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-100 dark:bg-green-900">
         <GripVertical className="h-2.5 w-2.5 text-green-950/85 dark:text-green-300" />
       </div>
     )}

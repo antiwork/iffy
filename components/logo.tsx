@@ -13,7 +13,7 @@ export const Logo = ({
   return (
     <div
       className={cn(
-        "decoration-skip-ink-none flex gap-2 text-left font-mono font-medium leading-[26px] underline-offset-[from-font] dark:text-green-600",
+        "decoration-skip-ink-none flex gap-2 text-left font-mono leading-[26px] font-medium underline-offset-[from-font] dark:text-green-600",
         sizeClass,
         className,
       )}

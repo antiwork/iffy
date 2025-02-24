@@ -19,7 +19,7 @@ interface SectionTitleProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const SectionTitle = React.forwardRef<HTMLDivElement, SectionTitleProps>(({ className, children, ...props }, ref) => (
-  <div ref={ref} className={cn("font-semibold leading-none tracking-tight", className)} {...props}>
+  <div ref={ref} className={cn("leading-none font-semibold tracking-tight", className)} {...props}>
     {children}
   </div>
 ));

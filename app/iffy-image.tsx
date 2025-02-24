@@ -15,8 +15,8 @@ export function IffyImage() {
         className={`w-full cursor-pointer transition-all duration-300 will-change-transform ${clicked ? "" : "blur-xl hover:blur-lg"}`}
         onClick={() => setClicked(true)}
       />
-      {!clicked && <div className="mt-2 uppercase text-gray-800">Click to moderate</div>}
-      {clicked && <div className="mt-2 uppercase text-green-500">Compliant</div>}
+      {!clicked && <div className="mt-2 text-gray-800 uppercase">Click to moderate</div>}
+      {clicked && <div className="mt-2 text-green-500 uppercase">Compliant</div>}
     </div>
   );
 }

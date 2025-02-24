@@ -69,16 +69,16 @@ export default async function Page() {
             <div className="flex-1 space-y-12">
               <div className="space-y-4">
                 <div className="w-full sm:w-auto">
-                  <span className="mr-2 rounded-md bg-gray-100 px-2 py-1 font-sans font-normal leading-6 text-gray-500">
+                  <span className="mr-2 rounded-md bg-gray-100 px-2 py-1 font-sans leading-6 font-normal text-gray-500">
                     <CountLazy count={count} countAt={countAt} ratePerHour={ratePerHour} />
                   </span>
                   <span className="text-gray-500">moderations in the last 30 days</span>
                 </div>
-                <h1 className="max-w-3xl text-5xl font-medium leading-none tracking-[-0.02em] sm:text-[60px]">
+                <h1 className="max-w-3xl text-5xl leading-none font-medium tracking-[-0.02em] sm:text-[60px]">
                   Intelligent content moderation at scale
                 </h1>
                 <div className="flex flex-col items-start justify-between gap-8 md:gap-16 lg:flex-row">
-                  <p className="max-w-2xl text-balance text-lg">
+                  <p className="max-w-2xl text-lg text-balance">
                     Keep unwanted content off your platform without managing a team of moderators.{" "}
                   </p>
                 </div>
@@ -88,11 +88,11 @@ export default async function Page() {
                   </Link>
                 </Button>
               </div>
-              <div className="flex-shrink-0 space-y-4">
-                <h2 className="text-balance font-sans text-sm font-normal text-gray-500">
+              <div className="shrink-0 space-y-4">
+                <h2 className="font-sans text-sm font-normal text-balance text-gray-500">
                   Trusted by leading companies to help keep the Internet clean and safe.
                 </h2>
-                <div className="flex flex-col space-x-0 space-y-4 opacity-50 grayscale sm:flex-row sm:space-x-8 sm:space-y-0">
+                <div className="flex flex-col space-y-4 space-x-0 opacity-50 grayscale sm:flex-row sm:space-y-0 sm:space-x-8">
                   <Gumroad />
                   <BuyMeACoffee />
                 </div>
@@ -100,24 +100,24 @@ export default async function Page() {
             </div>
             <div className="flex-1">
               <div className="relative">
-                <div className="decoration-skip-ink-none gap-2 rounded-lg border border-gray-200 bg-white p-4 font-mono text-sm font-normal leading-[1.05] tracking-[-0.02em] text-gray-500 underline-offset-[from-font] shadow-lg">
+                <div className="decoration-skip-ink-none gap-2 rounded-lg border border-gray-200 bg-white p-4 font-mono text-sm leading-[1.05] font-normal tracking-[-0.02em] text-gray-500 underline-offset-[from-font] shadow-lg">
                   <div className="mb-2">Profile image</div>
                   <IffyImage />
                 </div>
-                <div className="decoration-skip-ink-none absolute -right-8 top-8 gap-2 rounded-lg border border-gray-200 bg-white p-4 font-mono text-sm font-normal leading-[1.05] tracking-[-0.02em] text-gray-500 underline-offset-[from-font] shadow-lg">
+                <div className="decoration-skip-ink-none absolute top-8 -right-8 gap-2 rounded-lg border border-gray-200 bg-white p-4 font-mono text-sm leading-[1.05] font-normal tracking-[-0.02em] text-gray-500 underline-offset-[from-font] shadow-lg">
                   <div>Chat message</div>
                   <div className="my-4 text-2xl">
                     <span className="rounded-md border border-red-500 px-2 py-1 text-red-500">f***</span> all of you
                   </div>
-                  <div className="mt-2 uppercase text-gray-800">Unnecessary profanity</div>
-                  <div className="mt-2 uppercase text-red-500">Suspended</div>
+                  <div className="mt-2 text-gray-800 uppercase">Unnecessary profanity</div>
+                  <div className="mt-2 text-red-500 uppercase">Suspended</div>
                 </div>
               </div>
             </div>
           </div>
           <DashboardTabs moderationsImage={dashboard} usersImage={dashboardUsers} rulesImage={dashboardRules} />
           <div className="space-y-12">
-            <h2 className="font-sans text-3xl font-normal leading-tight">
+            <h2 className="font-sans text-3xl leading-tight font-normal">
               We handle the entire lifecycle of moderation, so you don&apos;t have to.
             </h2>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">

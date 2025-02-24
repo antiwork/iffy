@@ -74,7 +74,7 @@ function Blocklist({
           onKeyDown={handleKeyDown}
           onBlur={onBlur}
           ref={inputRef}
-          className="flex-grow border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="grow border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         />
       </div>
     </div>
@@ -107,7 +107,7 @@ function BlocklistStrategy({ control, index }: { control: Control<RuleFormValues
                 checked={field.value}
                 onChange={(e) => field.onChange(e.target.checked)}
                 onBlur={field.onBlur}
-                className="h-4 w-4 rounded border-gray-300"
+                className="h-4 w-4 rounded-sm border-gray-300"
               />
             </FormControl>
             <div className="space-y-0.5">
@@ -161,7 +161,7 @@ function PromptStrategy({ control, index }: { control: Control<RuleFormValues>; 
                 checked={field.value}
                 onChange={(e) => field.onChange(e.target.checked)}
                 onBlur={field.onBlur}
-                className="h-4 w-4 rounded border-gray-300"
+                className="h-4 w-4 rounded-sm border-gray-300"
               />
             </FormControl>
             <div className="space-y-0.5">
@@ -231,7 +231,7 @@ export function StrategiesList({ control }: StrategiesListProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="divide-y *:py-8 first:*:pt-0 last:*:pb-0">
+            <div className="divide-y *:py-8 *:first:pt-0 *:last:pb-0">
               {fields.length > 0 ? (
                 fields.map((field, index) => (
                   <div key={field.id} className="space-y-4">
