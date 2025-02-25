@@ -5,39 +5,55 @@ export const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-01-27.acacia",
 });
 
-interface CreateCustomerParams {
-  clerkOrgId: string;
-  name: string;
-}
-
-export async function createCustomer({ clerkOrgId, name }: CreateCustomerParams) {
-  return stripe.customers.create({
-    name,
-    metadata: {
-      clerkOrgId,
-    },
-  });
+export async function createCustomer({ clerkOrgId, name }: { clerkOrgId: string; name: string }) {
+  try {
+    return stripe.customers.create({
+      name,
+      metadata: {
+        clerkOrgId,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to create Stripe customer:", error);
+    throw error;
+  }
 }
 
 export async function deleteCustomer(customerId: string) {
-  return stripe.customers.del(customerId);
+  try {
+    return stripe.customers.del(customerId);
+  } catch (error) {
+    console.error("Failed to delete Stripe customer:", error);
+    throw error;
+  }
 }
 
-export async function createFreeSubscription(customerId: string, orgId: string) {
-  const subscription = await stripe.subscriptions.create({
-    customer: customerId,
-    items: [{ price: env.STRIPE_FREE_PRICE_ID }],
-    trial_settings: {
-      end_behavior: {
-        missing_payment_method: "cancel",
+export async function createTrialSubscription(customerId: string) {
+  try {
+    return await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{ price: env.STRIPE_FREE_PRICE_ID }],
+      trial_settings: {
+        end_behavior: {
+          missing_payment_method: "cancel",
+        },
       },
-    },
-    metadata: {
-      orgId,
-    },
-  });
+      trial_end: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
+      cancel_at_period_end: true,
+    });
+  } catch (error) {
+    console.error("Failed to create Trial Subscription:", error);
+    throw error;
+  }
+}
 
-  return subscription;
+export async function cancelSubscription(stripeSubscriptionId: string) {
+  try {
+    await stripe.subscriptions.cancel(stripeSubscriptionId);
+  } catch (error) {
+    console.error("Failed to cancel Stripe subscription:", error);
+    throw error;
+  }
 }
 
 export async function getPaymentsAndPayouts(stripeApiKey: string, stripeAccountId: string) {

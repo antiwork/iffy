@@ -25,14 +25,14 @@ type DynamicLayoutProps = Readonly<{
   children: React.ReactNode;
   organizationSettings: OrganizationSettings;
   inboxCount: number;
-  activeSubscription: Subscription | null;
+  trialSubscription: Subscription | null;
 }>;
 
 export default function DynamicLayout({
   children,
   organizationSettings,
   inboxCount,
-  activeSubscription,
+  trialSubscription,
 }: DynamicLayoutProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
@@ -128,7 +128,7 @@ export default function DynamicLayout({
             <Nav isCollapsed={isCollapsed} links={navLinks} />
             <Separator className="dark:bg-green-900" />
             <Nav isCollapsed={isCollapsed} links={secondaryNavLinks} />
-            <TrialStatus isCollapsed={isCollapsed} activeSubscription={activeSubscription} />
+            <TrialStatus isCollapsed={isCollapsed} trialSubscription={trialSubscription} />
           </ResizablePanel>
           <ResizableHandle withHandle className="dark:bg-green-900" />
           <ResizablePanel defaultSize={80}>

@@ -2,6 +2,7 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { Webhook } from "svix";
 import { env } from "@/lib/env";
 import { createOrganisation } from "@/services/organisations";
+import * as stripeService from "@/services/stripe";
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = env.CLERK_WEBHOOK_SECRET;
@@ -16,16 +17,34 @@ export async function POST(req: Request) {
   }
 
   if (evt.type === "organization.created") {
+    let stripeCustomer;
     try {
       const { id: clerkOrgId, name } = evt.data;
 
-      await createOrganisation({
+      // Create Stripe customer assosiated with Clerk org
+      stripeCustomer = await stripeService.createCustomer({
         clerkOrgId,
         name,
       });
 
+      // Initiate new db record, linking organisation with Stripe customer
+      const organization = await createOrganisation(clerkOrgId, stripeCustomer.id);
+
+      if (!organization) {
+        throw new Error("Failed to create organization");
+      }
+
+      // Create Trial subscription for Stripe customer
+      // This will automatically update database via webhook
+      await stripeService.createTrialSubscription(stripeCustomer.id);
+
       return new Response("Organization created successfully", { status: 200 });
     } catch (error) {
+      // Roll back
+      if (stripeCustomer?.id) {
+        await stripeService.deleteCustomer(stripeCustomer.id);
+      }
+
       console.error("Error processing organization creation:", error);
       return new Response("Error processing organization creation", { status: 500 });
     }
