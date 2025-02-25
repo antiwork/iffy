@@ -45,7 +45,7 @@ export const type = "Prompt";
 export const optionsSchema = z.object({
   topic: z.string(),
   prompt: z.string(),
-  skipImages: z.boolean().optional(),
+  skipImages: z.boolean().optional().default(false),
 });
 
 export type Options = z.infer<typeof optionsSchema>;
@@ -53,7 +53,7 @@ export type Options = z.infer<typeof optionsSchema>;
 export class Strategy implements StrategyInstance {
   name = "Prompt";
 
-  private options: Options;
+  private options: z.input<typeof optionsSchema>;
 
   constructor(options: unknown) {
     this.options = optionsSchema.parse(options);

@@ -120,17 +120,18 @@ export const optionsSchema = z.object({
   blocklist: z.array(z.string()),
   matcher: z
     .object({
-      onlyMatchWords: z.boolean().default(false),
+      onlyMatchWords: z.boolean().optional().default(false),
     })
+    .optional()
     .default({ onlyMatchWords: false }),
 });
 
-export type Options = z.infer<typeof optionsSchema>;
+export type Options = z.input<typeof optionsSchema>;
 
 export class Strategy implements StrategyInstance {
   name = "Blocklist";
 
-  private readonly options: Options;
+  private readonly options: z.infer<typeof optionsSchema>;
 
   constructor(options: unknown) {
     this.options = optionsSchema.parse(options);
