@@ -1,1 +1,1 @@
-export const FEATURE_SIGNUP = false 
+export const FEATURE_SIGNUP = false;
