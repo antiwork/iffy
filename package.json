@@ -137,5 +137,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "next": "15.1.5"
+  },
+  "optionalDependencies": {
+    "@tailwindcss/oxide-linux-arm64-gnu": "^4.0.9"
   }
 }
