@@ -568,3 +568,27 @@ export const organizations = pgTable(
     };
   },
 );
+
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: text().primaryKey().notNull().$defaultFn(cuid),
+    organizationId: text("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+    stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(),
+    plan: text("plan").notNull(),
+    status: text("status").notNull(),
+    trialEnd: timestamp("trial_end", { withTimezone: true }),
+    trialModerationsRemaining: integer("trial_moderations_remaining").default(100),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => {
+    return {
+      organizationIdIdx: index("subscriptions_organization_id_idx").using("btree", table.organizationId.asc().nullsLast().op("text_ops")),
+      stripeSubscriptionIdIdx: index("subscriptions_stripe_subscription_id_idx").using("btree", table.stripeSubscriptionId.asc().nullsLast().op("text_ops")),
+    };
+  },
+);

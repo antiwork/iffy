@@ -148,6 +148,13 @@
       "when": 1740458343462,
       "tag": "0020_fuzzy_power_man",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1740461095013,
+      "tag": "0021_sudden_wraith",
+      "breakpoints": true
     }
   ]
 }

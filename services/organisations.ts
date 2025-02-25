@@ -13,6 +13,8 @@ export async function createOrganisation({
   name,
 }: CreateOrganisationParams) {
   let stripeCustomer;
+  let organization;
+  let stripeSubscription;
 
   try {
     stripeCustomer = await stripeService.createCustomer({
@@ -25,13 +27,20 @@ export async function createOrganisation({
   }
 
   try {
-    const [organization] = await db
+    [organization] = await db
       .insert(organizations)
       .values({
         clerkOrgId,
         stripeCustomerId: stripeCustomer.id,
       })
       .returning();
+
+    if (!organization) {
+      throw new Error("Failed to create organization");
+    }
+
+    stripeSubscription = await stripeService.createFreeSubscription(stripeCustomer.id);
+    await stripeService.createSubscriptionRecord(organization.id, stripeSubscription);
 
     return organization;
   } catch (error) {

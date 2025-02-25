@@ -31,6 +31,7 @@ const envSchema = z
     INNGEST_APP_NAME: z.string(),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
     STRIPE_SECRET_KEY: z.string(),
+    STRIPE_FREE_PRICE_ID: z.string(),
   })
   .and(resendOrNoResendSchema);
 
