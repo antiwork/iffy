@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { FEATURE_SIGNUP } from "@/config/featureFlags";
+import { FEATURE_SIGNUP } from "@/config/feature-flags";
 
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 

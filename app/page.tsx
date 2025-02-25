@@ -15,7 +15,7 @@ import { IffyImage } from "./iffy-image";
 import { CountLazy } from "./count-lazy";
 import AntiworkFooter from "@/components/antiwork-footer";
 import { DashboardTabs } from "@/components/dashboard-tabs";
-import { FEATURE_SIGNUP } from "@/config/featureFlags";
+import { FEATURE_SIGNUP } from "@/config/feature-flags";
 
 const getCount = cache(
   async () => {
