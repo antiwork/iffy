@@ -67,7 +67,7 @@
     "cuid": "^3.0.0",
     "date-fns": "^4.1.0",
     "dotenv-cli": "^7.4.2",
-    "drizzle-orm": "^0.37.0",
+    "drizzle-orm": "^0.39.3",
     "framer-motion": "^11.8.0",
     "inngest": "^3.23.1",
     "linkify-it": "^5.0.0",
@@ -97,7 +97,7 @@
     "type-fest": "^4.32.0",
     "user-agents": "^1.1.395",
     "vaul": "^1.0.0",
-    "zod": "^3.23.8",
+    "zod": "^3.24.1",
     "zod-to-json-schema": "^3.23.3",
     "zod-validation-error": "^3.4.0"
   },
