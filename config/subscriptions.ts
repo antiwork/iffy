@@ -1,1 +1,1 @@
-export const DEFAULT_TRIAL_MODERATIONS = 3;
+export const DEFAULT_TRIAL_MODERATIONS = 100;
