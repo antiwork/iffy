@@ -6,17 +6,17 @@ import { FEATURE_SIGNUP } from "@/config/featureFlags"
 export default async function Page() {
   const { userId } = await auth()
 
-  if (userId) {
-    return redirect("/dashboard")
-  }
-
   if (!FEATURE_SIGNUP) {
     return redirect("/sign-in")
   }
 
-  return (
-    <div className="flex h-screen w-screen items-center justify-center">
-      <SignUp />
-    </div>
-  )
+  if (!userId) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <SignUp />
+      </div>
+    )
+  }
+
+  return redirect("/dashboard")
 } 
