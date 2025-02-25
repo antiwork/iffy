@@ -548,3 +548,23 @@ export const emailTemplates = pgTable(
     };
   },
 );
+
+export const organizations = pgTable(
+  "organizations",
+  {
+    id: text().primaryKey().notNull().$defaultFn(cuid),
+    clerkOrgId: text("clerk_org_id").notNull().unique(),
+    stripeCustomerId: text("stripe_customer_id").notNull(),
+    createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => {
+    return {
+      clerkOrgIdIdx: index("organizations_clerk_org_id_idx").using("btree", table.clerkOrgId.asc().nullsLast().op("text_ops")),
+      stripeCustomerIdIdx: index("organizations_stripe_customer_id_idx").using("btree", table.stripeCustomerId.asc().nullsLast().op("text_ops")),
+    };
+  },
+);

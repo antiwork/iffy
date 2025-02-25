@@ -1,12 +1,38 @@
 import Stripe from "stripe";
+import { env } from "@/lib/env";
+
+const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+  apiVersion: "2025-01-27.acacia",
+});
+
+interface CreateCustomerParams {
+  clerkOrgId: string;
+  name: string;
+}
+
+export async function createCustomer({
+  clerkOrgId,
+  name,
+}: CreateCustomerParams) {
+  return stripe.customers.create({
+    name,
+    metadata: {
+      clerkOrgId,
+    },
+  });
+}
+
+export async function deleteCustomer(customerId: string) {
+  return stripe.customers.del(customerId);
+}
 
 export async function getPaymentsAndPayouts(stripeApiKey: string, stripeAccountId: string) {
   if (!stripeApiKey) {
     throw new Error("Stripe API key not provided");
   }
 
-  const stripe = new Stripe(stripeApiKey);
-  const account = await stripe.accounts.retrieve(stripeAccountId);
+  const stripeInstance = new Stripe(stripeApiKey);
+  const account = await stripeInstance.accounts.retrieve(stripeAccountId);
 
   return {
     payments: account.charges_enabled,
@@ -20,9 +46,9 @@ export async function pausePayments(stripeApiKey: string, stripeAccountId: strin
     throw new Error("Stripe API key not provided");
   }
 
-  const stripe = new Stripe(stripeApiKey);
+  const stripeInstance = new Stripe(stripeApiKey);
 
-  await stripe.accounts.update(stripeAccountId, {
+  await stripeInstance.accounts.update(stripeAccountId, {
     // @ts-ignore preview feature
     risk_controls: {
       charges: {
@@ -37,9 +63,9 @@ export async function resumePayments(stripeApiKey: string, stripeAccountId: stri
     throw new Error("Stripe API key not provided");
   }
 
-  const stripe = new Stripe(stripeApiKey);
+  const stripeInstance = new Stripe(stripeApiKey);
 
-  await stripe.accounts.update(stripeAccountId, {
+  await stripeInstance.accounts.update(stripeAccountId, {
     // @ts-ignore preview feature
     risk_controls: {
       payouts: {

@@ -21,6 +21,7 @@ const envSchema = z
     API_KEY_ENCRYPTION_KEY: z.string(),
     APPEAL_ENCRYPTION_KEY: z.string(),
     CLERK_SECRET_KEY: z.string(),
+    CLERK_WEBHOOK_SECRET: z.string(),
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
     NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
     NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
@@ -29,6 +30,7 @@ const envSchema = z
     POSTGRES_URL_NON_POOLING: z.string(),
     INNGEST_APP_NAME: z.string(),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+    STRIPE_SECRET_KEY: z.string(),
   })
   .and(resendOrNoResendSchema);
 
