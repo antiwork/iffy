@@ -5,9 +5,12 @@ const strategySchema = z.discriminatedUnion("type", [
     type: z.literal("Blocklist"),
     options: z.object({
       blocklist: z.array(z.string()).refine((value) => value.length > 0, "Blocklist must have at least one word"),
-      matcher: z.object({
-        onlyMatchWords: z.boolean().default(false),
-      }),
+      matcher: z
+        .object({
+          onlyMatchWords: z.boolean().optional().default(false),
+        })
+        .optional()
+        .default({ onlyMatchWords: false }),
     }),
   }),
   z.object({
@@ -15,7 +18,7 @@ const strategySchema = z.discriminatedUnion("type", [
     options: z.object({
       topic: z.string().refine((value) => value !== "", "Topic is required"),
       prompt: z.string().refine((value) => value !== "", "Prompt is required"),
-      skipImages: z.boolean().default(false),
+      skipImages: z.boolean().optional().default(false),
     }),
   }),
   z.object({
@@ -39,5 +42,5 @@ export const ruleFormSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
-export type RuleFormValues = z.infer<typeof ruleFormSchema>;
-export type StrategyFormValues = z.infer<typeof strategySchema>;
+export type RuleFormValues = z.input<typeof ruleFormSchema>;
+export type StrategyFormValues = z.input<typeof strategySchema>;

@@ -40,12 +40,12 @@ export const optionsSchema = z.object({
   thresholds: z.record(z.string(), z.number()),
 });
 
-export type Options = z.infer<typeof optionsSchema>;
+export type Options = z.input<typeof optionsSchema>;
 
 export class Strategy implements StrategyInstance {
   name = "OpenAI Moderation";
 
-  private readonly options: Options;
+  private readonly options: z.infer<typeof optionsSchema>;
 
   constructor(options: unknown) {
     this.options = optionsSchema.parse(options);
