@@ -88,7 +88,6 @@
     "react-resizable-panels": "^2.1.1",
     "recharts": "^2.15.1",
     "resend": "^4.0.0",
-    "sharp": "^0.30.4",
     "stripe": "^17.1.0",
     "superjson": "^2.2.1",
     "tailwind-merge": "^3.0.2",
@@ -139,6 +138,7 @@
     "next": "15.1.5"
   },
   "optionalDependencies": {
+    "@img/sharp-linux-x64": "0.33.5",
     "@tailwindcss/oxide-linux-x64-gnu": "^4.0.9",
     "lightningcss-linux-x64-gnu": "^1.29.1"
   }
