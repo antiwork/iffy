@@ -8,7 +8,7 @@ export async function POST(req: Request) {
 
   let evt: WebhookEvent;
   try {
-    evt = await constructClerkEvent(req, WEBHOOK_SECRET);
+    evt = await constructEvent(req, WEBHOOK_SECRET);
   } catch (error) {
     return new Response(error instanceof Error ? error.message : "Error occurred", {
       status: 400,
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   if (evt.type === "organization.created") {
     try {
       const { id: clerkOrgId, name } = evt.data;
-      
+
       await createOrganisation({
         clerkOrgId,
         name,
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   return new Response("Webhook received", { status: 200 });
 }
 
-async function constructClerkEvent(req: Request, webhookSecret: string): Promise<WebhookEvent> {
+async function constructEvent(req: Request, webhookSecret: string): Promise<WebhookEvent> {
   const svix_id = req.headers.get("svix-id") ?? "";
   const svix_timestamp = req.headers.get("svix-timestamp") ?? "";
   const svix_signature = req.headers.get("svix-signature") ?? "";

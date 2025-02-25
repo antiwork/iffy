@@ -1,6 +1,5 @@
 import db from "@/db";
 import { organizations } from "@/db/tables";
-import { eq } from "drizzle-orm";
 import * as stripeService from "@/services/stripe";
 
 interface CreateOrganisationParams {
@@ -8,13 +7,9 @@ interface CreateOrganisationParams {
   name: string;
 }
 
-export async function createOrganisation({
-  clerkOrgId,
-  name,
-}: CreateOrganisationParams) {
+export async function createOrganisation({ clerkOrgId, name }: CreateOrganisationParams) {
   let stripeCustomer;
   let organization;
-  let stripeSubscription;
 
   try {
     stripeCustomer = await stripeService.createCustomer({
@@ -39,8 +34,7 @@ export async function createOrganisation({
       throw new Error("Failed to create organization");
     }
 
-    stripeSubscription = await stripeService.createFreeSubscription(stripeCustomer.id);
-    await stripeService.createSubscriptionRecord(organization.id, stripeSubscription);
+    await stripeService.createFreeSubscription(stripeCustomer.id, organization.id);
 
     return organization;
   } catch (error) {

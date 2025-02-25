@@ -3,6 +3,7 @@ import DynamicLayout from "./dynamic-layout";
 import { OrganizationList } from "@clerk/nextjs";
 import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
 import { getInboxCount } from "@/services/appeals";
+import { getActiveSubscription } from "@/services/subscriptions";
 
 export default async function Layout({ children, sheet }: { children: React.ReactNode; sheet: React.ReactNode }) {
   const { orgId } = await auth();
@@ -16,10 +17,15 @@ export default async function Layout({ children, sheet }: { children: React.Reac
 
   const organizationSettings = await findOrCreateOrganizationSettings(orgId);
   const inboxCount = await getInboxCount(orgId);
+  const activeSubscription = await getActiveSubscription(orgId);
 
   return (
     <>
-      <DynamicLayout organizationSettings={organizationSettings} inboxCount={inboxCount}>
+      <DynamicLayout
+        organizationSettings={organizationSettings}
+        inboxCount={inboxCount}
+        activeSubscription={activeSubscription}
+      >
         {children}
       </DynamicLayout>
       {sheet}

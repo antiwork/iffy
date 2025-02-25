@@ -15,19 +15,25 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/toaster";
 import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
+import { TrialStatus } from "@/components/trial-status";
 import * as schema from "@/db/schema";
+import { Subscription } from "@/lib/types";
 
 type OrganizationSettings = typeof schema.organizationSettings.$inferSelect;
+
+type DynamicLayoutProps = Readonly<{
+  children: React.ReactNode;
+  organizationSettings: OrganizationSettings;
+  inboxCount: number;
+  activeSubscription: Subscription | null;
+}>;
 
 export default function DynamicLayout({
   children,
   organizationSettings,
   inboxCount,
-}: Readonly<{
-  children: React.ReactNode;
-  organizationSettings: OrganizationSettings;
-  inboxCount: number;
-}>) {
+  activeSubscription,
+}: DynamicLayoutProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   const navLinks = [
@@ -112,7 +118,7 @@ export default function DynamicLayout({
             }}
             className={cn(
               isCollapsed && "min-w-[50px] transition-all duration-300 ease-in-out",
-              "bg-green-950/10 dark:bg-[#0D1C12]",
+              "flex flex-col bg-green-950/10 dark:bg-[#0D1C12]",
             )}
           >
             <div className={cn("flex h-[52px] items-center", isCollapsed ? "h-[52px] justify-center" : "px-4")}>
@@ -122,6 +128,7 @@ export default function DynamicLayout({
             <Nav isCollapsed={isCollapsed} links={navLinks} />
             <Separator className="dark:bg-green-900" />
             <Nav isCollapsed={isCollapsed} links={secondaryNavLinks} />
+            <TrialStatus isCollapsed={isCollapsed} activeSubscription={activeSubscription} />
           </ResizablePanel>
           <ResizableHandle withHandle className="dark:bg-green-900" />
           <ResizablePanel defaultSize={80}>
