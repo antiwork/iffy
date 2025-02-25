@@ -15,6 +15,7 @@ import { IffyImage } from "./iffy-image";
 import { CountLazy } from "./count-lazy";
 import AntiworkFooter from "@/components/antiwork-footer";
 import { DashboardTabs } from "@/components/dashboard-tabs";
+import { FEATURE_SIGNUP } from "@/config/featureFlags";
 
 const getCount = cache(
   async () => {
@@ -62,6 +63,11 @@ export default async function Page() {
             <Button asChild variant="outline" size="sm">
               <Link href="/sign-in">Sign in</Link>
             </Button>
+            {FEATURE_SIGNUP && (
+              <Button asChild variant="outline" size="sm">
+                <Link href="/sign-up">Sign up</Link>
+              </Button>
+            )}
           </div>
         </div>
         <div className="space-y-12 sm:space-y-24">
