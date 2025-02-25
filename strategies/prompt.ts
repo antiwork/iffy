@@ -48,12 +48,12 @@ export const optionsSchema = z.object({
   skipImages: z.boolean().optional().default(false),
 });
 
-export type Options = z.infer<typeof optionsSchema>;
+export type Options = z.input<typeof optionsSchema>;
 
 export class Strategy implements StrategyInstance {
   name = "Prompt";
 
-  private options: z.input<typeof optionsSchema>;
+  private options: z.infer<typeof optionsSchema>;
 
   constructor(options: unknown) {
     this.options = optionsSchema.parse(options);
