@@ -7,6 +7,7 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { validateApiKey } from "@/services/api-keys";
 import { parseRequestDataWithSchema } from "@/app/api/parse";
+import { parseMetadata } from "@/services/metadata";
 
 const ListRecordsRequestData = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
@@ -93,6 +94,7 @@ export async function GET(req: NextRequest) {
       clientUrl: schema.records.clientUrl,
       name: schema.records.name,
       entity: schema.records.entity,
+      protected: schema.records.protected,
       metadata: schema.records.metadata,
       createdAt: schema.records.createdAt,
       updatedAt: schema.records.updatedAt,
@@ -117,9 +119,10 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
-    data: records.map(({ userId, ...record }) => ({
+    data: records.map(({ userId, metadata, ...record }) => ({
       ...record,
       user: userId,
+      metadata: metadata ? parseMetadata(metadata) : undefined,
     })),
     has_more: hasMore,
   });

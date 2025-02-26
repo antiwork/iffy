@@ -4,6 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { validateApiKey } from "@/services/api-keys";
+import { parseMetadata } from "@/services/metadata";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = req.headers.get("Authorization");
@@ -30,6 +31,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       clientUrl: true,
       name: true,
       entity: true,
+      protected: true,
       metadata: true,
       createdAt: true,
       updatedAt: true,
@@ -45,11 +47,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: { message: "Record not found" } }, { status: 404 });
   }
 
-  const { userId, ...rest } = record;
+  const { userId, metadata, ...rest } = record;
   return NextResponse.json({
     data: {
       ...rest,
       user: userId,
+      metadata: metadata ? parseMetadata(metadata) : undefined,
     },
   });
 }
