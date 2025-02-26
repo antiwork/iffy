@@ -106,15 +106,6 @@ export async function createOrUpdateRecord({
     return record;
   });
 
-  try {
-    await inngest.send({
-      name: "record/deleted",
-      data: { clerkOrganizationId, id: record.id },
-    });
-  } catch (error) {
-    console.error(error);
-  }
-
   return record;
 }
 
@@ -139,6 +130,15 @@ export async function deleteRecord(clerkOrganizationId: string, recordId: string
           flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
         })
         .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+    }
+
+    try {
+      await inngest.send({
+        name: "record/deleted",
+        data: { clerkOrganizationId, id: record.id },
+      });
+    } catch (error) {
+      console.error(error);
     }
 
     return record;
