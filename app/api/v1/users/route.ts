@@ -7,6 +7,9 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { validateApiKey } from "@/services/api-keys";
 import { parseRequestDataWithSchema } from "@/app/api/parse";
+import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
+import { getAbsoluteUrl } from "@/lib/url";
+import { generateAppealToken } from "@/services/appeals";
 
 const ListUsersRequestData = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
@@ -33,6 +36,8 @@ export async function GET(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error }, { status: 400 });
   }
+
+  const organizationSettings = await findOrCreateOrganizationSettings(clerkOrganizationId);
 
   const { limit, starting_after, ending_before, email, clientId, status, user } = data as z.infer<
     typeof ListUsersRequestData
@@ -112,7 +117,13 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
-    data: users,
+    data: users.map((user) => {
+      const appealUrl =
+        organizationSettings.appealsEnabled && user.actionStatus === "Suspended"
+          ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(user.id)}`)
+          : null;
+      return { ...user, appealUrl };
+    }),
     has_more: hasMore,
   });
 }
