@@ -10,7 +10,7 @@ export default async function Page() {
     return redirect("/sign-in");
   }
 
-  if(userId) {
+  if (userId) {
     return redirect("/dashboard");
   } else {
     return (

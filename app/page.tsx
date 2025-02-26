@@ -52,8 +52,8 @@ export default async function Page() {
   const { count, countAt, ratePerHour } = await getCount();
   const { userId } = await auth();
 
-  if(!isIffyCloud) {
-    if(userId) {
+  if (!isIffyCloud) {
+    if (userId) {
       return redirect("/dashboard");
     } else {
       return redirect("/sign-in");
@@ -74,7 +74,7 @@ export default async function Page() {
               <Link href="/sign-in">Sign in</Link>
             </Button>
             <Button asChild variant="outline" size="sm">
-                <Link href="/sign-up">Sign up</Link>
+              <Link href="/sign-up">Sign up</Link>
             </Button>
           </div>
         </div>
