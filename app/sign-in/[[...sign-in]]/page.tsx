@@ -5,13 +5,13 @@ import { redirect } from "next/navigation";
 export default async function Page() {
   const { userId } = await auth();
 
-  if (!userId) {
+  if(userId) {
+    return redirect("/dashboard");
+  } else {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <SignIn />
       </div>
     );
   }
-
-  return redirect("/dashboard");
 }

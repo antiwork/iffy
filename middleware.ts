@@ -1,16 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-import { FEATURE_SIGNUP } from "@/config/feature-flags";
 
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) await auth.protect();
-
-  const url = new URL(req.url);
-  if (url.pathname.startsWith("/sign-up") && !FEATURE_SIGNUP) {
-    return NextResponse.redirect(new URL("/sign-in", req.url));
-  }
 });
 
 export const config = {

@@ -29,7 +29,10 @@ const envSchema = z
     POSTGRES_URL_NON_POOLING: z.string(),
     INNGEST_APP_NAME: z.string(),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+    NEXT_PUBLIC_DEPLOYMENT_MODE: z.enum(["cloud", "community"]).default("community"),
   })
   .and(resendOrNoResendSchema);
 
 export const env = Object.freeze(envSchema.parse(process.env));
+
+export const isIffyCloud = env.NEXT_PUBLIC_DEPLOYMENT_MODE === "cloud";
