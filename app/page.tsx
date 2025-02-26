@@ -74,9 +74,11 @@ export default async function Page() {
             <Button asChild variant="outline" size="sm">
               <Link href="/sign-in">Sign in</Link>
             </Button>
-            {(await signupEnabled()) && <Button asChild variant="outline" size="sm">
+            {(await signupEnabled()) && (
+              <Button asChild variant="outline" size="sm">
                 <Link href="/sign-up">Sign up</Link>
-            </Button>}
+              </Button>
+            )}
           </div>
         </div>
         <div className="space-y-12 sm:space-y-24">
