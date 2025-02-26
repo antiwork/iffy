@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
   }
 
   let pendingModeration: typeof schema.moderations.$inferSelect | undefined;
-  if (moderationThreshold) {
+  if (moderationThreshold && !record.protected) {
     pendingModeration = await createPendingModeration({
       clerkOrganizationId,
       recordId: record.id,

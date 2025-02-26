@@ -53,6 +53,16 @@ export async function POST(req: NextRequest) {
     metadata: data.metadata,
   });
 
+  if (record.protected) {
+    return NextResponse.json(
+      {
+        id: record.id,
+        message: "Record is protected",
+      },
+      { status: 403 },
+    );
+  }
+
   const result = await moderate({
     clerkOrganizationId,
     recordId: record.id,

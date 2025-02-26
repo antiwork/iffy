@@ -6,6 +6,8 @@ import * as schema from "@/db/schema";
 import * as service from "@/services/moderations";
 import { revalidatePath } from "next/cache";
 import { inngest } from "@/inngest/client";
+import db from "@/db";
+import { eq, inArray, and } from "drizzle-orm";
 
 const createModerationSchema = z.object({
   status: z.enum(schema.moderationStatus.enumValues),
@@ -71,4 +73,25 @@ export const moderateMany = actionClient
       revalidatePath(`/dashboard/records/${recordId}`);
     }
     return pendingModerations;
+  });
+
+const setRecordProtectedSchema = z.boolean();
+
+// TODO(s3ththompson): Add bulk services in the future
+export const setRecordProtectedMany = actionClient
+  .schema(setRecordProtectedSchema)
+  .bindArgsSchemas<[recordIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
+  .action(async ({ parsedInput, bindArgsParsedInputs: [recordIds], ctx: { clerkOrganizationId } }) => {
+    const records = await db
+      .update(schema.records)
+      .set({
+        protected: parsedInput,
+      })
+      .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), inArray(schema.records.id, recordIds)))
+      .returning();
+
+    for (const recordId of recordIds) {
+      revalidatePath(`/dashboard/records/${recordId}`);
+    }
+    return records;
   });

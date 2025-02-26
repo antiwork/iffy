@@ -60,10 +60,19 @@ export async function createModeration({
     // read the last status from the record
     const record = await tx.query.records.findFirst({
       where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
+      columns: {
+        userId: true,
+        moderationStatus: true,
+        protected: true,
+      },
     });
 
     if (!record) {
       throw new Error("Record not found");
+    }
+
+    if (record.protected && status !== "Compliant") {
+      throw new Error("Record is protected");
     }
 
     lastStatus = record.moderationStatus;
@@ -162,6 +171,21 @@ export async function createPendingModeration({
   createdAt?: Date;
 } & ViaWithClerkUserOrUser) {
   return await db.transaction(async (tx) => {
+    const record = await tx.query.records.findFirst({
+      where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
+      columns: {
+        protected: true,
+      },
+    });
+
+    if (!record) {
+      throw new Error("Record not found");
+    }
+
+    if (record.protected) {
+      throw new Error("Record is protected");
+    }
+
     const [moderation] = await tx
       .insert(schema.moderations)
       .values({

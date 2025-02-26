@@ -15,7 +15,7 @@ import { MoreHorizontal, Command } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import * as schema from "@/db/schema";
-import { createModerations, moderateMany } from "./actions";
+import { createModerations, moderateMany, setRecordProtectedMany } from "./actions";
 import { toast } from "@/hooks/use-toast";
 
 type Record = typeof schema.records.$inferSelect;
@@ -30,12 +30,22 @@ export const BulkActionMenu = ({ records }: { records: Record[] }) => {
     null,
     records.map((record) => record.id),
   );
+  const setRecordProtectedManyWithIds = setRecordProtectedMany.bind(
+    null,
+    records.map((record) => record.id),
+  );
+
   const [actionType, setActionType] = useState<"flag" | "unflag" | null>(null);
   const [reasoning, setReasoning] = useState<{ value: string; error?: boolean }>({ value: "" });
   const [isLoading, setIsLoading] = useState(false);
 
   const hideFlag = records.length === 1 && records[0]?.moderationStatus === "Flagged";
   const hideUnflag = records.length === 1 && records[0]?.moderationStatus === "Compliant";
+
+  const disableRemoderateAndFlag = records.length === 1 && records[0]?.protected;
+
+  const hideProtect = records.length === 1 && records[0]?.protected;
+  const hideUnprotect = records.length === 1 && !records[0]?.protected;
 
   const handleAction = useCallback(async () => {
     if (!reasoning.value.trim()) {
@@ -92,6 +102,7 @@ export const BulkActionMenu = ({ records }: { records: Record[] }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
+            disabled={disableRemoderateAndFlag}
             onClick={async (event) => {
               try {
                 event.stopPropagation();
@@ -121,12 +132,53 @@ export const BulkActionMenu = ({ records }: { records: Record[] }) => {
           )}
           {!hideFlag && (
             <DropdownMenuItem
+              disabled={disableRemoderateAndFlag}
               onClick={(event) => {
                 event.stopPropagation();
                 setActionType("flag");
               }}
             >
               Flag record
+            </DropdownMenuItem>
+          )}
+          {!hideProtect && (
+            <DropdownMenuItem
+              onClick={async (event) => {
+                try {
+                  event.stopPropagation();
+                  await setRecordProtectedManyWithIds(true);
+                  await utils.record.infinite.invalidate();
+                } catch (error) {
+                  toast({
+                    title: "Error",
+                    description: "Failed to protect record.",
+                    variant: "destructive",
+                  });
+                  console.error("Error protecting record:", error);
+                }
+              }}
+            >
+              Protect record
+            </DropdownMenuItem>
+          )}
+          {!hideUnprotect && (
+            <DropdownMenuItem
+              onClick={async (event) => {
+                try {
+                  event.stopPropagation();
+                  await setRecordProtectedManyWithIds(false);
+                  await utils.record.infinite.invalidate();
+                } catch (error) {
+                  toast({
+                    title: "Error",
+                    description: "Failed to unprotect record.",
+                    variant: "destructive",
+                  });
+                  console.error("Error unprotecting record:", error);
+                }
+              }}
+            >
+              Unprotect record
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>
