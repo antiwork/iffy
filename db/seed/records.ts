@@ -76,6 +76,7 @@ export async function seedRecords(
           text: faker.lorem.paragraph(),
           userId: sample(users)?.id,
           createdAt: faker.date.recent({ days: 10 }),
+          protected: sample([true, false, false, false, false]),
         };
       }),
     )
@@ -93,7 +94,7 @@ export async function seedRecords(
       .insert(schema.moderations)
       .values({
         clerkOrganizationId,
-        status: isFlagged ? "Flagged" : "Compliant",
+        status: isFlagged && !record.protected ? "Flagged" : "Compliant",
         reasoning: faker.lorem.paragraph(2),
         recordId: record.id,
         rulesetId: ruleset.id,

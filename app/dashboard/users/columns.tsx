@@ -48,18 +48,20 @@ export const columns = [
       return (
         <div className="flex w-64 items-center space-x-1 truncate">
           <span className="w-full truncate font-bold">{props.getValue()}</span>
-          {row.original.protected && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <ShieldCheck size={16} className="text-stone-500 dark:text-zinc-500" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Protected User</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
+          <span>
+            {row.original.protected && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <ShieldCheck size={16} className="text-stone-500 dark:text-zinc-500" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Protected User</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </span>
         </div>
       );
     },

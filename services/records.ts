@@ -16,6 +16,7 @@ export async function createOrUpdateRecord({
   clientUrl,
   userId,
   createdAt,
+  initialProtected,
   metadata,
 }: {
   clerkOrganizationId: string;
@@ -28,6 +29,7 @@ export async function createOrUpdateRecord({
   externalUrls?: string[];
   userId?: string;
   createdAt?: Date;
+  initialProtected?: boolean;
   metadata?: Record<string, unknown>;
 }) {
   const record = await db.transaction(async (tx) => {
@@ -54,6 +56,7 @@ export async function createOrUpdateRecord({
         text,
         imageUrls,
         externalUrls,
+        protected: initialProtected,
         metadata,
         userId,
         createdAt,
@@ -106,15 +109,6 @@ export async function createOrUpdateRecord({
     return record;
   });
 
-  try {
-    await inngest.send({
-      name: "record/deleted",
-      data: { clerkOrganizationId, id: record.id },
-    });
-  } catch (error) {
-    console.error(error);
-  }
-
   return record;
 }
 
@@ -139,6 +133,15 @@ export async function deleteRecord(clerkOrganizationId: string, recordId: string
           flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
         })
         .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+    }
+
+    try {
+      await inngest.send({
+        name: "record/deleted",
+        data: { clerkOrganizationId, id: record.id },
+      });
+    } catch (error) {
+      console.error(error);
     }
 
     return record;

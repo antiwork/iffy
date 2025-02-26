@@ -12,7 +12,7 @@ export async function createOrUpdateUser({
   email,
   name,
   username,
-  protected: _protected,
+  initialProtected,
   stripeAccountId,
   metadata,
 }: {
@@ -22,7 +22,7 @@ export async function createOrUpdateUser({
   email?: string;
   name?: string;
   username?: string;
-  protected?: boolean;
+  initialProtected?: boolean;
   stripeAccountId?: string;
   metadata?: Record<string, unknown>;
 }) {
@@ -47,7 +47,7 @@ export async function createOrUpdateUser({
         email,
         name,
         username,
-        protected: _protected,
+        protected: initialProtected,
         stripeAccountId,
         metadata,
       })
@@ -58,7 +58,6 @@ export async function createOrUpdateUser({
           email,
           name,
           username,
-          protected: _protected,
           stripeAccountId,
           metadata,
         },

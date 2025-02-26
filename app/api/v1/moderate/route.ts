@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       email: data.user.email,
       name: data.user.name,
       username: data.user.username,
-      protected: data.user.protected,
+      initialProtected: data.user.protected,
       stripeAccountId: data.user.stripeAccountId,
       metadata: data.user.metadata,
     });
@@ -52,6 +52,16 @@ export async function POST(req: NextRequest) {
     userId: user?.id,
     metadata: data.metadata,
   });
+
+  if (record.protected) {
+    return NextResponse.json(
+      {
+        id: record.id,
+        message: "Record is protected",
+      },
+      { status: 403 },
+    );
+  }
 
   const result = await moderate({
     clerkOrganizationId,

@@ -9,13 +9,13 @@ import { formatUserCompact } from "@/lib/record-user";
 
 const HISTORY_DAYS = 7;
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ appealId: string }> }) {
   const { orgId } = await auth();
   if (!orgId) {
     redirect("/");
   }
 
-  const id = (await params).id;
+  const id = (await params).appealId;
 
   const appeal = await db.query.appeals.findFirst({
     where: and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.id, id)),
@@ -37,12 +37,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+export default async function Page({ params }: { params: Promise<{ appealId: string }> }) {
   const { orgId } = await auth();
   if (!orgId) {
     redirect("/");
   }
-  const id = (await params).id;
+  const id = (await params).appealId;
 
   const appealWithMessages = await db.query.appeals.findFirst({
     where: and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.id, id)),

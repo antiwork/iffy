@@ -64,7 +64,7 @@ export async function UserDetail({
                   <ShieldCheck className="h-4 w-4 text-stone-500 dark:text-zinc-500" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Protected User</p>
+                  <p>Protected</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -75,7 +75,7 @@ export async function UserDetail({
                   <ShieldOff className="h-4 w-4 text-stone-300 dark:text-zinc-500" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Test Mode</p>
+                  <p>Not Protected</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

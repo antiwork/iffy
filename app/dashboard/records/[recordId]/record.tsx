@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import { formatModerationStatus, formatRecordStatus, formatUserStatus, formatVia } from "@/lib/badges";
-import { ExternalLink, FlaskConical, FlaskConicalOff } from "lucide-react";
+import { ExternalLink, FlaskConical, FlaskConicalOff, ShieldCheck, ShieldOff } from "lucide-react";
 import { RecordImages } from "./record-images";
 import { Code, CodeInline } from "@/components/code";
 import { Header, HeaderContent, HeaderPrimary, HeaderSecondary, HeaderActions } from "@/components/sheet/header";
@@ -64,6 +64,29 @@ export async function RecordDetail({
           <HeaderSecondary>{record.entity}</HeaderSecondary>
         </HeaderContent>
         <HeaderActions className="flex items-center gap-4">
+          {record.protected ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <ShieldCheck className="h-4 w-4 text-stone-500 dark:text-zinc-500" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Protected</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <ShieldOff className="h-4 w-4 text-stone-300 dark:text-zinc-500" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Not Protected</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
           {record.moderations[0]?.testMode ? (
             <TooltipProvider>
               <Tooltip>
@@ -71,7 +94,7 @@ export async function RecordDetail({
                   <FlaskConical className="h-4 w-4 text-stone-500 dark:text-zinc-500" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Test Mode</p>
+                  <p>Test Mode On</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

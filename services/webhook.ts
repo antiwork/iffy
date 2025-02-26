@@ -23,6 +23,7 @@ type PublicRecord = {
   clientUrl?: string;
   name: string;
   entity: string;
+  protected: boolean;
   metadata?: Record<string, string>;
   status?: (typeof schema.moderationStatus.enumValues)[number];
   statusUpdatedAt?: string;

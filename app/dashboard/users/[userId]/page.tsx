@@ -7,13 +7,13 @@ import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { formatUserCompact } from "@/lib/record-user";
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ userId: string }> }): Promise<Metadata> {
   const { orgId } = await auth();
   if (!orgId) {
     redirect("/");
   }
 
-  const id = (await params).id;
+  const id = (await params).userId;
 
   const user = await db.query.users.findFirst({
     where: and(eq(schema.users.clerkOrganizationId, orgId), eq(schema.users.id, id)),
@@ -28,11 +28,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+export default async function Page({ params }: { params: Promise<{ userId: string }> }) {
   const { orgId } = await auth();
   if (!orgId) {
     redirect("/");
   }
-  const id = (await params).id;
+  const id = (await params).userId;
   return <UserDetail clerkOrganizationId={orgId} id={id} />;
 }

@@ -466,6 +466,7 @@ export const records = pgTable(
     text: text().notNull(),
     imageUrls: text("image_urls").array().notNull().default([]),
     externalUrls: text("external_urls").array().notNull().default([]),
+    protected: boolean("protected").default(false).notNull(),
     metadata: jsonb(),
     userId: text("user_id"),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),

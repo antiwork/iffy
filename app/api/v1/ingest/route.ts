@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       email: data.user.email,
       name: data.user.name,
       username: data.user.username,
-      protected: data.user.protected,
+      initialProtected: data.user.protected,
       stripeAccountId: data.user.stripeAccountId,
       metadata: data.user.metadata,
     });
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
   }
 
   let pendingModeration: typeof schema.moderations.$inferSelect | undefined;
-  if (moderationThreshold) {
+  if (moderationThreshold && !record.protected) {
     pendingModeration = await createPendingModeration({
       clerkOrganizationId,
       recordId: record.id,

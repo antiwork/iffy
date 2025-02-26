@@ -6,13 +6,13 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ recordId: string }> }): Promise<Metadata> {
   const { orgId } = await auth();
   if (!orgId) {
     redirect("/");
   }
 
-  const id = (await params).id;
+  const id = (await params).recordId;
 
   const record = await db.query.records.findFirst({
     where: and(eq(schema.records.clerkOrganizationId, orgId), eq(schema.records.id, id)),
@@ -27,11 +27,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+export default async function Page({ params }: { params: Promise<{ recordId: string }> }) {
   const { orgId } = await auth();
   if (!orgId) {
     redirect("/");
   }
-  const id = (await params).id;
+  const id = (await params).recordId;
   return <RecordDetail clerkOrganizationId={orgId} id={id} />;
 }
