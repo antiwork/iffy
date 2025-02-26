@@ -6,7 +6,7 @@ import * as schema from "@/db/schema";
 import { validateApiKey } from "@/services/api-keys";
 import { parseMetadata } from "@/services/metadata";
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { recordId: id } = await params;
 
   const record = await db.query.records.findFirst({
     where: and(
