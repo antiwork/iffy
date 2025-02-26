@@ -18,6 +18,7 @@ import { DashboardTabs } from "@/components/dashboard-tabs";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { isIffyCloud } from "@/lib/env";
+import { signupEnabled } from "@/flags";
 
 const getCount = cache(
   async () => {
@@ -73,9 +74,15 @@ export default async function Page() {
             <Button asChild variant="outline" size="sm">
               <Link href="/sign-in">Sign in</Link>
             </Button>
+<<<<<<< Updated upstream
             <Button asChild variant="outline" size="sm">
               <Link href="/sign-up">Sign up</Link>
             </Button>
+=======
+            {!(await signupEnabled()) && <Button asChild variant="outline" size="sm">
+                <Link href="/sign-up">Sign up</Link>
+            </Button>}
+>>>>>>> Stashed changes
           </div>
         </div>
         <div className="space-y-12 sm:space-y-24">
