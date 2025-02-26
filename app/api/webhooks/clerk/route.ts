@@ -1,7 +1,7 @@
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { Webhook } from "svix";
 import { env } from "@/lib/env";
-import { createOrganisation } from "@/services/organisations";
+import * as organizationsService from "@/services/organisations";
 import * as stripeService from "@/services/stripe";
 
 export async function POST(req: Request) {
@@ -18,6 +18,7 @@ export async function POST(req: Request) {
 
   if (evt.type === "organization.created") {
     let stripeCustomer;
+    let organization;
     try {
       const { id: clerkOrgId, name } = evt.data;
 
@@ -27,15 +28,14 @@ export async function POST(req: Request) {
         name,
       });
 
-      // Initiate new db record, linking organisation with Stripe customer
-      const organization = await createOrganisation(clerkOrgId, stripeCustomer.id);
+      // Create database record, linking organisation with Stripe customer
+      organization = await organizationsService.createOrganization(clerkOrgId, stripeCustomer.id);
 
       if (!organization) {
         throw new Error("Failed to create organization");
       }
 
-      // Create Trial subscription for Stripe customer
-      // This will automatically update database via webhook
+      // Create Trial Subscription for Stripe customer
       await stripeService.createTrialSubscription(stripeCustomer.id);
 
       return new Response("Organization created successfully", { status: 200 });
@@ -44,13 +44,16 @@ export async function POST(req: Request) {
       if (stripeCustomer?.id) {
         await stripeService.deleteCustomer(stripeCustomer.id);
       }
+      if (organization?.id) {
+        await organizationsService.deleteOrganizationById(organization.id);
+      }
 
       console.error("Error processing organization creation:", error);
       return new Response("Error processing organization creation", { status: 500 });
     }
   }
 
-  return new Response("Webhook received", { status: 200 });
+  return new Response(`${evt.type} Webhook received`, { status: 200 });
 }
 
 async function constructEvent(req: Request, webhookSecret: string): Promise<WebhookEvent> {
@@ -73,8 +76,8 @@ async function constructEvent(req: Request, webhookSecret: string): Promise<Webh
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
     }) as WebhookEvent;
-  } catch (err) {
-    console.error("Error verifying webhook:", err);
+  } catch (error) {
+    console.error("Error verifying webhook:", error);
     throw new Error("Invalid webhook signature");
   }
 }

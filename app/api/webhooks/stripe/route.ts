@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/services/stripe";
 import { env } from "@/lib/env";
 import Stripe from "stripe";
-import { getOrganisationByStripeCustomerId } from "@/services/organisations";
+import * as organizationsService from "@/services/organisations";
 import * as subscriptionsService from "@/services/subscriptions";
 
 export async function POST(req: Request) {
@@ -15,16 +15,15 @@ export async function POST(req: Request) {
 
   try {
     const event = stripe.webhooks.constructEvent(body, signature, env.STRIPE_WEBHOOK_SECRET);
-
-    console.log({ type: event.type });
+    const subscription = event.data.object as Stripe.Subscription;
 
     switch (event.type) {
       case "customer.subscription.created":
-        return handleSubscriptionCreated(event.data.object as Stripe.Subscription);
+        return handleSubscriptionCreated(subscription);
       case "customer.subscription.updated":
-        return handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
+        return handleSubscriptionUpdated(subscription);
       case "customer.subscription.deleted":
-        return handleSubscriptionCancelled(event.data.object as Stripe.Subscription);
+        return handleSubscriptionCancelled(subscription);
       default:
         return new NextResponse(null, { status: 200 });
     }
@@ -35,8 +34,9 @@ export async function POST(req: Request) {
 }
 
 async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
-  const organisation = await getOrganisationByStripeCustomerId(subscription.customer.toString());
+  const organisation = await organizationsService.getOrganizationByStripeCustomerId(subscription.customer.toString());
 
+  // Ideally, this should never happen
   if (!organisation?.id) {
     throw new Error("No organisation found for Stripe customer");
   }
@@ -52,7 +52,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   });
 
   if (!updated) {
-    throw new Error(`No subscription found to update for Stripe subscription id ${subscription.id}`);
+    throw new Error(`No subscription found to update with Stripe subscription id ${subscription.id}`);
   }
 
   return new NextResponse(null, { status: 200 });
@@ -65,7 +65,7 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
   });
 
   if (!cancelled) {
-    throw new Error(`No subscription found to cancel for Stripe subscription id ${subscription.id}`);
+    throw new Error(`No subscription found to cancel with Stripe subscription id ${subscription.id}`);
   }
 
   return new NextResponse(null, { status: 200 });

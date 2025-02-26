@@ -36,8 +36,8 @@ export async function createTrialSubscription(
   stripeSubscription: Stripe.Subscription,
 ) {
   try {
-    // Check for active subscription and cancel it
-    // This way we ensure that only one subscription can be active at the same time
+    // Cancel any active Trial Subscription, if exists
+    // This ensures that, as long as this interface is used, only one active subscription can exist at the same time
     const activeSubscription = await getTrialSubscription(clerkOrgId);
 
     if (activeSubscription) {

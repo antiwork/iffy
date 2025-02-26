@@ -2,7 +2,7 @@ import db from "@/db";
 import { organizations } from "@/db/tables";
 import { eq } from "drizzle-orm";
 
-export async function getOrganisationByStripeCustomerId(stripeCustomerId: string) {
+export async function getOrganizationByStripeCustomerId(stripeCustomerId: string) {
   try {
     const [organization] = await db
       .select()
@@ -11,24 +11,24 @@ export async function getOrganisationByStripeCustomerId(stripeCustomerId: string
 
     return organization;
   } catch (error) {
-    console.log("Failed to get organisation by Stripe", error);
+    console.error("Failed to get organisation by Stripe", error);
     throw error;
   }
 }
 
-export async function getOrganisationByClerkOrgId(clerkOrgId: string) {
+export async function getOrganizationByClerkOrgId(clerkOrgId: string) {
   try {
     const org = await db.query.organizations.findFirst({
       where: eq(organizations.clerkOrgId, clerkOrgId),
     });
     return org;
   } catch (error) {
-    console.log("Failed to get organisation by Clerk:", error);
+    console.error("Failed to get organisation by Clerk:", error);
     throw error;
   }
 }
 
-export async function createOrganisation(clerkOrgId: string, stripeCustomerId: string) {
+export async function createOrganization(clerkOrgId: string, stripeCustomerId: string) {
   try {
     const [organization] = await db
       .insert(organizations)
@@ -41,6 +41,17 @@ export async function createOrganisation(clerkOrgId: string, stripeCustomerId: s
     return organization;
   } catch (error) {
     console.error("Failed to create organisation:", error);
+    throw error;
+  }
+}
+
+export async function deleteOrganizationById(id: string) {
+  try {
+    const [deletedOrganisation] = await db.delete(organizations).where(eq(organizations.id, id)).returning();
+
+    return deletedOrganisation;
+  } catch (error) {
+    console.error("Failed to delete organisation by ID:", error);
     throw error;
   }
 }
