@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 export interface NavigableItem {
   id: string;
@@ -58,12 +59,14 @@ export function PrevNextButtons({
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex justify-between">
       <Button onClick={handlePrev} variant="outline" size="sm" disabled={!canGoPrev}>
+        <ArrowLeft />
         Previous
       </Button>
       <Button onClick={handleNext} variant="outline" size="sm" disabled={!exhausted || isFetchingNext}>
         Next
+        <ArrowRight />
       </Button>
     </div>
   );

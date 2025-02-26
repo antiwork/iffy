@@ -42,7 +42,7 @@ export function UsersCollectionNavigation({ currentUserId }: UsersCollectionNavi
 
   if (!isUsersActiveCollection) return null;
   return (
-    <div className="fixed bottom-6 right-6">
+    <div className="sticky bottom-6 px-6">
       <PrevNextButtons
         currentItemId={currentUserId}
         items={users}
