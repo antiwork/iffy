@@ -27,7 +27,7 @@ export async function UserDetail({
 }: {
   clerkOrganizationId: string;
   id: string;
-  isModal: boolean;
+  isModal?: boolean;
 }) {
   const user = await db.query.users.findFirst({
     where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, id)),
