@@ -27,8 +27,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
         </div>
 
         <p className="mb-6 text-green-950/70 dark:text-green-300/70">
-          Your free trial has ended. To continue using Iffy, please contact your administrator or support team for
-          further instructions. All subscription changes will be handled out-of-band.
+          Your trial period has ended. Please contact support for help with your subscription.
         </p>
 
         <div className="flex space-x-3">
