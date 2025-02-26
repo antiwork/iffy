@@ -4,8 +4,9 @@ import { and, eq, isNull } from "drizzle-orm";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { validateApiKey } from "@/services/api-keys";
+import { parseMetadata } from "@/services/metadata";
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { recordId: id } = await params;
 
   const record = await db.query.records.findFirst({
     where: and(
@@ -30,6 +31,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       clientUrl: true,
       name: true,
       entity: true,
+      protected: true,
       metadata: true,
       createdAt: true,
       updatedAt: true,
@@ -45,11 +47,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: { message: "Record not found" } }, { status: 404 });
   }
 
-  const { userId, ...rest } = record;
+  const { userId, metadata, ...rest } = record;
   return NextResponse.json({
     data: {
       ...rest,
       user: userId,
+      metadata: metadata ? parseMetadata(metadata) : undefined,
     },
   });
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "records" ADD COLUMN "protected" boolean DEFAULT false NOT NULL;

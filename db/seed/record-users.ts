@@ -19,7 +19,7 @@ export async function seedUsers(clerkOrganizationId: string) {
           name: faker.person.fullName({ firstName, lastName }),
           username: faker.internet.userName({ firstName, lastName }).toLocaleLowerCase(),
           createdAt: faker.date.recent({ days: 10 }),
-          protected: sample([true, false]),
+          protected: sample([true, false, false, false, false]),
         };
       }),
     )

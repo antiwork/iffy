@@ -133,6 +133,7 @@ const sendModerationWebhook = inngest.createFunction(
             clientUrl: record.clientUrl ?? undefined,
             name: record.name,
             entity: record.entity,
+            protected: record.protected,
             metadata: record.metadata ? parseMetadata(record.metadata) : undefined,
             status: moderation.status,
             statusUpdatedAt: new Date(moderation.updatedAt).getTime().toString(),

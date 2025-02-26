@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { formatRecordStatus, formatRecordVia } from "@/lib/badges";
 import { ActionMenu } from "../records/action-menu";
 import type { Record } from "../records/types";
-import { FlaskConical } from "lucide-react";
+import { FlaskConical, ShieldCheck } from "lucide-react";
 import { Date } from "@/components/date";
 
 const columnHelper = createColumnHelper<Record>();
@@ -46,18 +46,34 @@ export const columns = [
       return (
         <div className="flex w-64 items-center space-x-1 truncate">
           <span className="w-full truncate font-bold">{props.getValue()}</span>
-          {row.original.moderations[0]?.testMode && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <FlaskConical size={16} className="text-stone-500 dark:text-zinc-500" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Test Mode</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
+          <span>
+            {row.original.protected && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <ShieldCheck size={16} className="text-stone-500 dark:text-zinc-500" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Protected</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </span>
+          <span>
+            {row.original.moderations[0]?.testMode && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <FlaskConical size={16} className="text-stone-500 dark:text-zinc-500" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Test Mode</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </span>
         </div>
       );
     },

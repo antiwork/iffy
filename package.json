@@ -67,7 +67,7 @@
     "cuid": "^3.0.0",
     "date-fns": "^4.1.0",
     "dotenv-cli": "^7.4.2",
-    "drizzle-orm": "^0.37.0",
+    "drizzle-orm": "^0.39.3",
     "framer-motion": "^11.8.0",
     "inngest": "^3.23.1",
     "linkify-it": "^5.0.0",
@@ -88,7 +88,6 @@
     "react-resizable-panels": "^2.1.1",
     "recharts": "^2.15.1",
     "resend": "^4.0.0",
-    "sharp": "^0.30.4",
     "stripe": "^17.1.0",
     "superjson": "^2.2.1",
     "tailwind-merge": "^3.0.2",
@@ -97,12 +96,12 @@
     "type-fest": "^4.32.0",
     "user-agents": "^1.1.395",
     "vaul": "^1.0.0",
-    "zod": "^3.23.8",
+    "zod": "^3.24.1",
     "zod-to-json-schema": "^3.23.3",
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
-    "@antiwork/shortest": "^0.4.3",
+    "@antiwork/shortest": "^0.4.4",
     "@clerk/testing": "^1.3.13",
     "@eslint/js": "^9.9.1",
     "@playwright/test": "^1.48.1",
@@ -116,7 +115,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/user-agents": "^1.0.4",
-    "drizzle-kit": "^0.29.0",
+    "drizzle-kit": "^0.30.4",
     "drizzle-seed": "^0.1.3",
     "eslint": "^8.57.0",
     "eslint-config-next": "15.0.0",
@@ -137,5 +136,10 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "next": "15.1.5"
+  },
+  "optionalDependencies": {
+    "@img/sharp-linux-x64": "0.33.5",
+    "@tailwindcss/oxide-linux-x64-gnu": "^4.0.9",
+    "lightningcss-linux-x64-gnu": "^1.29.1"
   }
 }

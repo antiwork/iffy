@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     email: data.email,
     name: data.name,
     username: data.username,
-    protected: data.protected,
+    initialProtected: data.protected,
     stripeAccountId: data.stripeAccountId,
     metadata: data.metadata,
   });
