@@ -32,7 +32,7 @@ export async function createTrialSubscription(customerId: string) {
   try {
     return await stripe.subscriptions.create({
       customer: customerId,
-      items: [{ price: env.STRIPE_FREE_PRICE_ID }],
+      items: [{ price: env.STRIPE_TRIAL_PRICE_ID }],
       trial_settings: {
         end_behavior: {
           missing_payment_method: "cancel",
