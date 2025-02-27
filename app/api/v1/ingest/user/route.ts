@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { IngestUserRequestData } from "./schema";
 import { validateApiKey } from "@/services/api-keys";
-import { parseRequestDataWithSchema } from "@/app/api/parse";
+import { parseRequestBody } from "@/app/api/parse";
 import { createOrUpdateUser } from "@/services/users";
 
 export async function POST(req: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { data, error } = await parseRequestDataWithSchema(req, IngestUserRequestData);
+  const { data, error } = await parseRequestBody(req, IngestUserRequestData);
   if (error) {
     return NextResponse.json({ error }, { status: 400 });
   }

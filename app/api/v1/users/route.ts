@@ -6,7 +6,7 @@ import { SQL } from "drizzle-orm";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { validateApiKey } from "@/services/api-keys";
-import { parseRequestDataWithSchema } from "@/app/api/parse";
+import { parseQueryParams } from "@/app/api/parse";
 import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
 import { getAbsoluteUrl } from "@/lib/url";
 import { generateAppealToken } from "@/services/appeals";
@@ -32,16 +32,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { data, error } = await parseRequestDataWithSchema(req, ListUsersRequestData);
+  const { data, error } = await parseQueryParams(req, ListUsersRequestData);
   if (error) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
   const organizationSettings = await findOrCreateOrganizationSettings(clerkOrganizationId);
 
-  const { limit, starting_after, ending_before, email, clientId, status, user } = data as z.infer<
-    typeof ListUsersRequestData
-  >;
+  const { limit, starting_after, ending_before, email, clientId, status, user } = data;
 
   let conditions: SQL<unknown>[] = [eq(schema.users.clerkOrganizationId, clerkOrganizationId)];
 

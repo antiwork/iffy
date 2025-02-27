@@ -9,7 +9,7 @@ import { createPendingModeration } from "@/services/moderations";
 import { createOrUpdateUser } from "@/services/users";
 import { createOrUpdateRecord, deleteRecord } from "@/services/records";
 import { inngest } from "@/inngest/client";
-import { parseRequestDataWithSchema } from "@/app/api/parse";
+import { parseRequestBody } from "@/app/api/parse";
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("Authorization");
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { data, error } = await parseRequestDataWithSchema(req, IngestUpdateRequestData, ingestUpdateAdapter);
+  const { data, error } = await parseRequestBody(req, IngestUpdateRequestData, ingestUpdateAdapter);
   if (error) {
     return NextResponse.json({ error }, { status: 400 });
   }
@@ -121,7 +121,7 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { data, error } = await parseRequestDataWithSchema(req, IngestDeleteRequestData);
+  const { data, error } = await parseRequestBody(req, IngestDeleteRequestData);
   if (error) {
     return NextResponse.json({ error }, { status: 400 });
   }

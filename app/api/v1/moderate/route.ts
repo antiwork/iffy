@@ -6,10 +6,10 @@ import { validateApiKey } from "@/services/api-keys";
 import { createModeration, moderate } from "@/services/moderations";
 import { createOrUpdateRecord } from "@/services/records";
 import { createOrUpdateUser } from "@/services/users";
-import { parseRequestDataWithSchema } from "@/app/api/parse";
+import { parseRequestBody } from "@/app/api/parse";
 
 export async function POST(req: NextRequest) {
-  const { data, error } = await parseRequestDataWithSchema(req, ModerateRequestData, moderateAdapter);
+  const { data, error } = await parseRequestBody(req, ModerateRequestData, moderateAdapter);
   if (error) {
     return NextResponse.json({ error }, { status: 400 });
   }
