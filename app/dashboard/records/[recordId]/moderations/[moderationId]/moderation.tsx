@@ -10,6 +10,7 @@ import { formatClerkUser } from "@/lib/clerk";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import db from "@/db";
+import { notFound } from "next/navigation";
 
 export async function ModerationDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const moderation = await db.query.moderations.findFirst({
@@ -29,7 +30,7 @@ export async function ModerationDetail({ clerkOrganizationId, id }: { clerkOrgan
   });
 
   if (!moderation) {
-    return null;
+    return notFound();
   }
 
   const rules = moderation.moderationsToRules.map((moderationToRule) => moderationToRule.rule);

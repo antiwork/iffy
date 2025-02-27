@@ -11,6 +11,7 @@ import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import db from "@/db";
 import { formatClerkUser } from "@/lib/clerk";
+import { notFound } from "next/navigation";
 
 export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const userAction = await db.query.userActions.findFirst({
@@ -22,7 +23,7 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
   });
 
   if (!userAction) {
-    return null;
+    return notFound();
   }
 
   return (
