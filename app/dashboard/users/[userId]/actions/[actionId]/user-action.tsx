@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import db from "@/db";
+import { formatClerkUser } from "@/lib/clerk";
 
 export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const userAction = await db.query.userActions.findFirst({
@@ -42,7 +43,7 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
       </Header>
       <Separator className="my-2" />
       <Section>
-        <SectionTitle>User action details</SectionTitle>
+        <SectionTitle>Action details</SectionTitle>
         <SectionContent>
           <dl className="grid gap-3">
             <div className="grid grid-cols-2 gap-4">
@@ -53,6 +54,12 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
               <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
               <dd>{formatVia(userAction)}</dd>
             </div>
+            {userAction.clerkUserId && (
+              <div className="grid grid-cols-2 gap-4">
+                <dt className="text-stone-500 dark:text-zinc-500">By</dt>
+                <dd>{await formatClerkUser(userAction.clerkUserId)}</dd>
+              </div>
+            )}
             {userAction.reasoning && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">Reasoning</dt>

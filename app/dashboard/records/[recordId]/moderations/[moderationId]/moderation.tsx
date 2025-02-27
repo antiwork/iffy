@@ -6,7 +6,7 @@ import { Section, SectionContent, SectionTitle } from "@/components/sheet/sectio
 import Link from "next/link";
 import { FlaskConical } from "lucide-react";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-
+import { formatClerkUser } from "@/lib/clerk";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import db from "@/db";
@@ -73,6 +73,12 @@ export async function ModerationDetail({ clerkOrganizationId, id }: { clerkOrgan
               <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
               <dd>{formatVia(moderation)}</dd>
             </div>
+            {moderation.clerkUserId && (
+              <div className="grid grid-cols-2 gap-4">
+                <dt className="text-stone-500 dark:text-zinc-500">By</dt>
+                <dd>{await formatClerkUser(moderation.clerkUserId)}</dd>
+              </div>
+            )}
             {rules && rules.length > 0 && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">Rules</dt>
@@ -83,6 +89,12 @@ export async function ModerationDetail({ clerkOrganizationId, id }: { clerkOrgan
               <dt className="text-stone-500 dark:text-zinc-500">Reasoning</dt>
               <dd>{moderation.reasoning}</dd>
             </div>
+            {moderation.tokens > 0 && (
+              <div className="grid grid-cols-2 gap-4">
+                <dt className="text-stone-500 dark:text-zinc-500"># of Tokens</dt>
+                <dd>{moderation.tokens}</dd>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Created at</dt>
               <dd>
