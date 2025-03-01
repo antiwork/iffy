@@ -18,6 +18,7 @@ import { CopyButton } from "@/components/copy-button";
 import { eq, and, desc } from "drizzle-orm";
 import { StripeAccount } from "./stripe-account";
 import { notFound } from "next/navigation";
+import { parseMetadata } from "@/services/metadata";
 
 export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const user = await db.query.users.findFirst({
@@ -35,6 +36,8 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
   if (!user) {
     return notFound();
   }
+
+  const metadata = user.metadata ? parseMetadata(user.metadata) : undefined;
 
   return (
     <div>
@@ -118,6 +121,26 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
         <>
           <Separator className="my-2" />
           <StripeAccount clerkOrganizationId={clerkOrganizationId} stripeAccountId={user.stripeAccountId} />
+        </>
+      )}
+      {metadata && (
+        <>
+          <Separator className="my-2" />
+          <Section>
+            <SectionTitle>Metadata</SectionTitle>
+            <SectionContent>
+              <dl className="grid gap-3">
+                {Object.entries(metadata).map(([key, value]) => (
+                  <div key={key} className="grid grid-cols-2 gap-4">
+                    <dt className="font-mono text-stone-500 dark:text-zinc-500">{key}</dt>
+                    <dd>
+                      <CodeInline>{value}</CodeInline>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </SectionContent>
+          </Section>
         </>
       )}
       {user.actions.length > 0 && (
