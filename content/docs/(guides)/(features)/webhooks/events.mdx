@@ -1,0 +1,172 @@
+---
+title: Webhook events
+description: Technical specification for Iffy webhook events
+---
+
+## Request format
+
+- **Method**: POST
+- **Headers**:
+  - `Content-Type: application/json`
+  - `X-Signature: HMAC SHA256 signature`
+
+## Events and payloads
+
+### record.flagged
+
+```json
+{
+  "id": "string",                             // Moderation ID
+  "event": "record.flagged",
+  "payload": {
+    "id": "string",                           // Record ID
+    "clientId": "string",                     // Your unique record Id
+    "clientUrl": "string" | undefined,        // Your unique record URL
+    "name": "string",
+    "entity": "string",                       // Entity (e.g., post, comment)
+    "metadata": {
+      ["string"]: "string"                    // Your custom metadata
+    },
+    "status": "Compliant" | "Flagged" | undefined,
+    "statusUpdatedAt": "string" | undefined,  // Date of moderation
+    "statusUpdatedVia": "Manual", "Automation", "AI",
+    "user": {
+      "id": "string",                           // User ID
+      "clientId": "string",                     // Your unique user Id
+      "clientUrl": "string" | undefined,        // Your unique user URL
+      "protected": boolean,
+      "metadata": {
+        ["string"]: "string"                    // Your custom metadata
+      },
+      "status": "Compliant" | "Suspended" | "Banned" | undefined,
+      "statusUpdatedAt": "string" | undefined,  // Date of user action
+      "statusUpdatedVia": "Manual", "Automation", "AI"
+    }
+  },
+  "timestamp": "string"                       // Unix timestamp in milliseconds
+}
+```
+
+### record.unflagged
+
+```json
+{
+  "id": "string",                             // Moderation ID
+  "event": "record.unflagged",
+  "payload": {
+    "id": "string",                           // Record ID
+    "clientId": "string",                     // Your unique record identifier
+    "clientUrl": "string" | undefined,        // Your unique record URL
+    "name": "string",
+    "entity": "string",                       // Entity (e.g., post, comment)
+    "metadata": {
+      ["string"]: "string"                    // Your custom metadata
+    },
+    "status": "Compliant" | "Flagged" | undefined,
+    "statusUpdatedAt": "string" | undefined,  // Date of moderation
+    "statusUpdatedVia": "Manual", "Automation", "AI",
+    "user": {
+      "id": "string",                           // User ID
+      "clientId": "string",                     // Your unique user Id
+      "clientUrl": "string" | undefined,        // Your unique user URL
+      "protected": boolean,
+      "metadata": {
+        ["string"]: "string"                    // Your custom metadata
+      },
+      "status": "Compliant" | "Suspended" | "Banned" | undefined,
+      "statusUpdatedAt": "string" | undefined,  // Date of user action
+      "statusUpdatedVia": "Manual", "Automation", "AI"
+    }
+  },
+  "timestamp": "string"
+}
+```
+
+### user.suspended
+
+```json
+{
+  "id": "string",                             // User action ID
+  "event": "user.suspended",
+  "payload": {
+    "id": "string",                           // User ID
+    "clientId": "string",                     // Your unique record identifier
+    "clientUrl": "string" | undefined,        // Your unique record URL
+    "protected": boolean,
+    "metadata": {
+      ["string"]: "string"                    // Your custom metadata
+    },
+    "status": "Compliant" | "Suspended" | "Banned" | undefined,
+    "statusUpdatedAt": "string" | undefined,  // Date of user action
+    "statusUpdatedVia": "Manual", "Automation", "AI"
+  },
+  "timestamp": "string"
+}
+```
+
+### user.compliant
+
+```json
+{
+  "id": "string",                             // User action ID
+  "event": "user.compliant",
+  "payload": {
+    "id": "string",                           // User ID
+    "clientId": "string",                     // Your unique record identifier
+    "clientUrl": "string" | undefined,        // Your unique record URL
+    "protected": boolean,
+    "metadata": {
+      ["string"]: "string"                    // Your custom metadata
+    },
+    "status": "Compliant" | "Suspended" | "Banned" | undefined,
+    "statusUpdatedAt": "string" | undefined,  // Date of user action
+    "statusUpdatedVia": "Manual", "Automation", "AI"
+  },
+  "timestamp": "string"
+}
+```
+
+### user.banned
+
+```json
+{
+  "id": "string",                             // User action ID
+  "event": "user.banned",
+  "payload": {
+    "id": "string",                           // User ID
+    "clientId": "string",                     // Your unique record identifier
+    "clientUrl": "string" | undefined,        // Your unique record URL
+    "protected": boolean,
+    "metadata": {
+      ["string"]: "string"                    // Your custom metadata
+    },
+    "status": "Compliant" | "Suspended" | "Banned" | undefined,
+    "statusUpdatedAt": "string" | undefined,  // Date of user action
+    "statusUpdatedVia": "Manual", "Automation", "AI"
+  },
+  "timestamp": "string"
+}
+```
+
+## Security
+
+### Signature verification
+
+Verify the X-Signature header using HMAC SHA256:
+
+```javascript
+import crypto from "node:crypto";
+const body = JSON.stringify(req.body);
+const signature = req.headers["x-signature"];
+const secret = process.env.IFFY_WEBHOOK_SECRET;
+
+const hash = crypto.createHmac("sha256", secret).update(body).digest("hex");
+
+if (hash !== signature) {
+  return res.status(401).send("Invalid signature");
+}
+```
+
+### Retry logic
+
+We do not currently retry webhooks.

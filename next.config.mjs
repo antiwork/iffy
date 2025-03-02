@@ -1,3 +1,7 @@
+import { createMDX } from 'fumadocs-mdx/next';
+
+const withMDX = createMDX();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async redirects() {
@@ -13,4 +17,4 @@ const nextConfig = {
   productionBrowserSourceMaps: true,
 };
 
-export default nextConfig;
+export default withMDX(nextConfig);
