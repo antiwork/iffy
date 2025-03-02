@@ -101,7 +101,7 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
-    "@antiwork/shortest": "^0.4.4",
+    "@antiwork/shortest": "^0.4.5",
     "@clerk/testing": "^1.3.13",
     "@eslint/js": "^9.9.1",
     "@playwright/test": "^1.48.1",
