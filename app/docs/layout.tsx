@@ -2,6 +2,7 @@ import { DocsLayout, type DocsLayoutProps } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 import { source } from "@/lib/fumadocs/source";
 import { Logo } from "@/components/logo";
+import { sanitizeCSSVariable } from "@/lib/sanitize-css-variable";
 
 const docsOptions: DocsLayoutProps = {
   nav: {
@@ -15,13 +16,7 @@ const docsOptions: DocsLayoutProps = {
         const meta = source.getNodeMeta(node);
         if (!meta) return option;
 
-        // The "(guides)" folder represents a root-level route group
-        // We remove the parentheses so that CSS variable can be set to customize it
-        if (meta.file.dirname.includes("(guides)")) {
-          meta.file.dirname = meta.file.dirname.replace(/\(guides\)/g, "guides");
-        }
-
-        const color = `var(--${meta.file.dirname}-color, var(--color-fd-foreground))`;
+        const color = `var(--${sanitizeCSSVariable(meta.file.dirname)}-color, var(--color-fd-foreground))`;
 
         return {
           ...option,

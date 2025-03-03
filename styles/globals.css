@@ -75,4 +75,9 @@
     --guides-color: white;
     --api-reference-color: white;
   }
+
+  #nd-docs-layout button,
+  #nd-docs-layout [role="button"] {
+    cursor: pointer;
+  }
 }
