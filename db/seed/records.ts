@@ -81,6 +81,7 @@ export async function seedRecords(
           userId: sample(users)?.id,
           createdAt: faker.date.recent({ days: 10 }),
           protected: sample([true, false, false, false, false]),
+          externalUrls: [...Array(faker.number.int({ min: 0, max: 3 }))].map(() => faker.internet.url()),
         };
       }),
     )
