@@ -12,6 +12,7 @@ import { ActionMenu } from "../action-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatUserCompact } from "@/lib/record-user";
 import { cn } from "@/lib/utils";
+import { formatLink } from "@/lib/url";
 import { ModerationsTable } from "./moderations-table";
 import { CopyButton } from "@/components/copy-button";
 
@@ -140,6 +141,20 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
                       Link <ExternalLink className="h-4 w-4" />
                     </Link>
                   </Button>
+                </dd>
+              </div>
+            )}
+            {record.externalUrls && record.externalUrls.length > 0 && (
+              <div className="grid grid-cols-2 gap-4">
+                <dt className="text-stone-500 dark:text-zinc-500">External Links</dt>
+                <dd className="flex flex-col gap-1">
+                  {record.externalUrls.map((url, index) => (
+                    <Button key={index} asChild variant="link" className="text-md -mx-4 -my-2 font-normal">
+                      <Link href={url} target="_blank" rel="noopener noreferrer">
+                        {formatLink(url)} <ExternalLink className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  ))}
                 </dd>
               </div>
             )}
