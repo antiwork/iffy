@@ -1,7 +1,0 @@
-{
-  "root": true,
-  "title": "Documentation",
-  "description": "Step-by-step tutorials to get started",
-  "icon": "Book",
-  "pages": ["index", "...(root)", "---Features---", "...(features)"]
-}
