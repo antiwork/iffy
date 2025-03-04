@@ -1,0 +1,58 @@
+---
+title: Introduction
+description: Comprehensive guide to integrating with the Iffy Content Moderation API
+icon: Album
+---
+
+# Getting started
+
+To integrate with Iffy, you'll use our RESTful API endpoints secured with Bearer token authentication.
+
+## Base URL
+
+All API requests are made to the following base URL:
+
+```
+https://api.iffy.com
+```
+
+## Authentication
+
+All API endpoints require authentication using a Bearer token. You can obtain your API key from your Iffy dashboard.
+
+Include the API key in the Authorization header of every request:
+
+```
+Authorization: Bearer YOUR_API_KEY
+```
+
+## Available endpoints
+
+Our API provides endpoints for content moderation management:
+
+<Cards>
+  <Card
+    title="Ingest record"
+    href="/docs/api-reference/ingest/post"
+    description="Create or update content records for moderation"
+  />
+
+<Card
+  title="Delete record"
+  href="/docs/api-reference/ingest/delete"
+  description="Remove content records from the moderation system"
+/>
+
+  <Card
+    title="API specification"
+    href="#"
+    description="View the complete OpenAPI specification"
+  />
+</Cards>
+
+## Additional information
+
+- **Content accessibility**: Ensure that any fileUrls provided remain accessible by Iffy for as long as the record exists.
+- **Protected users**: Users marked as protected are exempt from certain moderation actions, allowing you to safeguard administrators or trusted users.
+
+For detailed implementation guidance, refer to the endpoint documentation above. For any questions or assistance, feel free to [reach out to our support team](mailto:support@iffy.com).
