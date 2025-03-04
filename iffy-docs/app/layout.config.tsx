@@ -1,6 +1,6 @@
 import { DocsLayoutProps } from "fumadocs-ui/layouts/docs";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
-import { IFFY_GITHUB_URL } from "@/lib/constants";
+import { BASE_URL, IFFY_GITHUB_URL } from "@/lib/constants";
 import { Logo } from "@/lib/logo-component";
 import { sanitizeCSSVar } from "@/lib/sanitize-css-var";
 import { source } from "@/lib/source";
@@ -8,6 +8,7 @@ import { source } from "@/lib/source";
 export const baseOptions: BaseLayoutProps = {
   nav: {
     title: <Logo />,
+    url: BASE_URL,
   },
 };
 
