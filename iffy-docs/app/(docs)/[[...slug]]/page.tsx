@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { DocsPage, DocsBody, DocsTitle, DocsDescription } from "fumadocs-ui/page";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import { source, openapi } from "@/lib/source";
@@ -6,8 +5,7 @@ import { metadataImage } from "@/lib/metadata";
 
 export default async function Page(props: { params: Promise<{ slug?: string[] }> }) {
   const params = await props.params;
-  const page = source.getPage(params.slug);
-  if (!page) notFound();
+  const page = source.getPage(params.slug)!;
 
   const MDX = page.data.body;
 
@@ -28,8 +26,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata(props: { params: Promise<{ slug?: string[] }> }) {
   const params = await props.params;
-  const page = source.getPage(params.slug);
-  if (!page) notFound();
+  const page = source.getPage(params.slug)!;
 
   return metadataImage.withImage(page.slugs, {
     title: page.data.title,
