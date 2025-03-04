@@ -19,6 +19,10 @@
     cursor: pointer;
   }
 
+  #nd-sidebar {
+    background-color: color-mix(in oklab, oklch(0.266 0.065 152.934) 5%, transparent) !important;
+  }
+
   :root {
     --primary-color: rgb(50, 70, 158);
     --secondary-color: RebeccaPurple;
