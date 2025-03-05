@@ -19,6 +19,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { StripeAccount } from "./stripe-account";
 import { notFound } from "next/navigation";
 import { parseMetadata } from "@/services/metadata";
+import { formatLink } from "@/lib/url";
 
 export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const user = await db.query.users.findFirst({
@@ -96,7 +97,7 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
                 <dd>
                   <Button asChild variant="link" className="text-md -mx-4 -my-2 font-normal">
                     <Link href={user.clientUrl} target="_blank" rel="noopener noreferrer">
-                      Link <ExternalLink className="h-4 w-4" />
+                      {formatLink(user.clientUrl)} <ExternalLink className="h-4 w-4" />
                     </Link>
                   </Button>
                 </dd>
