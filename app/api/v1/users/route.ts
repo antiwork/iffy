@@ -9,7 +9,7 @@ import { validateApiKey } from "@/services/api-keys";
 import { parseQueryParams } from "@/app/api/parse";
 import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
 import { getAbsoluteUrl } from "@/lib/url";
-import { generateLegacyAppealToken } from "@/services/appeals";
+import { generateAppealToken } from "@/services/appeals";
 
 const ListUsersRequestData = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
@@ -118,7 +118,7 @@ export async function GET(req: NextRequest) {
     data: users.map((user) => {
       const appealUrl =
         organizationSettings.appealsEnabled && user.actionStatus === "Suspended"
-          ? getAbsoluteUrl(`/appeal?token=${generateLegacyAppealToken(user.id)}`)
+          ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(user.id)}`)
           : null;
       return { ...user, appealUrl };
     }),

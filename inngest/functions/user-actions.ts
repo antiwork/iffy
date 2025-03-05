@@ -2,7 +2,7 @@ import { sendWebhook, WebhookEvents } from "@/services/webhook";
 import { inngest } from "@/inngest/client";
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { generateLegacyAppealToken } from "@/services/appeals";
+import { generateAppealToken } from "@/services/appeals";
 import { createMessage } from "@/services/messages";
 import { sendEmail, renderEmailTemplate } from "@/services/email";
 import { pausePayments, resumePayments } from "@/services/stripe";
@@ -157,7 +157,7 @@ const sendUserActionEmail = inngest.createFunction(
             clerkOrganizationId,
             type: "Suspended",
             appealUrl: organizationSettings.appealsEnabled
-              ? getAbsoluteUrl(`/appeal?token=${generateLegacyAppealToken(userId)}`)
+              ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(userId)}`)
               : undefined,
           });
           break;

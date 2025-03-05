@@ -5,7 +5,7 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { validateApiKey } from "@/services/api-keys";
 import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
-import { generateLegacyAppealToken } from "@/services/appeals";
+import { generateAppealToken } from "@/services/appeals";
 import { getAbsoluteUrl } from "@/lib/url";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
 
   const appealUrl =
     organizationSettings.appealsEnabled && user.actionStatus === "Suspended"
-      ? getAbsoluteUrl(`/appeal?token=${generateLegacyAppealToken(user.id)}`)
+      ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(user.id)}`)
       : null;
 
   return NextResponse.json({ data: { ...user, appealUrl } });

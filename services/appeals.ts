@@ -2,11 +2,20 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { eq, desc, and, sql, count } from "drizzle-orm";
 import * as crypto from "crypto";
-import { createMessage } from "./messages";
-import { createAppealAction } from "./appeal-actions";
 import { env } from "@/lib/env";
 import { inngest } from "@/inngest/client";
 import { deriveSecret } from "@/lib/crypto";
+
+export function generateAppealToken(userId: string) {
+  if (!env.SECRET_KEY) {
+    throw new Error("SECRET_KEY is not set");
+  }
+
+  const derivedKey = deriveSecret(env.SECRET_KEY, `appeal-token`);
+  const signature = crypto.createHmac("sha256", derivedKey).update(userId).digest("hex");
+
+  return `${userId}-${signature}`;
+}
 
 export function generateLegacyAppealToken(userId: string) {
   if (!env.APPEAL_ENCRYPTION_KEY) {
@@ -16,44 +25,21 @@ export function generateLegacyAppealToken(userId: string) {
   return `${userId}-${signature}`;
 }
 
-export function generateAppealToken(userId: string) {
-  if (!env.SECRET_KEY) {
-    throw new Error("SECRET_KEY is not set");
-  }
-
-  // Use deriveSecret to generate a context-specific key from the main secret
-  const derivedKey = deriveSecret(env.SECRET_KEY, `appeal-token:${userId}`);
-
-  // Return the token in the same format as the legacy token for consistency
-  return `${userId}-${derivedKey}`;
-}
-
 export function validateAppealToken(token: string): [isValid: false, userId: null] | [isValid: true, userId: string] {
   const [userId, _] = token.split("-");
   if (!userId) {
     return [false, null];
   }
 
-  // Try validating with the new token format first
-  try {
-    if (env.SECRET_KEY && token === generateAppealToken(userId)) {
-      return [true, userId];
-    }
-  } catch (error) {
-    // If there's an error with the new format, continue to try the legacy format
-    console.error("Error validating with new appeal token format:", error);
+  if (token === generateAppealToken(userId)) {
+    return [true, userId];
   }
 
-  // Fall back to the legacy token format
-  try {
-    if (env.APPEAL_ENCRYPTION_KEY && token === generateLegacyAppealToken(userId)) {
-      return [true, userId];
-    }
-  } catch (error) {
-    console.error("Error validating with legacy appeal token format:", error);
+  // TODO(s3ththompson): Remove once all old appeals have been closed
+  if (token === generateLegacyAppealToken(userId)) {
+    return [true, userId];
   }
 
-  // If neither format validates, the token is invalid
   return [false, null];
 }
 
