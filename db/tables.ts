@@ -411,6 +411,7 @@ export const organizationSettings = pgTable(
     appealsEnabled: boolean("appeals_enabled").default(false).notNull(),
     stripeApiKey: text("stripe_api_key"), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
     moderationPercentage: doublePrecision("moderation_percentage").default(100).notNull(),
+    suspensionThreshold: integer("suspension_threshold").default(1).notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
       .defaultNow()

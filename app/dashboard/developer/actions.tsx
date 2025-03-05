@@ -25,6 +25,7 @@ const updateOrganizationSettingsSchema = z.object({
   appealsEnabled: z.boolean().optional(),
   stripeApiKey: z.string().optional(),
   moderationPercentage: z.number().optional(),
+  suspensionThreshold: z.number().optional(),
 });
 
 export const createWebhook = actionClient
