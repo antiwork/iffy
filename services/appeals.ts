@@ -1,7 +1,7 @@
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { eq, desc, and, sql, count } from "drizzle-orm";
-import crypto from "crypto";
+import * as crypto from "crypto";
 import { createMessage } from "./messages";
 import { createAppealAction } from "./appeal-actions";
 import { env } from "@/lib/env";
@@ -16,11 +16,6 @@ export function generateLegacyAppealToken(userId: string) {
   return `${userId}-${signature}`;
 }
 
-/**
- * Generates an appeal token using the SECRET_KEY and deriveSecret function
- * @param userId The user ID to generate a token for
- * @returns A token in the format userId-derivedSecret
- */
 export function generateAppealToken(userId: string) {
   if (!env.SECRET_KEY) {
     throw new Error("SECRET_KEY is not set");
@@ -33,11 +28,6 @@ export function generateAppealToken(userId: string) {
   return `${userId}-${derivedKey}`;
 }
 
-/**
- * Validates an appeal token, supporting both new and legacy token formats
- * @param token The token to validate
- * @returns A tuple indicating if the token is valid and the associated userId
- */
 export function validateAppealToken(token: string): [isValid: false, userId: null] | [isValid: true, userId: string] {
   const [userId, _] = token.split("-");
   if (!userId) {
