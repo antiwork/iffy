@@ -1,0 +1,8 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "id": "0001_add_via_record_appeal_to_user_actions",
+  "name": "add_via_record_appeal_to_user_actions",
+  "created": "2025-03-05T03:48:42.000Z",
+  "hash": "0001_add_via_record_appeal_to_user_actions"
+}

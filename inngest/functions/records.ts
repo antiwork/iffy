@@ -41,6 +41,7 @@ const updateUserAfterDeletion = inngest.createFunction(
           userId: user.id,
           status: "Compliant",
           via: "Automation",
+          viaRecordId: id,
         });
       });
     }

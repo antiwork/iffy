@@ -35,6 +35,7 @@ export const recordsRelations = relations(records, ({ one, many }) => ({
     fields: [records.userId],
     references: [users.id],
   }),
+  userActions: many(userActions, { relationName: "viaRecord" }),
 }));
 
 export const rulesetsRelations = relations(rulesets, ({ many }) => ({
@@ -49,6 +50,14 @@ export const userActionsRelations = relations(userActions, ({ one, many }) => ({
   }),
   messages: many(messages),
   appeal: one(appeals),
+  viaRecord: one(records, {
+    fields: [userActions.viaRecordId],
+    references: [records.id],
+  }),
+  viaAppeal: one(appeals, {
+    fields: [userActions.viaAppealId],
+    references: [appeals.id],
+  }),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -86,6 +95,7 @@ export const appealsRelations = relations(appeals, ({ one, many }) => ({
     references: [userActions.id],
   }),
   actions: many(appealActions),
+  userActions: many(userActions, { relationName: "viaAppeal" }),
 }));
 
 export const appealActionsRelations = relations(appealActions, ({ one }) => ({

@@ -78,6 +78,7 @@ const updateUserAfterModeration = inngest.createFunction(
         userId: user.id,
         status: actionStatus,
         via: "Automation",
+        viaRecordId: recordId,
       });
     });
   },

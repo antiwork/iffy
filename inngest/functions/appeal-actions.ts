@@ -40,6 +40,7 @@ const updateUserAfterAppealAction = inngest.createFunction(
         userId: appeal.userAction.user.id,
         status: "Compliant",
         via: "Automation",
+        viaAppealId: appealId,
       });
     });
   },
