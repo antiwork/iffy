@@ -25,10 +25,10 @@ export function generateAppealToken(userId: string) {
   if (!env.SECRET_KEY) {
     throw new Error("SECRET_KEY is not set");
   }
-  
+
   // Use deriveSecret to generate a context-specific key from the main secret
   const derivedKey = deriveSecret(env.SECRET_KEY, `appeal-token:${userId}`);
-  
+
   // Return the token in the same format as the legacy token for consistency
   return `${userId}-${derivedKey}`;
 }
@@ -43,7 +43,7 @@ export function validateAppealToken(token: string): [isValid: false, userId: nul
   if (!userId) {
     return [false, null];
   }
-  
+
   // Try validating with the new token format first
   try {
     if (env.SECRET_KEY && token === generateAppealToken(userId)) {
@@ -53,7 +53,7 @@ export function validateAppealToken(token: string): [isValid: false, userId: nul
     // If there's an error with the new format, continue to try the legacy format
     console.error("Error validating with new appeal token format:", error);
   }
-  
+
   // Fall back to the legacy token format
   try {
     if (env.APPEAL_ENCRYPTION_KEY && token === generateLegacyAppealToken(userId)) {
@@ -62,7 +62,7 @@ export function validateAppealToken(token: string): [isValid: false, userId: nul
   } catch (error) {
     console.error("Error validating with legacy appeal token format:", error);
   }
-  
+
   // If neither format validates, the token is invalid
   return [false, null];
 }
