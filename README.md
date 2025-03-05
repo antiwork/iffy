@@ -58,7 +58,7 @@ Generate a `FIELD_ENCRYPTION_KEY`:
 npx @47ng/cloak generate | head -1 | cut -d':' -f2 | tr -d ' *'
 ```
 
-Generate an `APPEAL_ENCRYPTION_KEY`:
+Generate a `SECRET_KEY`:
 
 ```bash
 openssl rand -base64 32

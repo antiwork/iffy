@@ -7,10 +7,6 @@ import { inngest } from "@/inngest/client";
 import { deriveSecret } from "@/lib/crypto";
 
 export function generateAppealToken(userId: string) {
-  if (!env.SECRET_KEY) {
-    throw new Error("SECRET_KEY is not set");
-  }
-
   const derivedKey = deriveSecret(env.SECRET_KEY, `appeal-token`);
   const signature = crypto.createHmac("sha256", derivedKey).update(userId).digest("hex");
 
@@ -36,7 +32,7 @@ export function validateAppealToken(token: string): [isValid: false, userId: nul
   }
 
   // TODO(s3ththompson): Remove once all old appeals have been closed
-  if (token === generateLegacyAppealToken(userId)) {
+  if (env.APPEAL_ENCRYPTION_KEY && token === generateLegacyAppealToken(userId)) {
     return [true, userId];
   }
 

@@ -18,7 +18,7 @@ const envSchema = z
   .object({
     OPENAI_API_KEY: z.string(),
     FIELD_ENCRYPTION_KEY: z.string(),
-    APPEAL_ENCRYPTION_KEY: z.string(),
+    APPEAL_ENCRYPTION_KEY: z.string().optional(),
     SECRET_KEY: z.string(),
     CLERK_SECRET_KEY: z.string(),
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
