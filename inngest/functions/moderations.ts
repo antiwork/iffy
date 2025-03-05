@@ -65,11 +65,20 @@ const updateUserAfterModeration = inngest.createFunction(
 
     let actionStatus: (typeof schema.userActionStatus.enumValues)[number] | undefined;
 
-    if (status === "Flagged" && (!user.actionStatus || user.actionStatus === "Compliant") && !user.protected && flaggedRecords.length > organizationSettings.suspensionThreshold) {
+    if (
+      status === "Flagged" &&
+      (!user.actionStatus || user.actionStatus === "Compliant") &&
+      !user.protected &&
+      flaggedRecords.length > organizationSettings.suspensionThreshold
+    ) {
       actionStatus = "Suspended";
     }
 
-    if (status === "Compliant" && flaggedRecords.length < organizationSettings.suspensionThreshold && user.actionStatus === "Suspended") {
+    if (
+      status === "Compliant" &&
+      flaggedRecords.length < organizationSettings.suspensionThreshold &&
+      user.actionStatus === "Suspended"
+    ) {
       actionStatus = "Compliant";
     }
 
