@@ -93,7 +93,6 @@ export const appealsRelations = relations(appeals, ({ one, many }) => ({
   userAction: one(userActions, {
     fields: [appeals.userActionId],
     references: [userActions.id],
-    relationName: "fromUserAction",
   }),
   actions: many(appealActions),
 }));
