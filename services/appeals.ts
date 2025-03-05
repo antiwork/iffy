@@ -6,8 +6,9 @@ import { createMessage } from "./messages";
 import { createAppealAction } from "./appeal-actions";
 import { env } from "@/lib/env";
 import { inngest } from "@/inngest/client";
+import { deriveSecret } from "@/lib/crypto";
 
-export function generateAppealToken(userId: string) {
+export function generateLegacyAppealToken(userId: string) {
   if (!env.APPEAL_ENCRYPTION_KEY) {
     throw new Error("APPEAL_ENCRYPTION_KEY is not set");
   }
@@ -15,16 +16,55 @@ export function generateAppealToken(userId: string) {
   return `${userId}-${signature}`;
 }
 
+/**
+ * Generates an appeal token using the SECRET_KEY and deriveSecret function
+ * @param userId The user ID to generate a token for
+ * @returns A token in the format userId-derivedSecret
+ */
+export function generateAppealToken(userId: string) {
+  if (!env.SECRET_KEY) {
+    throw new Error("SECRET_KEY is not set");
+  }
+  
+  // Use deriveSecret to generate a context-specific key from the main secret
+  const derivedKey = deriveSecret(env.SECRET_KEY, `appeal-token:${userId}`);
+  
+  // Return the token in the same format as the legacy token for consistency
+  return `${userId}-${derivedKey}`;
+}
+
+/**
+ * Validates an appeal token, supporting both new and legacy token formats
+ * @param token The token to validate
+ * @returns A tuple indicating if the token is valid and the associated userId
+ */
 export function validateAppealToken(token: string): [isValid: false, userId: null] | [isValid: true, userId: string] {
   const [userId, _] = token.split("-");
   if (!userId) {
     return [false, null];
   }
-  const isValid = token === generateAppealToken(userId);
-  if (!isValid) {
-    return [false, null];
+  
+  // Try validating with the new token format first
+  try {
+    if (env.SECRET_KEY && token === generateAppealToken(userId)) {
+      return [true, userId];
+    }
+  } catch (error) {
+    // If there's an error with the new format, continue to try the legacy format
+    console.error("Error validating with new appeal token format:", error);
   }
-  return [true, userId];
+  
+  // Fall back to the legacy token format
+  try {
+    if (env.APPEAL_ENCRYPTION_KEY && token === generateLegacyAppealToken(userId)) {
+      return [true, userId];
+    }
+  } catch (error) {
+    console.error("Error validating with legacy appeal token format:", error);
+  }
+  
+  // If neither format validates, the token is invalid
+  return [false, null];
 }
 
 export async function createAppeal({ userId, text }: { userId: string; text: string }) {
