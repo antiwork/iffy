@@ -12,6 +12,7 @@ import {
   jsonb,
   primaryKey,
   pgEnum,
+  AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import cuid from "cuid";
 
@@ -93,8 +94,14 @@ export const userActions = pgTable(
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     clerkUserId: text("clerk_user_id"),
     reasoning: text("reasoning"),
-    viaRecordId: text("via_record_id"),
-    viaAppealId: text("via_appeal_id"),
+    viaRecordId: text("via_record_id").references((): AnyPgColumn => records.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    viaAppealId: text("via_appeal_id").references((): AnyPgColumn => appeals.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
   },
   (table) => {
     return {
@@ -106,20 +113,6 @@ export const userActions = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
-      userActionsViaRecordIdFkey: foreignKey({
-        columns: [table.viaRecordId],
-        foreignColumns: [records.id],
-        name: "user_actions_via_record_id_fkey",
-      })
-        .onUpdate("cascade")
-        .onDelete("set null"),
-      userActionsViaAppealIdFkey: foreignKey({
-        columns: [table.viaAppealId],
-        foreignColumns: [appeals.id],
-        name: "user_actions_via_appeal_id_fkey",
-      })
-        .onUpdate("cascade")
-        .onDelete("set null"),
     };
   },
 );

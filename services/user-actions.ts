@@ -2,7 +2,7 @@ import db from "@/db";
 import { inngest } from "@/inngest/client";
 import * as schema from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
-import { ViaWithClerkUserOrUser } from "@/lib/types";
+import { ViaWithRelations } from "@/lib/types";
 
 type ActionStatus = (typeof schema.userActionStatus.enumValues)[number];
 
@@ -20,9 +20,7 @@ export async function createUserAction({
   userId: string;
   status: ActionStatus;
   reasoning?: string;
-  viaRecordId?: string;
-  viaAppealId?: string;
-} & ViaWithClerkUserOrUser) {
+} & ViaWithRelations) {
   const [userAction, lastUserAction] = await db.transaction(async (tx) => {
     const user = await tx.query.users.findFirst({
       where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)),

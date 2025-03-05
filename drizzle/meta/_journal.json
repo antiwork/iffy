@@ -148,6 +148,13 @@
       "when": 1740580485002,
       "tag": "0020_slimy_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1741191568036,
+      "tag": "0021_condemned_captain_stacy",
+      "breakpoints": true
     }
   ]
 }

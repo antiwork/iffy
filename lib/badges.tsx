@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import * as schema from "@/db/schema";
-import { ViaWithClerkUserOrUser } from "./types";
+import { ViaWithRelations } from "./types";
 
 type Appeal = typeof schema.appeals.$inferSelect;
 type AppealAction = typeof schema.appealActions.$inferSelect;
@@ -37,7 +37,7 @@ export function formatModerationStatus({ status, pending }: Partial<Pick<Moderat
   }
 }
 
-export function formatVia({ via }: ViaWithClerkUserOrUser) {
+export function formatVia({ via }: ViaWithRelations) {
   if (via === "Automation") {
     return <Badge variant="outline">Automated</Badge>;
   } else if (via === "AI") {
