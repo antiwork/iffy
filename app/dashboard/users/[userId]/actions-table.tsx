@@ -21,7 +21,7 @@ export function ActionsTable({ actions }: { actions: UserDetail["actions"] }) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
-                <dd>{formatVia({ via: latestAction.via, clerkUserId: latestAction.clerkUserId })}</dd>
+                <dd>{formatVia(latestAction)}</dd>
               </div>
               {latestAction.reasoning && (
                 <div className="grid grid-cols-2 gap-4">
@@ -39,7 +39,7 @@ export function ActionsTable({ actions }: { actions: UserDetail["actions"] }) {
                 <div className="grid grid-cols-2 gap-4">
                   <dt className="text-stone-500 dark:text-zinc-500">Appeal</dt>
                   <dd>
-                    <Button asChild variant="link" className="text-md -ml-3 h-6 p-0">
+                    <Button asChild variant="link" className="h-6 p-0 text-sm">
                       <Link href={`/dashboard/inbox/${latestAction.appeal.id}`}>View appeal</Link>
                     </Button>
                   </dd>
@@ -50,7 +50,7 @@ export function ActionsTable({ actions }: { actions: UserDetail["actions"] }) {
                 <dd>
                   <Button asChild variant="link" className="h-6 p-0 text-sm">
                     <Link href={`/dashboard/users/${latestAction.userId}/actions/${latestAction.id}`}>
-                      View details
+                      View action details
                     </Link>
                   </Button>
                 </dd>
@@ -78,7 +78,7 @@ export function ActionsTable({ actions }: { actions: UserDetail["actions"] }) {
                   <div className="py-1">{formatUserActionStatus({ status: action.status })}</div>
                 </TableCell>
                 <TableCell className="px-2 py-1">
-                  <div className="py-1">{formatVia({ via: action.via, clerkUserId: action.clerkUserId })}</div>
+                  <div className="py-1">{formatVia(action)}</div>
                 </TableCell>
                 <TableCell className="px-2 py-1">
                   <div className="py-1">

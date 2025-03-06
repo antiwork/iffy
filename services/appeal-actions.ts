@@ -2,7 +2,7 @@ import db from "@/db";
 import { inngest } from "@/inngest/client";
 import * as schema from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
-import { ViaWithClerkUserOrUser } from "@/lib/types";
+import { ViaWithRelations } from "@/lib/types";
 
 type ActionStatus = (typeof schema.appealActionStatus.enumValues)[number];
 type Via = (typeof schema.via.enumValues)[number];
@@ -17,7 +17,7 @@ export async function createAppealAction({
   clerkOrganizationId: string;
   appealId: string;
   status: ActionStatus;
-} & ViaWithClerkUserOrUser) {
+} & ViaWithRelations) {
   const [appealAction, lastAppealAction] = await db.transaction(async (tx) => {
     const lastAppealAction = await tx.query.appealActions.findFirst({
       where: and(

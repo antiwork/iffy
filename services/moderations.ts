@@ -5,7 +5,7 @@ import { env } from "@/lib/env";
 import { inngest } from "@/inngest/client";
 import { ModerationMultiModalInput } from "openai/resources/moderations.mjs";
 import * as schema from "@/db/schema";
-import { ViaWithClerkUserOrUser } from "@/lib/types";
+import { ViaWithRelations } from "@/lib/types";
 import { makeStrategyInstance } from "@/strategies";
 import type { StrategyInstance } from "@/strategies/types";
 
@@ -53,7 +53,7 @@ export async function createModeration({
   ruleIds?: string[];
   testMode?: boolean;
   createdAt?: Date;
-} & ViaWithClerkUserOrUser) {
+} & ViaWithRelations) {
   let lastStatus: ModerationStatus | null = null;
 
   const moderation = await db.transaction(async (tx) => {
@@ -169,7 +169,7 @@ export async function createPendingModeration({
   clerkOrganizationId: string;
   recordId: string;
   createdAt?: Date;
-} & ViaWithClerkUserOrUser) {
+} & ViaWithRelations) {
   return await db.transaction(async (tx) => {
     const record = await tx.query.records.findFirst({
       where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),

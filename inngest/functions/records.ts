@@ -45,7 +45,7 @@ const updateUserAfterDeletion = inngest.createFunction(
           clerkOrganizationId,
           userId: user.id,
           status: "Compliant",
-          via: "Automation",
+          via: "Automation All Compliant",
         });
       });
     }

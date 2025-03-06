@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import * as schema from "@/db/schema";
-import { ViaWithClerkUserOrUser } from "./types";
 
+type Via = (typeof schema.via.enumValues)[number];
 type Appeal = typeof schema.appeals.$inferSelect;
 type AppealAction = typeof schema.appealActions.$inferSelect;
 type Moderation = typeof schema.moderations.$inferSelect;
@@ -37,15 +37,17 @@ export function formatModerationStatus({ status, pending }: Partial<Pick<Moderat
   }
 }
 
-export function formatVia({ via }: ViaWithClerkUserOrUser) {
-  if (via === "Automation") {
+export function formatVia({ via }: { via: Via }) {
+  if (via.startsWith("Automation")) {
     return <Badge variant="outline">Automated</Badge>;
   } else if (via === "AI") {
     return <Badge variant="outline">AI</Badge>;
   } else if (via === "Inbound") {
     return <Badge variant="outline">Inbound</Badge>;
-  } else {
+  } else if (via === "Manual") {
     return <Badge variant="outline">Manual</Badge>;
+  } else {
+    return null;
   }
 }
 

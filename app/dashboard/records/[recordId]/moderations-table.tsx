@@ -53,7 +53,7 @@ export function ModerationsTable({ moderations }: { moderations: Record["moderat
                 <dd>
                   <Button asChild variant="link" className="h-6 p-0 text-sm">
                     <Link href={`/dashboard/records/${latestModeration.recordId}/moderations/${latestModeration.id}`}>
-                      View details
+                      View moderation details
                     </Link>
                   </Button>
                 </dd>

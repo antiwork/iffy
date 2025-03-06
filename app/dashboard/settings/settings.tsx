@@ -141,7 +141,7 @@ export const Settings = ({
             htmlFor="moderationPercentage"
             className="text-md mb-2 block font-normal text-gray-950 dark:text-stone-50"
           >
-            Moderation percentage
+            Roll-out percentage
           </label>
           <div className="relative mt-1 rounded-md shadow-xs">
             <Input
@@ -158,6 +158,9 @@ export const Settings = ({
               <span className="text-gray-500 sm:text-sm dark:text-stone-50">%</span>
             </div>
           </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Moderate a percentage of ingested records for a gradual roll-out.
+          </p>
           {hasModerationPercentageError && <p className="mt-2 text-sm text-red-600">Invalid percentage</p>}
         </div>
         <div>
