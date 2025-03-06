@@ -73,7 +73,7 @@ const updateUserAfterModeration = inngest.createFunction(
       status === "Flagged" &&
       (!user.actionStatus || user.actionStatus === "Compliant") &&
       !user.protected &&
-      flaggedRecords.length > organizationSettings.suspensionThreshold
+      flaggedRecords.length >= organizationSettings.suspensionThreshold
     ) {
       actionStatus = "Suspended";
       actionVia = { via: "Automation Flagged Record", viaRecordId: recordId };
