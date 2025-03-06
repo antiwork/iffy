@@ -22,7 +22,15 @@ export const messageStatus = pgEnum("MessageStatus", ["Pending", "Delivered"]);
 export const messageType = pgEnum("MessageType", ["Outbound", "Inbound"]);
 export const moderationStatus = pgEnum("ModerationStatus", ["Compliant", "Flagged"]);
 export const userActionStatus = pgEnum("UserActionStatus", ["Compliant", "Suspended", "Banned"]);
-export const via = pgEnum("Via", ["Inbound", "Manual", "Automation", "AI"]);
+export const via = pgEnum("Via", [
+  "Inbound",
+  "Manual",
+  "Automation",
+  "AI",
+  "Automation Flagged Record",
+  "Automation All Compliant",
+  "Automation Appeal Approved",
+]);
 export const webhookEventStatus = pgEnum("WebhookEventStatus", ["Pending", "Sent", "Failed"]);
 export const strategyType = pgEnum("StrategyType", ["Blocklist", "OpenAI", "Prompt"]);
 

@@ -59,16 +59,22 @@ const updateUserAfterModeration = inngest.createFunction(
     });
 
     let actionStatus: (typeof schema.userActionStatus.enumValues)[number] | undefined;
+    let actionVia:
+      | { via: "Automation Flagged Record"; viaRecordId: string }
+      | { via: "Automation All Compliant" }
+      | undefined;
 
     if (status === "Flagged" && (!user.actionStatus || user.actionStatus === "Compliant") && !user.protected) {
       actionStatus = "Suspended";
+      actionVia = { via: "Automation Flagged Record", viaRecordId: recordId };
     }
 
     if (status === "Compliant" && flaggedRecords.length === 0 && user.actionStatus === "Suspended") {
       actionStatus = "Compliant";
+      actionVia = { via: "Automation All Compliant" };
     }
 
-    if (!actionStatus) {
+    if (!actionStatus || !actionVia) {
       return;
     }
 
@@ -77,8 +83,7 @@ const updateUserAfterModeration = inngest.createFunction(
         clerkOrganizationId,
         userId: user.id,
         status: actionStatus,
-        via: "Automation",
-        viaRecordId: recordId,
+        ...actionVia,
       });
     });
   },
