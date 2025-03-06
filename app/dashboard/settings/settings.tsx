@@ -136,7 +136,7 @@ export const Settings = ({
             Moderate content in test mode without triggering user actions like suspensions or bans
           </p>
         </div>
-        <div>
+        <div className="space-y-2">
           <label
             htmlFor="moderationPercentage"
             className="text-md mb-2 block font-normal text-gray-950 dark:text-stone-50"
@@ -163,12 +163,12 @@ export const Settings = ({
           </p>
           {hasModerationPercentageError && <p className="mt-2 text-sm text-red-600">Invalid percentage</p>}
         </div>
-        <div>
+        <div className="space-y-2">
           <label
             htmlFor="suspensionThreshold"
             className="text-md mb-2 block font-normal text-gray-950 dark:text-stone-50"
           >
-            Automatic Suspension Threshold
+            Automatic suspension threshold
           </label>
           <div className="relative mt-1 rounded-md shadow-xs">
             <Input

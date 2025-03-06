@@ -65,5 +65,6 @@ export const updateOrganizationSettings = actionClient
   .action(async ({ parsedInput, ctx: { clerkOrganizationId } }) => {
     const settings = await organizationSettingsService.updateOrganizationSettings(clerkOrganizationId, parsedInput);
     revalidatePath("/dashboard/developer");
+    revalidatePath("/dashboard/settings");
     return settings;
   });
