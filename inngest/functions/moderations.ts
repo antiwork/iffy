@@ -63,33 +63,30 @@ const updateUserAfterModeration = inngest.createFunction(
       return await findOrCreateOrganizationSettings(clerkOrganizationId);
     });
 
-    const { actionStatus, actionVia } = await step.run("determine-action", async () => {
-      let actionStatus: (typeof schema.userActionStatus.enumValues)[number] | undefined;
-      let actionVia:
-        | { via: "Automation Flagged Record"; viaRecordId: string }
-        | { via: "Automation All Compliant" }
-        | undefined;
+    let actionStatus: (typeof schema.userActionStatus.enumValues)[number] | undefined;
+    let actionVia:
+      | { via: "Automation Flagged Record"; viaRecordId: string }
+      | { via: "Automation All Compliant" }
+      | undefined;
 
-      if (
-        status === "Flagged" &&
-        (!user.actionStatus || user.actionStatus === "Compliant") &&
-        !user.protected &&
-        flaggedRecords.length >= organizationSettings.suspensionThreshold
-      ) {
-        actionStatus = "Suspended";
-        actionVia = { via: "Automation Flagged Record", viaRecordId: recordId };
-      }
+    if (
+      status === "Flagged" &&
+      (!user.actionStatus || user.actionStatus === "Compliant") &&
+      !user.protected &&
+      flaggedRecords.length >= organizationSettings.suspensionThreshold
+    ) {
+      actionStatus = "Suspended";
+      actionVia = { via: "Automation Flagged Record", viaRecordId: recordId };
+    }
 
-      if (
-        status === "Compliant" &&
-        flaggedRecords.length < organizationSettings.suspensionThreshold &&
-        user.actionStatus === "Suspended"
-      ) {
-        actionStatus = "Compliant";
-        actionVia = { via: "Automation All Compliant" };
-      }
-      return { actionStatus, actionVia };
-    });
+    if (
+      status === "Compliant" &&
+      flaggedRecords.length < organizationSettings.suspensionThreshold &&
+      user.actionStatus === "Suspended"
+    ) {
+      actionStatus = "Compliant";
+      actionVia = { via: "Automation All Compliant" };
+    }
 
     if (!actionStatus || !actionVia) {
       return;
