@@ -130,7 +130,10 @@ export default function DynamicLayout({
                 <Skeleton className="mr-2 h-[20px] w-[125px] rounded-sm" />
               </ClerkLoading>
               <ClerkLoaded>
-                <OrganizationSwitcher appearance={{ elements: { organizationSwitcherTrigger: "dark:text-white" } }} />
+                <OrganizationSwitcher
+                  appearance={{ elements: { organizationSwitcherTrigger: "dark:text-white" } }}
+                  hidePersonal={true}
+                />
               </ClerkLoaded>
             </div>
             <Separator />

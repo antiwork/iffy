@@ -15,6 +15,8 @@ import { IffyImage } from "./iffy-image";
 import { CountLazy } from "./count-lazy";
 import AntiworkFooter from "@/components/antiwork-footer";
 import { DashboardTabs } from "@/components/dashboard-tabs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { enablePublicSignupFlag } from "@/flags";
 
 const getCount = cache(
   async () => {
@@ -47,6 +49,7 @@ const getCount = cache(
 
 export default async function Page() {
   const { count, countAt, ratePerHour } = await getCount();
+  const enablePublicSignup = await enablePublicSignupFlag();
 
   return (
     <div className="min-h-screen space-y-12 bg-white pt-6 font-sans text-black sm:space-y-24 sm:pt-12">
@@ -59,9 +62,27 @@ export default async function Page() {
             <Button asChild variant="outline" size="sm">
               <Link href="https://docs.iffy.com">Docs</Link>
             </Button>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/sign-in">Sign in</Link>
-            </Button>
+            <SignedIn>
+              <Button asChild variant="secondary" size="sm">
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            </SignedIn>
+            <SignedOut>
+              {enablePublicSignup ? (
+                <>
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href="/sign-in">Sign in</Link>
+                  </Button>
+                  <Button asChild size="sm">
+                    <Link href="/sign-up">Sign up</Link>
+                  </Button>
+                </>
+              ) : (
+                <Button asChild size="sm">
+                  <Link href="/sign-in">Sign in</Link>
+                </Button>
+              )}
+            </SignedOut>
           </div>
         </div>
         <div className="space-y-12 sm:space-y-24">
@@ -82,11 +103,15 @@ export default async function Page() {
                     Keep unwanted content off your platform without managing a team of moderators.{" "}
                   </p>
                 </div>
-                <Button asChild variant="default" className="rounded-full px-5 py-2.5 text-lg">
-                  <Link href="https://cal.com/team/iffy/onboarding" target="_blank">
-                    Book a demo
-                  </Link>
-                </Button>
+                {enablePublicSignup ? (
+                  <Button asChild className="rounded-full px-5 py-2.5 text-lg">
+                    <Link href="/sign-up">Start for free</Link>
+                  </Button>
+                ) : (
+                  <Button asChild className="rounded-full px-5 py-2.5 text-lg">
+                    <Link href="/sign-in">Sign in</Link>
+                  </Button>
+                )}
               </div>
               <div className="shrink-0 space-y-4">
                 <h2 className="font-sans text-sm font-normal text-balance text-gray-500">

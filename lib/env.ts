@@ -22,6 +22,8 @@ const envSchema = z
     SECRET_KEY: z.string(),
     CLERK_SECRET_KEY: z.string(),
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
+    NEXT_PUBLIC_CLERK_SIGN_IN_URL: z.literal("/sign-in"),
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.literal("/sign-up"),
     NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
     NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
     SEED_CLERK_ORGANIZATION_ID: z.string().optional(),
@@ -29,6 +31,7 @@ const envSchema = z
     POSTGRES_URL_NON_POOLING: z.string(),
     INNGEST_APP_NAME: z.string(),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+    ENABLE_PUBLIC_SIGNUP: z.coerce.boolean().optional().default(false),
   })
   .and(resendOrNoResendSchema);
 

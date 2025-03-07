@@ -68,6 +68,7 @@
     "date-fns": "^4.1.0",
     "dotenv-cli": "^7.4.2",
     "drizzle-orm": "^0.39.3",
+    "flags": "^3.1.1",
     "framer-motion": "^11.8.0",
     "inngest": "^3.23.1",
     "linkify-it": "^5.0.0",
@@ -130,7 +131,7 @@
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.2.0",
     "vercel": "^39.2.2",
-    "vitest": "^2.1.8"
+    "vitest": "^3.0.8"
   },
   "overrides": {
     "react": "^19.0.0",
