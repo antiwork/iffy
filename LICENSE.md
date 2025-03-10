@@ -1,6 +1,6 @@
 # Iffy Community License 1.0
 
-https://github.com/anti-work/iffy/LICENSE.md
+https://github.com/anti-work/iffy/blob/main/LICENSE.md
 
 ## Acceptance
 
