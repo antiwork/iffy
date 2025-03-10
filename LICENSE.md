@@ -44,7 +44,7 @@ with the software. For example:
 The licensor grants you a patent license for the software that
 covers patent claims the licensor can license, or becomes able
 to license, that you would infringe by using the software. This license
-is also subject to the Small Business limitation above.
+is also subject to the Small Business and Exempt Organizations limitation above.
 
 ## No Other Rights
 
