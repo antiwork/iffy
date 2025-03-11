@@ -3,6 +3,10 @@ import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { encrypt } from "@/services/encrypt";
 import { clerkClient } from "@clerk/nextjs/server";
+import { Stripe } from "stripe";
+import { env } from "@/lib/env";
+
+const stripe = new Stripe(env.STRIPE_API_KEY);
 
 async function _findOrCreateOrganization(clerkOrganizationId: string) {
   let [organization] = await db
