@@ -2,7 +2,7 @@ import { Separator } from "@/components/ui/separator";
 import { formatUser, getUserSecondaryParts } from "@/lib/record-user";
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { formatUserActionStatus, formatVia } from "@/lib/badges";
+import { formatUserActionStatus } from "@/lib/badges";
 import { ExternalLink, ShieldCheck, ShieldOff } from "lucide-react";
 import { Header, HeaderActions, HeaderContent, HeaderPrimary, HeaderSecondary } from "@/components/sheet/header";
 import { Section, SectionContent, SectionTitle } from "@/components/sheet/section";
@@ -20,6 +20,7 @@ import { StripeAccount } from "./stripe-account";
 import { notFound } from "next/navigation";
 import { parseMetadata } from "@/services/metadata";
 import { formatLink } from "@/lib/url";
+import NextPrevButtons from "@/components/prev-next-buttons";
 
 export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const user = await db.query.users.findFirst({
@@ -162,6 +163,7 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
           <RecordsTable clerkOrganizationId={clerkOrganizationId} userId={user.id} />
         </SectionContent>
       </Section>
+      <NextPrevButtons rowId={user.id} path="/dashboard/users/" />
     </div>
   );
 }

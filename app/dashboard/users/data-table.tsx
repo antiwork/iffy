@@ -16,6 +16,7 @@ import { DataTableLoading } from "@/components/ui/data-table-loading";
 import { useRouter } from "next/navigation";
 
 import * as schema from "@/db/schema";
+import { useModalCollection } from "@/components/modal-collection-context";
 type UserActionStatus = (typeof schema.userActions.status.enumValues)[number];
 
 const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => {
@@ -26,6 +27,7 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([{ id: "status", value: [] }]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([{ id: "sort", desc: true }]);
+  const { setCollection } = useModalCollection();
 
   const query = {
     clerkOrganizationId,
@@ -78,6 +80,11 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
       fetchMoreOnBottomReached(tableContainerRef.current);
     }
   }, [fetchMoreOnBottomReached]);
+
+  useEffect(() => {
+    // Store only record IDs in the collection state since they are used for next/previous navigation
+    setCollection(users.map((user) => user.id));
+  }, [users]);
 
   const router = useRouter();
 

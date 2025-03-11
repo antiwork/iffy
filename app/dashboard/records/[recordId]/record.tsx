@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { formatModerationStatus, formatRecordStatus, formatUserStatus, formatVia } from "@/lib/badges";
+import { formatRecordStatus, formatUserStatus } from "@/lib/badges";
 import { ExternalLink, FlaskConical, FlaskConicalOff, ShieldCheck, ShieldOff } from "lucide-react";
 import { RecordImages } from "./record-images";
 import { Code, CodeInline } from "@/components/code";
@@ -223,7 +223,7 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
           </Section>
         </>
       )}
-      <NextPrevButtons recordId={record.id} path="/dashboard/records/" />
+      <NextPrevButtons rowId={record.id} path="/dashboard/records/" />
     </div>
   );
 }

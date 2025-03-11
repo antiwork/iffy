@@ -26,7 +26,7 @@ export function ModalCollectionProvider({ children }: { children: React.ReactNod
   );
 }
 
-export function useModalCollection(recordId?: string) {
+export function useModalCollection(rowId?: string) {
   const context = useContext(ModalCollectionContext);
   if (!context) {
     throw new Error("useModalCollection must be used within a ModalCollectionProvider");
@@ -35,8 +35,8 @@ export function useModalCollection(recordId?: string) {
   const { collection, setCollection, currentIndex, setCurrentIndex } = context;
 
   const index = useMemo(() => {
-    return collection.findIndex((id) => String(id) === recordId);
-  }, [collection, recordId]);
+    return collection.findIndex((id) => String(id) === rowId);
+  }, [collection, rowId]);
 
   useEffect(() => {
     if (index !== -1 && index !== currentIndex) {
@@ -47,7 +47,7 @@ export function useModalCollection(recordId?: string) {
   return {
     setCollection,
     currentIndex: index !== -1 ? index : undefined,
-    previousRecordId: index > 0 ? collection[index - 1] : null,
-    nextRecordId: index < collection.length - 1 ? collection[index + 1] : null,
+    previousRowId: index > 0 ? collection[index - 1] : null,
+    nextRowId: index < collection.length - 1 ? collection[index + 1] : null,
   };
 }
