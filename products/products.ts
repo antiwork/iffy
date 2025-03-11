@@ -35,13 +35,23 @@ export const PRODUCTS: ProductsConfig = {
     name: "Growth",
     description: "Intelligent moderation at scale",
     prices: {
-      flat: {
-        lookup_key: "price_iffy_growth_base",
+      flat_monthly: {
+        lookup_key: "price_iffy_growth_base_monthly",
         currency: "usd",
         unit_amount: 9900,
         billing_scheme: "per_unit",
         recurring: {
           interval: "month",
+          usage_type: "licensed",
+        },
+      },
+      flat_yearly: {
+        lookup_key: "price_iffy_growth_base_yearly",
+        currency: "usd",
+        unit_amount: 99000,
+        billing_scheme: "per_unit",
+        recurring: {
+          interval: "year",
           usage_type: "licensed",
         },
       },
@@ -72,13 +82,23 @@ export const PRODUCTS: ProductsConfig = {
     name: "Pro",
     description: "Enterprise-grade moderation",
     prices: {
-      flat: {
-        lookup_key: "price_iffy_pro_base",
+      flat_monthly: {
+        lookup_key: "price_iffy_pro_base_monthly",
         currency: "usd",
         unit_amount: 99900,
         billing_scheme: "per_unit",
         recurring: {
           interval: "month",
+          usage_type: "licensed",
+        },
+      },
+      flat_yearly: {
+        lookup_key: "price_iffy_pro_base_yearly",
+        currency: "usd",
+        unit_amount: 999000,
+        billing_scheme: "per_unit",
+        recurring: {
+          interval: "year",
           usage_type: "licensed",
         },
       },

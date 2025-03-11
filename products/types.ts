@@ -16,26 +16,34 @@ export type GraduatedPriceParams = PriceParams & {
   tiers: [BaseTier, OverageTier];
 };
 
+export type FreePrices = {
+  metered: MeteredPriceParams;
+};
+
+export type GrowthPrices = {
+  flat_monthly: FlatPriceParams;
+  flat_yearly: FlatPriceParams;
+  graduated: GraduatedPriceParams;
+};
+
+export type ProPrices = {
+  flat_monthly: FlatPriceParams;
+  flat_yearly: FlatPriceParams;
+  graduated: GraduatedPriceParams;
+};
+
 export type ProductParams = Stripe.ProductCreateParams & {
   id: string;
 };
 
 export type ProductsConfig = {
   free: ProductParams & {
-    prices: {
-      metered: MeteredPriceParams;
-    };
+    prices: FreePrices;
   };
   growth: ProductParams & {
-    prices: {
-      flat: FlatPriceParams;
-      graduated: GraduatedPriceParams;
-    };
+    prices: GrowthPrices;
   };
   pro: ProductParams & {
-    prices: {
-      flat: FlatPriceParams;
-      graduated: GraduatedPriceParams;
-    };
+    prices: ProPrices;
   };
 };

@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import { hasActiveSubscription } from "@/services/subscriptions";
 import { hasAdminRole } from "@/services/auth";
+import { Pricing } from "@/components/pricing";
+import { PRODUCTS } from "@/products/products";
 
 export const metadata: Metadata = {
   title: "Subscribe | Iffy",
@@ -26,5 +28,9 @@ export default async function SubscribePage() {
     redirect("/dashboard");
   }
 
-  return <div className="px-12 py-8"></div>;
+  return (
+    <div className="px-12 py-8">
+      <Pricing products={PRODUCTS} />
+    </div>
+  );
 }
