@@ -14,7 +14,7 @@ export function RouterSheet({ children, title }: { children: React.ReactNode; ti
         showClose={false}
         onPointerDownOutside={(e) => {
           e.preventDefault();
-          router.back();
+          router.push("/dashboard/moderations");
         }}
       >
         <VisuallyHidden asChild>
