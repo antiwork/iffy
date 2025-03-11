@@ -5,7 +5,7 @@ import { actionClient } from "@/lib/action-client";
 import { revalidatePath } from "next/cache";
 import * as apiKeysService from "@/services/api-keys";
 import * as webhookService from "@/services/webhook";
-import * as organizationSettingsService from "@/services/organization-settings";
+import * as organizationService from "@/services/organizations";
 
 const createWebhookSchema = z.object({
   url: z.string(),
@@ -19,7 +19,7 @@ const createApiKeySchema = z.object({
   name: z.string(),
 });
 
-const updateOrganizationSettingsSchema = z.object({
+const updateOrganizationSchema = z.object({
   emailsEnabled: z.boolean().optional(),
   testModeEnabled: z.boolean().optional(),
   appealsEnabled: z.boolean().optional(),
@@ -60,10 +60,10 @@ export const deleteApiKey = actionClient
     revalidatePath("/dashboard/developer");
   });
 
-export const updateOrganizationSettings = actionClient
-  .schema(updateOrganizationSettingsSchema)
+export const updateOrganization = actionClient
+  .schema(updateOrganizationSchema)
   .action(async ({ parsedInput, ctx: { clerkOrganizationId } }) => {
-    const settings = await organizationSettingsService.updateOrganizationSettings(clerkOrganizationId, parsedInput);
+    const settings = await organizationService.updateOrganization(clerkOrganizationId, parsedInput);
     revalidatePath("/dashboard/developer");
     revalidatePath("/dashboard/settings");
     return settings;

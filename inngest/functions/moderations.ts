@@ -8,7 +8,7 @@ import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import * as service from "@/services/moderations";
 import { parseMetadata } from "@/services/metadata";
-import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
+import { findOrCreateOrganization } from "@/services/organizations";
 
 const moderate = inngest.createFunction(
   { id: "moderate" },
@@ -59,8 +59,8 @@ const updateUserAfterModeration = inngest.createFunction(
       return await getFlaggedRecordsFromUser({ clerkOrganizationId, id: user.id });
     });
 
-    const organizationSettings = await step.run("fetch-organization-settings", async () => {
-      return await findOrCreateOrganizationSettings(clerkOrganizationId);
+    const organization = await step.run("fetch-organization", async () => {
+      return await findOrCreateOrganization(clerkOrganizationId);
     });
 
     let actionStatus: (typeof schema.userActionStatus.enumValues)[number] | undefined;
@@ -73,7 +73,7 @@ const updateUserAfterModeration = inngest.createFunction(
       status === "Flagged" &&
       (!user.actionStatus || user.actionStatus === "Compliant") &&
       !user.protected &&
-      flaggedRecords.length >= organizationSettings.suspensionThreshold
+      flaggedRecords.length >= organization.suspensionThreshold
     ) {
       actionStatus = "Suspended";
       actionVia = { via: "Automation Flagged Record", viaRecordId: recordId };
@@ -81,7 +81,7 @@ const updateUserAfterModeration = inngest.createFunction(
 
     if (
       status === "Compliant" &&
-      flaggedRecords.length < organizationSettings.suspensionThreshold &&
+      flaggedRecords.length < organization.suspensionThreshold &&
       user.actionStatus === "Suspended"
     ) {
       actionStatus = "Compliant";

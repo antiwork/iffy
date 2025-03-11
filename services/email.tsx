@@ -1,6 +1,6 @@
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { findOrCreateOrganizationSettings } from "./organization-settings";
+import { findOrCreateOrganization } from "./organizations";
 import { Resend } from "resend";
 import { parseContent, render } from "@/emails/render";
 import { env } from "@/lib/env";
@@ -70,7 +70,7 @@ export async function sendEmail({
   clerkOrganizationId: string;
   userId: string;
 } & CreateEmailOptions) {
-  const { emailsEnabled } = await findOrCreateOrganizationSettings(clerkOrganizationId);
+  const { emailsEnabled } = await findOrCreateOrganization(clerkOrganizationId);
 
   if (!emailsEnabled || !env.RESEND_API_KEY) {
     console.log(userId, payload.subject, payload.text, payload.html);

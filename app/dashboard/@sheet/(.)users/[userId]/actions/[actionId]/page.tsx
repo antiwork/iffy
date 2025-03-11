@@ -6,7 +6,7 @@ import { Metadata } from "next";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
-import { formatUser } from "@/lib/record-user";
+import { formatUser } from "@/lib/user";
 
 export async function generateMetadata({ params }: { params: Promise<{ actionId: string }> }): Promise<Metadata> {
   const { orgId } = await auth();

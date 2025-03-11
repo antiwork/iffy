@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { formatUser, getUserSecondaryParts } from "@/lib/record-user";
+import { formatUser, getUserSecondaryParts } from "@/lib/user";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { formatUserActionStatus, formatVia } from "@/lib/badges";

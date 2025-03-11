@@ -10,6 +10,7 @@ import { createOrUpdateUser } from "@/services/users";
 import { createOrUpdateRecord, deleteRecord } from "@/services/records";
 import { inngest } from "@/inngest/client";
 import { parseRequestBody } from "@/app/api/parse";
+import { findOrCreateOrganization } from "@/services/organizations";
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("Authorization");
@@ -57,9 +58,7 @@ export async function POST(req: NextRequest) {
     metadata: data.metadata,
   });
 
-  const organizationSettings = await db.query.organizationSettings.findFirst({
-    where: eq(schema.organizationSettings.clerkOrganizationId, clerkOrganizationId),
-  });
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
 
   let moderationThreshold = false;
 
@@ -74,7 +73,7 @@ export async function POST(req: NextRequest) {
   }
 
   // moderate based on configured percentage
-  if (organizationSettings && Math.random() * 100 < organizationSettings.moderationPercentage) {
+  if (organization && Math.random() * 100 < organization.moderationPercentage) {
     moderationThreshold = true;
   }
 

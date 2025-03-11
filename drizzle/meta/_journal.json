@@ -169,6 +169,13 @@
       "when": 1741295593408,
       "tag": "0023_bouncy_stone_men",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1741697930110,
+      "tag": "0024_productive_black_knight",
+      "breakpoints": true
     }
   ]
 }

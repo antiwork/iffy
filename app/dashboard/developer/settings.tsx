@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { MoreHorizontal, Edit, Eye, EyeOff } from "lucide-react";
 import { KeyCreationDialog } from "./key-creation-dialog";
 import { KeyDeletionDialog } from "./key-deletion-dialog";
-import { createWebhook, updateWebhookUrl, createApiKey, deleteApiKey, updateOrganizationSettings } from "./actions";
+import { createWebhook, updateWebhookUrl, createApiKey, deleteApiKey, updateOrganization } from "./actions";
 import * as schema from "@/db/schema";
 import { DayFull } from "@/components/date";
 
@@ -56,11 +56,11 @@ const KeyRow = ({ value, onDelete }: { value: Key; onDelete: (id: string) => voi
 export const Settings = ({
   keys: initialKeys,
   webhookEndpoint: initialWebhookEndpoint,
-  organizationSettings: initialOrganizationSettings,
+  organization: initialOrganization,
 }: {
   keys: Key[];
   webhookEndpoint?: { id: string; url: string; secret: string };
-  organizationSettings: {
+  organization: {
     stripeApiKey: boolean;
   };
 }) => {
@@ -70,7 +70,7 @@ export const Settings = ({
   const [showWebhookSecret, setShowWebhookSecret] = React.useState(false);
   const [webhookUrl, setWebhookUrl] = React.useState(webhookEndpoint?.url || "");
   const [stripeApiKey, setStripeApiKey] = React.useState("");
-  const [isStripeApiKeySet, setIsStripeApiKeySet] = React.useState(!!initialOrganizationSettings.stripeApiKey);
+  const [isStripeApiKeySet, setIsStripeApiKeySet] = React.useState(!!initialOrganization.stripeApiKey);
   const [hasStripeApiKeyError, setHasStripeApiKeyError] = React.useState(false);
   const [showStripeApiKey, setShowStripeApiKey] = React.useState(false);
 
@@ -131,7 +131,7 @@ export const Settings = ({
     const newKey = e.target.value;
     if (isValidStripeApiKey(newKey)) {
       try {
-        const result = await updateOrganizationSettings({ stripeApiKey: newKey });
+        const result = await updateOrganization({ stripeApiKey: newKey });
         if (result?.data) {
           setIsStripeApiKeySet(true);
           setStripeApiKey(newKey);
@@ -148,7 +148,7 @@ export const Settings = ({
 
   const handleClearStripeApiKey = async () => {
     try {
-      const result = await updateOrganizationSettings({ stripeApiKey: "" });
+      const result = await updateOrganization({ stripeApiKey: "" });
       if (result?.data) {
         setIsStripeApiKeySet(false);
         setStripeApiKey("");

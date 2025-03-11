@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ActionMenu } from "../action-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatUserCompact } from "@/lib/record-user";
+import { formatUserCompact } from "@/lib/user";
 import { cn } from "@/lib/utils";
 import { formatLink } from "@/lib/url";
 import { ModerationsTable } from "./moderations-table";

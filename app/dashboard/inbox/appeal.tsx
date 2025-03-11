@@ -13,7 +13,7 @@ import {
   AlertDialogDescription,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { formatUser, getUserSecondaryParts } from "@/lib/record-user";
+import { formatUser, getUserSecondaryParts } from "@/lib/user";
 import {
   formatModerationStatus,
   formatVia,

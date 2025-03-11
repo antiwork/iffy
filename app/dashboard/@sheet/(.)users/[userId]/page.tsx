@@ -3,7 +3,7 @@ import { UserDetail } from "@/app/dashboard/users/[userId]/user";
 import { notFound, redirect } from "next/navigation";
 import { RouterSheet } from "@/components/router-sheet";
 import db from "@/db";
-import { formatUserCompact } from "@/lib/record-user";
+import { formatUserCompact } from "@/lib/user";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { Metadata } from "next";

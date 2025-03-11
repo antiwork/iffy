@@ -1,14 +1,14 @@
 import db from "../index";
 import * as schema from "../schema";
-import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
+import { findOrCreateOrganization } from "@/services/organizations";
 import { eq } from "drizzle-orm";
 
-export async function seedOrganizationSettings(clerkOrganizationId: string) {
-  const organizationSettings = await findOrCreateOrganizationSettings(clerkOrganizationId);
-  const [updatedSettings] = await db
-    .update(schema.organizationSettings)
+export async function seedOrganization(clerkOrganizationId: string) {
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const [updatedOrganization] = await db
+    .update(schema.organizations)
     .set({ testModeEnabled: false, emailsEnabled: true })
-    .where(eq(schema.organizationSettings.id, organizationSettings.id))
+    .where(eq(schema.organizations.id, organization.id))
     .returning();
-  return [updatedSettings];
+  return [updatedOrganization];
 }

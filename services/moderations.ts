@@ -1,6 +1,6 @@
 import db from "@/db";
 import { and, desc, eq, sql } from "drizzle-orm";
-import { findOrCreateOrganizationSettings } from "./organization-settings";
+import { findOrCreateOrganization } from "./organizations";
 import { env } from "@/lib/env";
 import { inngest } from "@/inngest/client";
 import { ModerationMultiModalInput } from "openai/resources/moderations.mjs";
@@ -395,7 +395,7 @@ export const moderate = async ({
     throw new Error("No ruleset found for organization");
   }
 
-  const organizationSettings = await findOrCreateOrganizationSettings(clerkOrganizationId);
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
 
   const rules = await db.query.rules.findMany({
     where: and(eq(schema.rules.clerkOrganizationId, clerkOrganizationId), eq(schema.rules.rulesetId, ruleset.id)),
@@ -464,6 +464,6 @@ export const moderate = async ({
     tokens: context.tokens,
     rulesetId: ruleset.id,
     ruleIds: Array.from(ruleIds),
-    testMode: organizationSettings.testModeEnabled,
+    testMode: organization.testModeEnabled,
   };
 };

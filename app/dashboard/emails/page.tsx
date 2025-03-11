@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
+import { findOrCreateOrganization } from "@/services/organizations";
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
@@ -70,8 +70,8 @@ const Emails = async () => {
     redirect("/");
   }
 
-  const organizationSettings = await findOrCreateOrganizationSettings(orgId);
-  if (!organizationSettings.emailsEnabled) {
+  const organization = await findOrCreateOrganization(orgId);
+  if (!organization.emailsEnabled) {
     return notFound();
   }
 

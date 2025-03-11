@@ -35,7 +35,7 @@ The system is built with Next.js, uses Drizzle ORM for database interactions (Po
    - `encrypt`: Handles encryption and decryption of sensitive data.
    - `messages`: Manages messages between users and administrators.
    - `moderations`: Core logic for content moderation, including interacting with OpenAI and applying rules.
-   - `organization-settings`: Manages organization-level settings.
+   - `organizations`: Manages organization-level settings.
    - `records`: Manages the creation, updating, and deletion of records.
    - `rules`: Manages moderation rules and presets.
    - `ruleset`: Manages rulesets.

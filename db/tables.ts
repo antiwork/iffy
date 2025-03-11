@@ -418,8 +418,8 @@ export const apiKeys = pgTable(
   },
 );
 
-export const organizationSettings = pgTable(
-  "organization_settings",
+export const organizations = pgTable(
+  "organizations",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
     clerkOrganizationId: text("clerk_organization_id").notNull().unique(),
@@ -437,7 +437,7 @@ export const organizationSettings = pgTable(
   },
   (table) => {
     return {
-      clerkOrganizationIdKey: uniqueIndex("organization_settings_clerk_organization_id_key").using(
+      clerkOrganizationIdKey: uniqueIndex("organizations_clerk_organization_id_key").using(
         "btree",
         table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
       ),

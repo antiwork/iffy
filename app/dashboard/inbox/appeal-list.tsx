@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
 import { formatAppealStatus } from "@/lib/badges";
-import { formatUserCompact } from "@/lib/record-user";
+import { formatUserCompact } from "@/lib/user";
 
 export function AppealList({ items }: { items: AppealWithMessages[] }) {
   const router = useRouter();

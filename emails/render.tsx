@@ -9,7 +9,7 @@ import SuspendedTemplate from "./templates/suspended";
 import CompliantTemplate from "./templates/compliant";
 import BannedTemplate from "./templates/banned";
 import { DefaultTemplateContent, RenderedTemplate } from "./types";
-import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
+import { findOrCreateOrganization } from "@/services/organizations";
 import { AppealButton } from "./components/appeal-button";
 import * as schema from "@/db/schema";
 
@@ -66,7 +66,7 @@ export async function render<T extends EmailTemplateType>({
   type: T;
   appealUrl?: string;
 }): Promise<RenderedTemplate> {
-  const settings = await findOrCreateOrganizationSettings(clerkOrganizationId);
+  const settings = await findOrCreateOrganization(clerkOrganizationId);
 
   const { name: clerkOrganizationName, imageUrl: clerkOrganizationImageUrl } = await (
     await clerkClient()

@@ -4,7 +4,7 @@ import * as schema from "@/db/schema";
 import { getFlaggedRecordsFromUser } from "@/services/users";
 import { createUserAction } from "@/services/user-actions";
 import { and, eq } from "drizzle-orm/expressions";
-import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
+import { findOrCreateOrganization } from "@/services/organizations";
 
 const updateUserAfterDeletion = inngest.createFunction(
   { id: "update-user-after-deletion" },
@@ -35,11 +35,11 @@ const updateUserAfterDeletion = inngest.createFunction(
       });
     });
 
-    const organizationSettings = await step.run("fetch-organization-settings", async () => {
-      return await findOrCreateOrganizationSettings(clerkOrganizationId);
+    const organization = await step.run("fetch-organization", async () => {
+      return await findOrCreateOrganization(clerkOrganizationId);
     });
 
-    if (flaggedRecords.length < organizationSettings.suspensionThreshold && user.actionStatus === "Suspended") {
+    if (flaggedRecords.length < organization.suspensionThreshold && user.actionStatus === "Suspended") {
       await step.run("create-user-action", async () => {
         return await createUserAction({
           clerkOrganizationId,

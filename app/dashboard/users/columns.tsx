@@ -9,7 +9,7 @@ import { formatUserActionStatus, formatUserVia, formatVia } from "@/lib/badges";
 import { ActionMenu } from "./action-menu";
 import { Date } from "@/components/date";
 import type { User } from "./types";
-import { formatUserCompact } from "@/lib/record-user";
+import { formatUserCompact } from "@/lib/user";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ShieldCheck } from "lucide-react";
 

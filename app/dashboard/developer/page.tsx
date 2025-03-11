@@ -1,6 +1,6 @@
 import { getApiKeys } from "@/services/api-keys";
 import { Settings } from "./settings";
-import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
+import { findOrCreateOrganization } from "@/services/organizations";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -29,15 +29,15 @@ export default async function DeveloperPage() {
     webhookEndpoint.secret = decrypt(webhookEndpoint.secret);
   }
 
-  const organizationSettings = await findOrCreateOrganizationSettings(orgId);
+  const organization = await findOrCreateOrganization(orgId);
 
   return (
     <div className="px-12 py-8">
       <Settings
         keys={keys}
         webhookEndpoint={webhookEndpoint}
-        organizationSettings={{
-          stripeApiKey: Boolean(organizationSettings.stripeApiKey),
+        organization={{
+          stripeApiKey: Boolean(organization.stripeApiKey),
         }}
       />
     </div>

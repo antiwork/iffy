@@ -17,21 +17,21 @@ import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import * as schema from "@/db/schema";
 
-type OrganizationSettings = typeof schema.organizationSettings.$inferSelect;
+type organization = typeof schema.organizations.$inferSelect;
 
 export default function DynamicLayout({
   children,
-  organizationSettings,
+  organization,
   inboxCount,
 }: Readonly<{
   children: React.ReactNode;
-  organizationSettings: OrganizationSettings;
+  organization: organization;
   inboxCount: number;
 }>) {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   const navLinks = [
-    ...(organizationSettings.appealsEnabled
+    ...(organization.appealsEnabled
       ? [
           {
             title: "Inbox",
@@ -64,7 +64,7 @@ export default function DynamicLayout({
       icon: ChartBar,
       slug: "analytics",
     },
-    ...(organizationSettings.emailsEnabled
+    ...(organization.emailsEnabled
       ? [
           {
             title: "Emails",

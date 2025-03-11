@@ -4,7 +4,7 @@ import { DateFull } from "@/components/date";
 import { Header, HeaderContent, HeaderPrimary, HeaderSecondary } from "@/components/sheet/header";
 import { Section, SectionContent, SectionTitle } from "@/components/sheet/section";
 import Link from "next/link";
-import { formatUser, getUserSecondaryParts } from "@/lib/record-user";
+import { formatUser, getUserSecondaryParts } from "@/lib/user";
 import { Button } from "@/components/ui/button";
 
 import * as schema from "@/db/schema";

@@ -6,7 +6,7 @@ import { generateAppealToken } from "@/services/appeals";
 import { createMessage } from "@/services/messages";
 import { sendEmail, renderEmailTemplate } from "@/services/email";
 import { pausePayments, resumePayments } from "@/services/stripe";
-import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
+import { findOrCreateOrganization } from "@/services/organizations";
 import { RenderedTemplate } from "@/emails/types";
 import { getAbsoluteUrl } from "@/lib/url";
 import { createAppealAction } from "@/services/appeal-actions";
@@ -31,9 +31,9 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
       return result;
     });
 
-    const organizationSettings = await step.run("fetch-organization-settings", async () => {
-      const result = await db.query.organizationSettings.findFirst({
-        where: eq(schema.organizationSettings.clerkOrganizationId, clerkOrganizationId),
+    const organization = await step.run("fetch-organization", async () => {
+      const result = await db.query.organizations.findFirst({
+        where: eq(schema.organizations.clerkOrganizationId, clerkOrganizationId),
       });
       if (!result) {
         throw new Error(`Organization settings not found: ${clerkOrganizationId}`);
@@ -43,14 +43,14 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
     });
 
     await step.run("update-stripe-payouts", async () => {
-      if (organizationSettings.stripeApiKey && user.stripeAccountId) {
+      if (organization.stripeApiKey && user.stripeAccountId) {
         switch (status) {
           case "Suspended":
           case "Banned":
-            await pausePayments(decrypt(organizationSettings.stripeApiKey), user.stripeAccountId);
+            await pausePayments(decrypt(organization.stripeApiKey), user.stripeAccountId);
             break;
           case "Compliant":
-            await resumePayments(decrypt(organizationSettings.stripeApiKey), user.stripeAccountId);
+            await resumePayments(decrypt(organization.stripeApiKey), user.stripeAccountId);
             break;
         }
       }
@@ -134,11 +134,11 @@ const sendUserActionEmail = inngest.createFunction(
   async ({ event, step }) => {
     const { clerkOrganizationId, id, status, lastStatus, userId } = event.data;
 
-    const organizationSettings = await step.run("fetch-organization-settings", async () => {
-      return await findOrCreateOrganizationSettings(clerkOrganizationId);
+    const organization = await step.run("fetch-organization", async () => {
+      return await findOrCreateOrganization(clerkOrganizationId);
     });
 
-    if (!organizationSettings.emailsEnabled) return;
+    if (!organization.emailsEnabled) return;
 
     const template = await step.run("get-template", async () => {
       let template: RenderedTemplate | undefined;
@@ -156,7 +156,7 @@ const sendUserActionEmail = inngest.createFunction(
           template = await renderEmailTemplate({
             clerkOrganizationId,
             type: "Suspended",
-            appealUrl: organizationSettings.appealsEnabled
+            appealUrl: organization.appealsEnabled
               ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(userId)}`)
               : undefined,
           });

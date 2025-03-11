@@ -1,15 +1,14 @@
 import { findOrCreateOrganization } from "@/services/organizations";
-import { Settings } from "./settings";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Settings | Iffy",
+  title: "Subscribe | Iffy",
 };
 
-export default async function SettingsPage() {
-  const { orgId } = await auth();
+export default async function SubscribePage() {
+  const { orgId, userId } = await auth();
 
   if (!orgId) {
     redirect("/");
@@ -17,9 +16,5 @@ export default async function SettingsPage() {
 
   const organization = await findOrCreateOrganization(orgId);
 
-  return (
-    <div className="px-12 py-8">
-      <Settings organization={organization} />
-    </div>
-  );
+  return <div className="px-12 py-8"></div>;
 }
