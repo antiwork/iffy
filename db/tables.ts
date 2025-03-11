@@ -423,6 +423,7 @@ export const organizations = pgTable(
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
     clerkOrganizationId: text("clerk_organization_id").notNull().unique(),
+    stripeCustomerId: text("stripe_customer_id").unique(),
     emailsEnabled: boolean("emails_enabled").default(false).notNull(),
     testModeEnabled: boolean("test_mode_enabled").default(true).notNull(),
     appealsEnabled: boolean("appeals_enabled").default(false).notNull(),
@@ -438,6 +439,28 @@ export const organizations = pgTable(
   (table) => {
     return {
       clerkOrganizationIdKey: uniqueIndex("organizations_clerk_organization_id_key").using(
+        "btree",
+        table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
+      ),
+    };
+  },
+);
+
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: text().primaryKey().notNull().$defaultFn(cuid),
+    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    stripeSubscriptionId: text("stripe_subscription_id").notNull(),
+    createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => {
+    return {
+      clerkOrganizationIdKey: uniqueIndex("subscriptions_clerk_organization_id_key").using(
         "btree",
         table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
       ),
