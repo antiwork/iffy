@@ -11,6 +11,7 @@
     "dev:db:generate": "dotenv -e .env.local -- drizzle-kit generate",
     "dev:db:studio": "dotenv -e .env.local -- drizzle-kit studio",
     "dev:inngest": "dotenv -e .env.local -- inngest-cli dev",
+    "stripe:products": "dotenv -e .env.local -- tsx products/index.ts",
     "db:presets": "dotenv -e .env.local -- tsx presets/index.ts",
     "build": "npm run dev:db:migrate && npm run db:presets && next build",
     "start": "next start",
