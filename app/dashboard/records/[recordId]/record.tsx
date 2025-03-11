@@ -222,6 +222,27 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
           </Section>
         </>
       )}
+
+      {/* Floating Navigation Buttons */}
+      <div className="sticky bottom-0 flex justify-between border-t border-zinc-700 bg-zinc-900 px-4 py-2">
+        <Button
+          asChild
+          variant="outline"
+          // disabled={!previousRecord}
+          className="bg-white px-6 py-2 shadow-lg dark:bg-zinc-800"
+        >
+          {false ? <Link href={`/dashboard/records/${""}`}>← Previous</Link> : <span>← Previous</span>}
+        </Button>
+
+        <Button
+          asChild
+          variant="outline"
+          // disabled={!nextRecord}
+          className="bg-white px-6 py-2 shadow-lg dark:bg-zinc-800"
+        >
+          {false ? <Link href={`/dashboard/records/${""}`}>Next →</Link> : <span>Next →</span>}
+        </Button>
+      </div>
     </div>
   );
 }
