@@ -1,7 +1,0 @@
-{
-  "title": "API Reference",
-  "description": "Learn how to use our API",
-  "root": true,
-  "icon": "SquareChevronRight",
-  "pages": ["introduction", "---Endpoints---", "...(endpoints)"]
-}

@@ -18,9 +18,6 @@ export async function seedUsers(clerkOrganizationId: string) {
           email: faker.internet.email({ firstName, lastName }).toLocaleLowerCase(),
           name: faker.person.fullName({ firstName, lastName }),
           username: faker.internet.userName({ firstName, lastName }).toLocaleLowerCase(),
-          metadata: {
-            totalSales: faker.commerce.price({ max: 1000 }),
-          },
           createdAt: faker.date.recent({ days: 10 }),
           protected: sample([true, false, false, false, false]),
         };

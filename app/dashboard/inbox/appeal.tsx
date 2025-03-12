@@ -263,11 +263,7 @@ export function Appeal({
     <div className="flex h-full flex-col">
       <div className="flex justify-between gap-4 border-b border-stone-300 p-4 dark:border-zinc-800">
         <div className="flex-1 text-gray-950 dark:text-white/80">
-          <div className="text-lg">
-            <Link href={`/dashboard/users/${appeal.userAction.user.id}`} className="font-bold">
-              {formatUser(appeal.userAction.user)}
-            </Link>
-          </div>
+          <div className="text-lg font-bold">{formatUser(appeal.userAction.user)}</div>
           {getUserSecondaryParts(appeal.userAction.user).map((part) => (
             <div key={part} className="text-sm">
               {part}

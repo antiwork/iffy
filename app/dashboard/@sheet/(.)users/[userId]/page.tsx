@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { UserDetail } from "@/app/dashboard/users/[userId]/user";
+import { UserDetail } from "@/app/dashboard/users/[userId]/record-user";
 import { notFound, redirect } from "next/navigation";
 import { RouterSheet } from "@/components/router-sheet";
 import db from "@/db";

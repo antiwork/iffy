@@ -5,7 +5,6 @@ import crypto from "crypto";
 import { createMessage } from "./messages";
 import { createAppealAction } from "./appeal-actions";
 import { env } from "@/lib/env";
-import { inngest } from "@/inngest/client";
 
 export function generateAppealToken(userId: string) {
   if (!env.APPEAL_ENCRYPTION_KEY) {
@@ -28,7 +27,7 @@ export function validateAppealToken(token: string): [isValid: false, userId: nul
 }
 
 export async function createAppeal({ userId, text }: { userId: string; text: string }) {
-  const [appeal, appealAction] = await db.transaction(async (tx) => {
+  return await db.transaction(async (tx) => {
     const user = await tx.query.users.findFirst({
       where: eq(schema.users.id, userId),
       orderBy: desc(schema.userActions.createdAt),
@@ -71,28 +70,12 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
       throw new Error("Failed to create appeal");
     }
 
-    const [appealAction] = await tx
-      .insert(schema.appealActions)
-      .values({
-        clerkOrganizationId,
-        appealId: appeal.id,
-        status: "Open",
-        via: "Inbound",
-      })
-      .returning();
-
-    if (!appealAction) {
-      throw new Error("Failed to create appeal action");
-    }
-
-    // sync the record user status with the new status
-    await tx
-      .update(schema.appeals)
-      .set({
-        actionStatus: appealAction.status,
-        actionStatusCreatedAt: appealAction.createdAt,
-      })
-      .where(and(eq(schema.appeals.clerkOrganizationId, clerkOrganizationId), eq(schema.appeals.id, appeal.id)));
+    await createAppealAction({
+      clerkOrganizationId,
+      appealId: appeal.id,
+      status: "Open",
+      via: "Inbound",
+    });
 
     await tx
       .update(schema.messages)
@@ -106,7 +89,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
         ),
       );
 
-    await tx.insert(schema.messages).values({
+    await createMessage({
       clerkOrganizationId,
       userActionId: userAction.id,
       fromId: userId,
@@ -116,25 +99,8 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
       status: "Delivered",
     });
 
-    return [appeal, appealAction];
+    return appeal;
   });
-
-  try {
-    await inngest.send({
-      name: "appeal-action/status-changed",
-      data: {
-        clerkOrganizationId: appeal.clerkOrganizationId,
-        id: appealAction.id,
-        appealId: appeal.id,
-        status: "Open",
-        lastStatus: null,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-  }
-
-  return appeal;
 }
 
 export async function getInboxCount(orgId: string) {

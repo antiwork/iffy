@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import "@/lib/env";
 
 import type { Metadata } from "next";
+import { RootProvider as FumaDocsProvider } from "fumadocs-ui/provider";
 import { IBM_Plex_Sans as FontSans } from "next/font/google";
 import { IBM_Plex_Mono as FontMono } from "next/font/google";
 import * as React from "react";
@@ -41,7 +42,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               suppressHydrationWarning
             >
               <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                {children}
+                <FumaDocsProvider
+                  theme={{
+                    enabled: false,
+                  }}
+                  search={{
+                    options: {
+                      api: "/api/search/docs",
+                    },
+                  }}
+                >
+                  {children}
+                </FumaDocsProvider>
                 <Toaster />
               </ThemeProvider>
             </body>

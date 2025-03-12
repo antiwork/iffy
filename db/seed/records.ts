@@ -74,10 +74,6 @@ export async function seedRecords(
           name: product.name,
           entity: "Product",
           text: faker.lorem.paragraph(),
-          metadata: {
-            price: faker.commerce.price({ max: 20 }),
-            material: faker.commerce.productMaterial(),
-          },
           userId: sample(users)?.id,
           createdAt: faker.date.recent({ days: 10 }),
           protected: sample([true, false, false, false, false]),

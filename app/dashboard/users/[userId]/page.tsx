@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { UserDetail } from "./user";
+import { UserDetail } from "./record-user";
 import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 import db from "@/db";
