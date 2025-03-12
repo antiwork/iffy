@@ -57,7 +57,7 @@ export default async function Page() {
           </div>
           <div className="flex gap-2">
             <Button asChild variant="outline" size="sm">
-              <Link href="https://iffy.com/docs">Docs</Link>
+              <Link href="/docs">Docs</Link>
             </Button>
             <Button asChild variant="outline" size="sm">
               <Link href="/sign-in">Sign in</Link>

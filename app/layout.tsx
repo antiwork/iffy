@@ -48,7 +48,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   }}
                   search={{
                     options: {
-                      api: "/api/search/docs",
+                      api: "/api/docs/search",
                     },
                   }}
                 >
