@@ -37,6 +37,9 @@ const eventsMap = {
       lastStatus: z.enum(schema.appealActionStatus.enumValues).nullable(),
     }),
   },
+  "clerk/user.created": {
+    data: z.any(),
+  },
 };
 
 export const inngest = new Inngest({

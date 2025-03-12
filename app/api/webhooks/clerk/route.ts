@@ -49,7 +49,11 @@ export async function POST(req: NextRequest) {
     // Send the event to Inngest for processing
     await inngest.send({
       name: "clerk/user.created",
-      data: evt,
+      data: {
+        id: "clerk-webhook",
+        clerkOrganizationId: "clerk-webhook",
+        ...evt,
+      },
     });
   }
 
