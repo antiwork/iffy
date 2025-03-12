@@ -39,7 +39,8 @@ const updateUserAfterAppealAction = inngest.createFunction(
         clerkOrganizationId,
         userId: appeal.userAction.user.id,
         status: "Compliant",
-        via: "Automation",
+        via: "Automation Appeal Approved",
+        viaAppealId: appeal.id,
       });
     });
   },

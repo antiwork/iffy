@@ -19,3 +19,12 @@ export const getAbsoluteUrl = (path?: string) => {
 
   return baseUrl;
 };
+
+export const formatLink = (url: string) => {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname;
+  } catch (error) {
+    return url;
+  }
+};

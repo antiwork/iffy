@@ -53,14 +53,46 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
             </div>
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
-              <dd>{formatVia(userAction)}</dd>
+              <dd className="grid gap-3">
+                <div>{formatVia(userAction)}</div>
+                {userAction.via === "Automation Flagged Record" && (
+                  <div className="grid gap-2">
+                    <div>Action triggered by record being flagged</div>
+                    {userAction.viaRecordId && (
+                      <div>
+                        <Button asChild variant="link" className="h-6 p-0 text-sm">
+                          <Link href={`/dashboard/records/${userAction.viaRecordId}`}>View record</Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {userAction.via === "Automation All Compliant" && (
+                  <div className="grid gap-2">
+                    <div>Action triggered by all records being marked compliant</div>
+                  </div>
+                )}
+                {userAction.via === "Automation Appeal Approved" && (
+                  <div className="grid gap-2">
+                    <div>Action triggered by appeal being approved</div>
+                    {userAction.viaAppealId && (
+                      <div>
+                        <Button asChild variant="link" className="h-6 p-0 text-sm">
+                          <Link href={`/dashboard/inbox/${userAction.viaAppealId}`}>View appeal</Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {userAction.via === "Manual" && (
+                  <div className="grid gap-2">
+                    <div>Action created manually</div>
+                    {userAction.clerkUserId && <div>{await formatClerkUser(userAction.clerkUserId)}</div>}
+                  </div>
+                )}
+              </dd>
             </div>
-            {userAction.clerkUserId && (
-              <div className="grid grid-cols-2 gap-4">
-                <dt className="text-stone-500 dark:text-zinc-500">By</dt>
-                <dd>{await formatClerkUser(userAction.clerkUserId)}</dd>
-              </div>
-            )}
+
             {userAction.reasoning && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">Reasoning</dt>

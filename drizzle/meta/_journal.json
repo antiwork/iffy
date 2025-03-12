@@ -148,6 +148,27 @@
       "when": 1740580485002,
       "tag": "0020_slimy_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1741191568036,
+      "tag": "0021_condemned_captain_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1741293097558,
+      "tag": "0022_aromatic_next_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1741295593408,
+      "tag": "0023_bouncy_stone_men",
+      "breakpoints": true
     }
   ]
 }

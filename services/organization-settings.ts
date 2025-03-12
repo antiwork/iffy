@@ -33,6 +33,7 @@ export async function updateOrganizationSettings(
     appealsEnabled?: boolean;
     stripeApiKey?: string;
     moderationPercentage?: number;
+    suspensionThreshold?: number;
   },
 ) {
   const organizationSettingsRecord = await findOrCreateOrganizationSettings(clerkOrganizationId);

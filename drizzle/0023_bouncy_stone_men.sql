@@ -1,0 +1,1 @@
+ALTER TABLE "organization_settings" ADD COLUMN "suspension_threshold" integer DEFAULT 1 NOT NULL;

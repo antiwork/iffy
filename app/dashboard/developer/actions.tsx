@@ -25,6 +25,7 @@ const updateOrganizationSettingsSchema = z.object({
   appealsEnabled: z.boolean().optional(),
   stripeApiKey: z.string().optional(),
   moderationPercentage: z.number().optional(),
+  suspensionThreshold: z.number().optional(),
 });
 
 export const createWebhook = actionClient
@@ -64,5 +65,6 @@ export const updateOrganizationSettings = actionClient
   .action(async ({ parsedInput, ctx: { clerkOrganizationId } }) => {
     const settings = await organizationSettingsService.updateOrganizationSettings(clerkOrganizationId, parsedInput);
     revalidatePath("/dashboard/developer");
+    revalidatePath("/dashboard/settings");
     return settings;
   });

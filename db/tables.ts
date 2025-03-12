@@ -12,6 +12,7 @@ import {
   jsonb,
   primaryKey,
   pgEnum,
+  AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import cuid from "cuid";
 
@@ -21,7 +22,15 @@ export const messageStatus = pgEnum("MessageStatus", ["Pending", "Delivered"]);
 export const messageType = pgEnum("MessageType", ["Outbound", "Inbound"]);
 export const moderationStatus = pgEnum("ModerationStatus", ["Compliant", "Flagged"]);
 export const userActionStatus = pgEnum("UserActionStatus", ["Compliant", "Suspended", "Banned"]);
-export const via = pgEnum("Via", ["Inbound", "Manual", "Automation", "AI"]);
+export const via = pgEnum("Via", [
+  "Inbound",
+  "Manual",
+  "Automation",
+  "AI",
+  "Automation Flagged Record",
+  "Automation All Compliant",
+  "Automation Appeal Approved",
+]);
 export const webhookEventStatus = pgEnum("WebhookEventStatus", ["Pending", "Sent", "Failed"]);
 export const strategyType = pgEnum("StrategyType", ["Blocklist", "OpenAI", "Prompt"]);
 
@@ -93,6 +102,14 @@ export const userActions = pgTable(
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     clerkUserId: text("clerk_user_id"),
     reasoning: text("reasoning"),
+    viaRecordId: text("via_record_id").references((): AnyPgColumn => records.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    viaAppealId: text("via_appeal_id").references((): AnyPgColumn => appeals.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
   },
   (table) => {
     return {
@@ -411,6 +428,7 @@ export const organizationSettings = pgTable(
     appealsEnabled: boolean("appeals_enabled").default(false).notNull(),
     stripeApiKey: text("stripe_api_key"), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
     moderationPercentage: doublePrecision("moderation_percentage").default(100).notNull(),
+    suspensionThreshold: integer("suspension_threshold").default(1).notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
       .defaultNow()

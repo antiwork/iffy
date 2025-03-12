@@ -8,6 +8,7 @@ import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import * as service from "@/services/moderations";
 import { parseMetadata } from "@/services/metadata";
+import { findOrCreateOrganizationSettings } from "@/services/organization-settings";
 
 const moderate = inngest.createFunction(
   { id: "moderate" },
@@ -58,17 +59,36 @@ const updateUserAfterModeration = inngest.createFunction(
       return await getFlaggedRecordsFromUser({ clerkOrganizationId, id: user.id });
     });
 
+    const organizationSettings = await step.run("fetch-organization-settings", async () => {
+      return await findOrCreateOrganizationSettings(clerkOrganizationId);
+    });
+
     let actionStatus: (typeof schema.userActionStatus.enumValues)[number] | undefined;
+    let actionVia:
+      | { via: "Automation Flagged Record"; viaRecordId: string }
+      | { via: "Automation All Compliant" }
+      | undefined;
 
-    if (status === "Flagged" && (!user.actionStatus || user.actionStatus === "Compliant") && !user.protected) {
+    if (
+      status === "Flagged" &&
+      (!user.actionStatus || user.actionStatus === "Compliant") &&
+      !user.protected &&
+      flaggedRecords.length >= organizationSettings.suspensionThreshold
+    ) {
       actionStatus = "Suspended";
+      actionVia = { via: "Automation Flagged Record", viaRecordId: recordId };
     }
 
-    if (status === "Compliant" && flaggedRecords.length === 0 && user.actionStatus === "Suspended") {
+    if (
+      status === "Compliant" &&
+      flaggedRecords.length < organizationSettings.suspensionThreshold &&
+      user.actionStatus === "Suspended"
+    ) {
       actionStatus = "Compliant";
+      actionVia = { via: "Automation All Compliant" };
     }
 
-    if (!actionStatus) {
+    if (!actionStatus || !actionVia) {
       return;
     }
 
@@ -77,7 +97,7 @@ const updateUserAfterModeration = inngest.createFunction(
         clerkOrganizationId,
         userId: user.id,
         status: actionStatus,
-        via: "Automation",
+        ...actionVia,
       });
     });
   },

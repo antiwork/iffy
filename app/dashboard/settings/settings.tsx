@@ -13,6 +13,7 @@ export const Settings = ({
     appealsEnabled: boolean;
     testModeEnabled: boolean;
     moderationPercentage: number;
+    suspensionThreshold: number;
   };
 }) => {
   const [emailsEnabled, setEmailsEnabled] = React.useState(initialOrganizationSettings.emailsEnabled);
@@ -21,7 +22,11 @@ export const Settings = ({
   const [moderationPercentage, setModerationPercentage] = React.useState(
     initialOrganizationSettings.moderationPercentage.toString(),
   );
+  const [suspensionThreshold, setSuspensionThreshold] = React.useState(
+    initialOrganizationSettings.suspensionThreshold.toString(),
+  );
   const [hasModerationPercentageError, setHasModerationPercentageError] = React.useState(false);
+  const [hasSuspensionThresholdError, setHasSuspensionThresholdError] = React.useState(false);
 
   const handleToggleEmails = async () => {
     try {
@@ -78,6 +83,28 @@ export const Settings = ({
     }
   };
 
+  const handleSuspensionThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSuspensionThreshold(e.target.value);
+  };
+
+  const handleSuspensionThresholdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const newThreshold = Number(e.target.value);
+    if (newThreshold >= 1) {
+      try {
+        const result = await updateOrganizationSettings({ suspensionThreshold: newThreshold });
+        if (result?.data) {
+          setSuspensionThreshold(newThreshold.toString());
+          setHasSuspensionThresholdError(false);
+        }
+      } catch (error) {
+        console.error("Error updating suspension threshold:", error);
+        setHasSuspensionThresholdError(true);
+      }
+    } else {
+      setHasSuspensionThresholdError(true);
+    }
+  };
+
   return (
     <div className="text-gray-950 dark:text-stone-50">
       <h2 className="mb-6 text-2xl font-bold">Settings</h2>
@@ -109,12 +136,12 @@ export const Settings = ({
             Moderate content in test mode without triggering user actions like suspensions or bans
           </p>
         </div>
-        <div>
+        <div className="space-y-2">
           <label
             htmlFor="moderationPercentage"
             className="text-md mb-2 block font-normal text-gray-950 dark:text-stone-50"
           >
-            Moderation percentage
+            Roll-out percentage
           </label>
           <div className="relative mt-1 rounded-md shadow-xs">
             <Input
@@ -131,7 +158,33 @@ export const Settings = ({
               <span className="text-gray-500 sm:text-sm dark:text-stone-50">%</span>
             </div>
           </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Moderate a percentage of ingested records for a gradual roll-out.
+          </p>
           {hasModerationPercentageError && <p className="mt-2 text-sm text-red-600">Invalid percentage</p>}
+        </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="suspensionThreshold"
+            className="text-md mb-2 block font-normal text-gray-950 dark:text-stone-50"
+          >
+            Automatic suspension threshold
+          </label>
+          <div className="relative mt-1 rounded-md shadow-xs">
+            <Input
+              id="suspensionThreshold"
+              type="number"
+              min="1"
+              value={suspensionThreshold}
+              onChange={handleSuspensionThresholdChange}
+              onBlur={handleSuspensionThresholdBlur}
+              className={`${hasSuspensionThresholdError ? "border-red-500" : ""}`}
+            />
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            The number of flagged records that will trigger an automatic suspension.
+          </p>
+          {hasSuspensionThresholdError && <p className="mt-2 text-sm text-red-600">Invalid threshold</p>}
         </div>
       </div>
     </div>
