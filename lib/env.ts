@@ -4,12 +4,14 @@ const resendSchema = z.object({
   RESEND_API_KEY: z.string(),
   RESEND_FROM_NAME: z.string(),
   RESEND_FROM_EMAIL: z.string().email(),
+  RESEND_AUDIENCE_ID: z.string(),
 });
 
 const noResendSchema = z.object({
   RESEND_API_KEY: z.undefined(),
   RESEND_FROM_NAME: z.undefined(),
   RESEND_FROM_EMAIL: z.undefined(),
+  RESEND_AUDIENCE_ID: z.undefined(),
 });
 
 const resendOrNoResendSchema = resendSchema.or(noResendSchema);
