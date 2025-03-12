@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit --incremental",
     "test": "dotenv -e .env.local -- vitest",
     "shortest": "dotenv -e .env.local -- shortest",
-    "docs:openapi:generate": "node scripts/generate-docs.mjs",
+    "docs:openapi:generate": "tsx scripts/generate-openapi-docs.ts",
     "postinstall": "fumadocs-mdx"
   },
   "exports": {
@@ -95,8 +95,6 @@
     "react-resizable-panels": "^2.1.1",
     "recharts": "^2.15.1",
     "resend": "^4.0.0",
-    "rimraf": "^5.0.10",
-    "shiki": "^3.1.0",
     "stripe": "^17.1.0",
     "superjson": "^2.2.1",
     "tailwind-merge": "^3.0.2",
