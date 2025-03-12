@@ -1,7 +1,7 @@
 import { RootProvider } from "fumadocs-ui/provider";
 import { DocsLayout, type DocsLayoutProps } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
-import { source } from "@/lib/fumadocs/source";
+import { source } from "@/lib/docs/source";
 import { Logo } from "@/components/logo";
 import { sanitizeCSSVariable } from "@/lib/sanitize-css-variable";
 
@@ -39,7 +39,7 @@ const docsOptions: DocsLayoutProps = {
       },
     },
   },
-  githubUrl: "https://github.com/anti-work/iffy",
+  githubUrl: "https://github.com/antiwork/iffy",
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
