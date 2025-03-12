@@ -65,17 +65,6 @@
     border-color: var(--color-gray-200, currentColor);
   }
 
-  :root {
-    --color-fd-primary: rgb(50, 70, 158);
-    --guides-color: rgb(50, 70, 158);
-    --api-reference-color: RebeccaPurple;
-  }
-
-  :root.dark {
-    --guides-color: white;
-    --api-reference-color: white;
-  }
-
   #nd-docs-layout button,
   #nd-docs-layout [role="button"] {
     cursor: pointer;
