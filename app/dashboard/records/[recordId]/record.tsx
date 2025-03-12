@@ -19,6 +19,7 @@ import { CopyButton } from "@/components/copy-button";
 import * as schema from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import db from "@/db";
+import { parseMetadata } from "@/services/metadata";
 
 export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const record = await db.query.records.findFirst({
@@ -45,6 +46,8 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
   if (!record) {
     return null;
   }
+
+  const metadata = record.metadata ? parseMetadata(record.metadata) : undefined;
 
   const rules = record.moderations[0]?.moderationsToRules.map((moderationToRule) => moderationToRule.rule);
 
@@ -164,6 +167,26 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
           </dl>
         </SectionContent>
       </Section>
+      {metadata && (
+        <>
+          <Separator className="my-2" />
+          <Section>
+            <SectionTitle>Metadata</SectionTitle>
+            <SectionContent>
+              <dl className="grid gap-3">
+                {Object.entries(metadata).map(([key, value]) => (
+                  <div key={key} className="grid grid-cols-2 gap-4">
+                    <dt className="font-mono text-stone-500 dark:text-zinc-500">{key}</dt>
+                    <dd>
+                      <CodeInline>{value}</CodeInline>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </SectionContent>
+          </Section>
+        </>
+      )}
       <Separator className="my-2" />
       <Section>
         <SectionTitle>Content</SectionTitle>
