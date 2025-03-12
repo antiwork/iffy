@@ -65,6 +65,18 @@
     border-color: var(--color-gray-200, currentColor);
   }
 
+  /* override Fumadocs body styles */
+  body {
+    background-color: inherit;
+    color: inherit;
+  }
+
+  /* reapply Fumadocs styles on inner container */
+  #nd-docs-layout {
+    background-color: var(--color-fd-background);
+    color: var(--color-fd-foreground);
+  }
+
   #nd-docs-layout button,
   #nd-docs-layout [role="button"] {
     cursor: pointer;
