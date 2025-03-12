@@ -1,0 +1,332 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Iffy Content Moderation API",
+    "description": "API for content moderation and user management",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.iffy.com",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/api/v1/ingest": {
+      "post": {
+        "summary": "Ingest record",
+        "description": "Create or update a content record for moderation. To update a record, simply ingest the content again with the same clientId.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["clientId", "name", "entity", "content"],
+                "properties": {
+                  "clientId": {
+                    "type": "string",
+                    "description": "A unique identifier for the record, assigned by the client. Used to create or update the record. The clientId must be unique for each record. This is usually your id for the record."
+                  },
+                  "clientUrl": {
+                    "type": "string",
+                    "description": "An optional URL associated with the record, such as a link to the original content."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "The name or title of the record."
+                  },
+                  "entity": {
+                    "type": "string",
+                    "description": "The category or type of the record (e.g., 'post', 'comment', 'message'). Helps categorize the content."
+                  },
+                  "content": {
+                    "type": "object",
+                    "required": ["text"],
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "description": "The text content of the record to be moderated."
+                      },
+                      "imageUrls": {
+                        "type": "array",
+                        "description": "Array of image URLs to be moderated. Image URLs must remain accessible for as long as the record exists.",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": ["https://example.com/image.jpg"]
+                      }
+                    }
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "description": "Optional metadata associated with the record. Keys must be strings, values can be of any type, but will be serialized to JSON.",
+                    "additionalProperties": true,
+                    "example": {}
+                  },
+                  "user": {
+                    "type": "object",
+                    "description": "Optional information about the user associated with the record. The user object allows all content for a given user to be grouped (and for suspension/ban actions to operate at a user level).",
+                    "properties": {
+                      "clientId": {
+                        "type": "string",
+                        "description": "Your unique identifier for this user"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The user's full name"
+                      },
+                      "username": {
+                        "type": "string",
+                        "description": "The user's username"
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "The user's email address",
+                        "example": "jsmith@example.com"
+                      },
+                      "clientUrl": {
+                        "type": "string",
+                        "description": "URL where this user's profile can be viewed (optional)"
+                      },
+                      "stripeAccountId": {
+                        "type": "string",
+                        "description": "The user's Stripe account ID"
+                      },
+                      "protected": {
+                        "type": "boolean",
+                        "description": "Whether this user is protected from automated moderation actions. Protected users (e.g., administrators) can be marked using this field.",
+                        "example": true
+                      },
+                      "metadata": {
+                        "type": "object",
+                        "description": "Additional metadata about the user",
+                        "additionalProperties": true,
+                        "example": {}
+                      }
+                    },
+                    "required": ["clientId"]
+                  }
+                }
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "clientId": "post_123",
+                    "clientUrl": "https://example.com/posts/post_123",
+                    "name": "Sample Post",
+                    "entity": "post",
+                    "content": {
+                      "text": "This is the content to be moderated.",
+                      "imageUrls": ["https://example.com/image.jpg"]
+                    },
+                    "user": {
+                      "clientId": "user_123",
+                      "name": "John Doe",
+                      "username": "johndoe"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Record successfully created or updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["message"],
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "A success message.",
+                      "example": "Success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["message"],
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Error message",
+                          "example": "Invalid request body"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["message"],
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Error message",
+                          "example": "Invalid API key"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete record",
+        "description": "Remove a content record from the moderation system.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["clientId"],
+                "properties": {
+                  "clientId": {
+                    "type": "string",
+                    "description": "The unique identifier of the record to delete."
+                  }
+                }
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "clientId": "post_123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Record successfully deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["message"],
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "A success message.",
+                      "example": "Success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["message"],
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Error message",
+                          "example": "Invalid request body"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["message"],
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Error message",
+                          "example": "Invalid API key"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Bearer authentication header of the form Bearer <token>, where <token> is your auth token."
+      }
+    }
+  },
+  "x-code-samples": {
+    "curl-post": "curl --request POST \\\n  --url https://api.iffy.com/api/v1/ingest \\\n  --header 'Authorization: Bearer <token>' \\\n  --header 'Content-Type: application/json' \\\n  --data '{\n  \"clientId\": \"<string>\",\n  \"clientUrl\": \"<string>\",\n  \"name\": \"<string>\",\n  \"entity\": \"<string>\",\n  \"metadata\": {},\n  \"content\": {\n    \"text\": \"<string>\",\n    \"imageUrls\": [\"<string>\"]\n  },\n  \"user\": {\n    \"clientId\": \"<string>\",\n    \"metadata\": {},\n    \"clientUrl\": \"<string>\",\n    \"stripeAccountId\": \"<string>\",\n    \"email\": \"jsmith@example.com\",\n    \"name\": \"<string>\",\n    \"username\": \"<string>\",\n    \"protected\": true\n  }\n}'",
+    "curl-delete": "curl --request DELETE \\\n  --url https://api.iffy.com/api/v1/ingest \\\n  --header 'Authorization: Bearer <token>' \\\n  --header 'Content-Type: application/json' \\\n  --data '{\n  \"clientId\": \"<string>\"\n}'"
+  }
+}
