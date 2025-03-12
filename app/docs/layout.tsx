@@ -1,3 +1,4 @@
+import { RootProvider } from "fumadocs-ui/provider";
 import { DocsLayout, type DocsLayoutProps } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 import { source } from "@/lib/fumadocs/source";
@@ -42,5 +43,18 @@ const docsOptions: DocsLayoutProps = {
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
-  return <DocsLayout {...docsOptions}>{children}</DocsLayout>;
+  return (
+    <RootProvider
+      theme={{
+        enabled: false,
+      }}
+      search={{
+        options: {
+          api: "/api/docs/search",
+        },
+      }}
+    >
+      <DocsLayout {...docsOptions}>{children}</DocsLayout>
+    </RootProvider>
+  );
 }
