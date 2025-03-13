@@ -9,7 +9,7 @@ jobs:
     name: Submodule update
     runs-on: ubuntu-latest
     env:
-      PARENT_ORG: 'anti-work'
+      PARENT_ORG: 'antiwork'
       PARENT_REPOSITORY: 'iffy-cloud'
       CHECKOUT_BRANCH: 'main'
       PR_AGAINST_BRANCH: 'main'
