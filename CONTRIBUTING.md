@@ -105,7 +105,7 @@ feat(cli): Add mobile testing support
 
 - Check existing discussions/issues/PRs before creating new ones
 - Start a discussion for questions or ideas
-- Open an [issue](https://github.com/anti-work/iffy/issues) for bugs or problems
+- Open an [issue](https://github.com/antiwork/iffy/issues) for bugs or problems
 
 ## License
 
