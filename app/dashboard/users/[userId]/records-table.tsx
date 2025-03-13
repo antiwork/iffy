@@ -11,9 +11,11 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { FlaskConical } from "lucide-react";
 import { Date } from "@/components/date";
 import { ActionMenu } from "../../records/action-menu";
+import { useModalCollection } from "@/components/modal-collection-context";
 
 export function RecordsTable({ clerkOrganizationId, userId }: { clerkOrganizationId: string; userId: string }) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const { setCollection } = useModalCollection();
 
   const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = trpc.record.infinite.useInfiniteQuery(
     {
@@ -73,6 +75,7 @@ export function RecordsTable({ clerkOrganizationId, userId }: { clerkOrganizatio
                         <Button
                           asChild
                           variant="link"
+                          onClick={() => setCollection(records.map((record) => record.id))}
                           className="text-md -mx-4 -my-2 block w-full truncate font-normal"
                         >
                           <Link href={`/dashboard/records/${record.id}`}>{record.name}</Link>
