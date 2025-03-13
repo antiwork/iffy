@@ -13,7 +13,7 @@ import { columns } from "./columns";
 import { DataTableInfinite } from "@/components/ui/data-table-infinite";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { DataTableLoading } from "@/components/ui/data-table-loading";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import * as schema from "@/db/schema";
 import { useModalCollection } from "@/components/modal-collection-context";
@@ -28,6 +28,7 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([{ id: "sort", desc: true }]);
   const { setCollection } = useModalCollection();
+  const pathname = usePathname();
 
   const query = {
     clerkOrganizationId,
@@ -82,9 +83,10 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
   }, [fetchMoreOnBottomReached]);
 
   useEffect(() => {
-    // Store only record IDs in the collection state since they are used for next/previous navigation
-    setCollection(users.map((user) => user.id));
-  }, [users]);
+    if (pathname.includes("/dashboard/users")) {
+      setCollection(users.map((user) => user.id));
+    }
+  }, [pathname, users]);
 
   const router = useRouter();
 

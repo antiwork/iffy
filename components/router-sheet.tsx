@@ -1,11 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function RouterSheet({ children, title }: { children: React.ReactNode; title: string }) {
   const router = useRouter();
+  const pathname = usePathname();
+  console.log(title, pathname);
 
   return (
     <Sheet defaultOpen open>
@@ -14,7 +16,7 @@ export function RouterSheet({ children, title }: { children: React.ReactNode; ti
         showClose={false}
         onPointerDownOutside={(e) => {
           e.preventDefault();
-          router.push(title === "Record" ? "/dashboard/moderations" : "/dashboard/users");
+          router.back();
         }}
       >
         <VisuallyHidden asChild>
