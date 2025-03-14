@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import { hasActiveSubscription } from "@/services/subscriptions";
 import { hasAdminRole } from "@/services/auth";
-import { Pricing } from "@/components/pricing";
+import { Subscribe } from "./subscribe";
 import { PRODUCTS } from "@/products/products";
 
 export const metadata: Metadata = {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SubscribePage() {
-  const { orgId, userId } = await auth();
+  const { orgId } = await auth();
 
   if (!orgId) {
     redirect("/");
@@ -28,9 +28,12 @@ export default async function SubscribePage() {
     redirect("/dashboard");
   }
 
+  // TODO: if query param, redirect
+  // else, show the pricing page, click on a tier redirects
+
   return (
     <div className="px-12 py-8">
-      <Pricing products={PRODUCTS} />
+      <Subscribe products={PRODUCTS} />
     </div>
   );
 }

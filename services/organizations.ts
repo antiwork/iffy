@@ -2,13 +2,8 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { encrypt } from "@/services/encrypt";
-import { clerkClient } from "@clerk/nextjs/server";
-import { Stripe } from "stripe";
-import { env } from "@/lib/env";
 
-const stripe = new Stripe(env.STRIPE_API_KEY);
-
-async function _findOrCreateOrganization(clerkOrganizationId: string) {
+export async function findOrCreateOrganization(clerkOrganizationId: string) {
   let [organization] = await db
     .select()
     .from(schema.organizations)
@@ -30,32 +25,11 @@ async function _findOrCreateOrganization(clerkOrganizationId: string) {
   return organization;
 }
 
-export async function findOrCreateOrganization(clerkOrganizationId: string) {
-  const organization = await _findOrCreateOrganization(clerkOrganizationId);
-
-  if (organization.stripeCustomerId) return organization;
-
-  const clerkOrganization = await (
-    await clerkClient()
-  ).organizations.getOrganization({ organizationId: clerkOrganizationId });
-
-  const customer = await stripe.customers.create({
-    name: clerkOrganization.name,
-  });
-
-  await db
-    .update(schema.organizations)
-    .set({
-      stripeCustomerId: customer.id,
-    })
-    .where(eq(schema.organizations.id, organization.id));
-
-  return organization;
-}
-
 export async function updateOrganization(
   clerkOrganizationId: string,
   data: {
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
     emailsEnabled?: boolean;
     testModeEnabled?: boolean;
     appealsEnabled?: boolean;
@@ -78,6 +52,10 @@ export async function updateOrganization(
       ),
     )
     .returning();
+
+  if (!updated) {
+    throw new Error("Failed to update organization");
+  }
 
   return updated;
 }

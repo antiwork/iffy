@@ -424,6 +424,7 @@ export const organizations = pgTable(
     id: text().primaryKey().notNull().$defaultFn(cuid),
     clerkOrganizationId: text("clerk_organization_id").notNull().unique(),
     stripeCustomerId: text("stripe_customer_id").unique(),
+    stripeSubscriptionId: text("stripe_subscription_id").unique(),
     emailsEnabled: boolean("emails_enabled").default(false).notNull(),
     testModeEnabled: boolean("test_mode_enabled").default(true).notNull(),
     appealsEnabled: boolean("appeals_enabled").default(false).notNull(),
