@@ -16,17 +16,11 @@ export type GraduatedPriceParams = PriceParams & {
   tiers: [BaseTier, OverageTier];
 };
 
-export type FreePrices = {
+export type PayAsYouGoPrices = {
   metered: MeteredPriceParams;
 };
 
-export type GrowthPrices = {
-  flat_monthly: FlatPriceParams;
-  flat_yearly: FlatPriceParams;
-  graduated: GraduatedPriceParams;
-};
-
-export type ProPrices = {
+export type FixedFeeAndOveragePrices = {
   flat_monthly: FlatPriceParams;
   flat_yearly: FlatPriceParams;
   graduated: GraduatedPriceParams;
@@ -36,14 +30,27 @@ export type ProductParams = Stripe.ProductCreateParams & {
   id: string;
 };
 
-export type ProductsConfig = {
+export type ProductsCatalog = {
   free: ProductParams & {
-    prices: FreePrices;
+    prices: PayAsYouGoPrices;
   };
   growth: ProductParams & {
-    prices: GrowthPrices;
+    prices: FixedFeeAndOveragePrices;
   };
   pro: ProductParams & {
-    prices: ProPrices;
+    prices: FixedFeeAndOveragePrices;
   };
+  enterprise: ProductParams & {
+    prices: {};
+  };
+};
+
+export const isPayAsYouGo = (prices: ProductsCatalog[keyof ProductsCatalog]["prices"]): prices is PayAsYouGoPrices => {
+  return "metered" in prices;
+};
+
+export const isFixedFeeAndOverage = (
+  prices: ProductsCatalog[keyof ProductsCatalog]["prices"],
+): prices is FixedFeeAndOveragePrices => {
+  return "flat_monthly" in prices && "flat_yearly" in prices;
 };

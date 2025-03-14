@@ -1,6 +1,6 @@
 import { Stripe } from "stripe";
 import { env } from "@/lib/env";
-import { ProductsConfig } from "./types";
+import { ProductsCatalog } from "./types";
 
 const stripe = new Stripe(env.STRIPE_API_KEY);
 
@@ -12,7 +12,7 @@ const OVERAGE_PRICE = 2; // cents
 // The growth & pro tiers follow a fixed fee and overage model
 // https://docs.stripe.com/billing/subscriptions/usage-based/pricing-models#fixed-fee-overage
 
-export const PRODUCTS: ProductsConfig = {
+export const PRODUCTS: ProductsCatalog = {
   free: {
     id: "prod_iffy_free",
     name: "Free",
@@ -123,6 +123,12 @@ export const PRODUCTS: ProductsConfig = {
         ],
       },
     },
+  },
+  enterprise: {
+    id: "prod_iffy_enterprise",
+    name: "Enterprise",
+    description: "Custom solutions for large platforms",
+    prices: [],
   },
 } as const;
 
