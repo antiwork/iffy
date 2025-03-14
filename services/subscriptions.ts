@@ -19,6 +19,22 @@ export async function findSubscription(clerkOrganizationId: string) {
   return await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
 }
 
+export async function createSubscription(clerkOrganizationId: string, stripeSubscriptionId: string) {
+  const [subscription] = await db
+    .insert(schema.subscriptions)
+    .values({
+      clerkOrganizationId,
+      stripeSubscriptionId,
+    })
+    .returning();
+
+  if (!subscription) {
+    throw new Error("Failed to create subscription");
+  }
+
+  return await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+}
+
 export async function hasActiveSubscription(clerkOrganizationId: string) {
   const subscription = await findSubscription(clerkOrganizationId);
   if (!subscription) {

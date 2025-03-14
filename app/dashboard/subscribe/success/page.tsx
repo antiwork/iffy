@@ -5,8 +5,8 @@ import Link from "next/link";
 import { env } from "@/lib/env";
 import Stripe from "stripe";
 import { redirect } from "next/navigation";
-import { updateOrganization } from "@/services/organizations";
 import { auth } from "@clerk/nextjs/server";
+import { createSubscription } from "@/services/subscriptions";
 
 const stripe = new Stripe(env.STRIPE_API_KEY);
 
@@ -37,9 +37,7 @@ export default async function SubscriptionSuccessPage({
     redirect("/dashboard/subscribe");
   }
 
-  await updateOrganization(orgId, {
-    stripeSubscriptionId: session.subscription,
-  });
+  const subscription = await createSubscription(orgId, session.subscription);
 
   return (
     <div className="container flex h-[calc(100vh-4rem)] items-center justify-center">

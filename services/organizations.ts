@@ -29,7 +29,6 @@ export async function updateOrganization(
   clerkOrganizationId: string,
   data: {
     stripeCustomerId?: string;
-    stripeSubscriptionId?: string;
     emailsEnabled?: boolean;
     testModeEnabled?: boolean;
     appealsEnabled?: boolean;

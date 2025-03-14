@@ -89,7 +89,7 @@ export const createCheckoutSession = actionClient
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/subscribe/cancel?session_id={CHECKOUT_SESSION_ID}`,
       subscription_data: {
-        trial_period_days: 14,
+        trial_period_days: 7,
       },
     });
 
