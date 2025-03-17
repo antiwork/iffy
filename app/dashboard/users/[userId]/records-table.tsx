@@ -19,6 +19,7 @@ export function RecordsTable({ clerkOrganizationId, userId }: { clerkOrganizatio
     {
       clerkOrganizationId,
       userId,
+      sorting: [{ id: "flaggedModerationsCount", desc: true }],
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,

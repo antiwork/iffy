@@ -114,36 +114,94 @@ export const recordRouter = router({
     const offsetValue = skip ?? 0;
     const where = getWhereInput(input, clerkOrganizationId);
 
-    records = await db.query.records.findMany({
-      where: where(schema.records),
-      limit: limit + 1,
-      offset: offsetValue,
-      orderBy: (recordsTable, { asc, desc }) =>
-        sorting
-          .map(({ id, desc: isDesc }) =>
-            isDesc
-              ? [desc(recordsTable[id as keyof typeof recordsTable])]
-              : [asc(recordsTable[id as keyof typeof recordsTable])],
-          )
-          .flat(),
-      with: {
-        moderations: {
-          orderBy: [desc(schema.moderations.createdAt)],
-          limit: 1,
-          with: {
-            moderationsToRules: {
-              with: {
-                rule: {
-                  with: {
-                    preset: true,
+    // Check if we need to sort by flaggedModerationsCount
+    const hasFlaggedModerationsCountSort = sorting.some(({ id }) => id === "flaggedModerationsCount");
+    
+    // If sorting by flaggedModerationsCount, we need to use a custom orderBy with a subquery
+    if (hasFlaggedModerationsCountSort) {
+      const sortObj = sorting.find(({ id }) => id === "flaggedModerationsCount");
+      const otherSortings = sorting.filter(({ id }) => id !== "flaggedModerationsCount");
+      
+      // Create the orderBy array with the flaggedModerationsCount subquery
+      const orderByArray = [];
+      
+      // Add the flaggedModerationsCount subquery
+      orderByArray.push(
+        sortObj?.desc
+          ? sql`(SELECT COUNT(*) FROM ${schema.moderations} WHERE ${schema.moderations.recordId} = ${schema.records.id} AND ${schema.moderations.status} = 'Flagged') DESC`
+          : sql`(SELECT COUNT(*) FROM ${schema.moderations} WHERE ${schema.moderations.recordId} = ${schema.records.id} AND ${schema.moderations.status} = 'Flagged') ASC`
+      );
+      
+      // Add other sortings
+      if (otherSortings.length > 0) {
+        for (const { id, desc: isDesc } of otherSortings) {
+          // Make sure the column exists and is a valid column for sorting
+          if (id === "sort" || id === "createdAt" || id === "updatedAt") {
+            orderByArray.push(
+              isDesc
+                ? desc(schema.records[id as "sort" | "createdAt" | "updatedAt"])
+                : asc(schema.records[id as "sort" | "createdAt" | "updatedAt"])
+            );
+          }
+        }
+      }
+      
+      records = await db.query.records.findMany({
+        where: where(schema.records),
+        limit: limit + 1,
+        offset: offsetValue,
+        orderBy: orderByArray,
+        with: {
+          moderations: {
+            orderBy: [desc(schema.moderations.createdAt)],
+            limit: 1,
+            with: {
+              moderationsToRules: {
+                with: {
+                  rule: {
+                    with: {
+                      preset: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    });
+      });
+    } else {
+      // Use the standard orderBy for other sorting options
+      records = await db.query.records.findMany({
+        where: where(schema.records),
+        limit: limit + 1,
+        offset: offsetValue,
+        orderBy: (recordsTable, { asc, desc }) =>
+          sorting
+            .map(({ id, desc: isDesc }) =>
+              isDesc
+                ? [desc(recordsTable[id as keyof typeof recordsTable])]
+                : [asc(recordsTable[id as keyof typeof recordsTable])],
+            )
+            .flat(),
+        with: {
+          moderations: {
+            orderBy: [desc(schema.moderations.createdAt)],
+            limit: 1,
+            with: {
+              moderationsToRules: {
+                with: {
+                  rule: {
+                    with: {
+                      preset: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    }
 
     if (records.length > limit) {
       records.pop();
