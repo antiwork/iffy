@@ -116,15 +116,15 @@ export const recordRouter = router({
 
     // Check if we need to sort by moderationStatus
     const hasModerationsStatusSort = sorting.some(({ id }) => id === "moderationStatus");
-    
+
     // If sorting by moderationStatus, we need to use a custom orderBy with a CASE statement
     if (hasModerationsStatusSort) {
       const sortObj = sorting.find(({ id }) => id === "moderationStatus");
       const otherSortings = sorting.filter(({ id }) => id !== "moderationStatus");
-      
+
       // Create the orderBy array with the moderationStatus CASE statement
       const orderByArray = [];
-      
+
       // Add the moderationStatus CASE statement to sort "Flagged" before "Compliant"
       // If desc is true, we reverse the order (but still keep Flagged first by default)
       orderByArray.push(
@@ -138,9 +138,9 @@ export const recordRouter = router({
                 WHEN 'Compliant' THEN 0 
                 WHEN 'Flagged' THEN 1 
                 ELSE 2 
-                END ASC`
+                END ASC`,
       );
-      
+
       // Add other sortings
       if (otherSortings.length > 0) {
         for (const { id, desc: isDesc } of otherSortings) {
@@ -149,12 +149,12 @@ export const recordRouter = router({
             orderByArray.push(
               isDesc
                 ? desc(schema.records[id as "sort" | "createdAt" | "updatedAt"])
-                : asc(schema.records[id as "sort" | "createdAt" | "updatedAt"])
+                : asc(schema.records[id as "sort" | "createdAt" | "updatedAt"]),
             );
           }
         }
       }
-      
+
       records = await db.query.records.findMany({
         where: where(schema.records),
         limit: limit + 1,
