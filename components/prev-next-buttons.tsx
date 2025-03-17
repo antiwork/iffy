@@ -1,39 +1,67 @@
-"use client";
 import React from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useModalCollection } from "./modal-collection-context";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
-export const NextPrevButtons = React.forwardRef<HTMLDivElement, { rowId: string; path: string }>(
-  ({ rowId, path }, ref) => {
-    const { previousRowId, nextRowId } = useModalCollection(rowId);
+export interface NavigableItem {
+  id: string;
+  [key: string]: any;
+}
 
-    return (
-      <div ref={ref} className="sticky bottom-0 flex justify-between border-t border-zinc-700 bg-zinc-900 px-4 py-2">
-        <Button
-          asChild
-          variant="outline"
-          disabled={Boolean(previousRowId)}
-          className="bg-white px-6 py-2 shadow-lg dark:bg-zinc-800"
-        >
-          {previousRowId ? (
-            <Link href={`${path}${previousRowId}`}>← Previous</Link>
-          ) : (
-            <span className="opacity-50">← Previous</span>
-          )}
-        </Button>
+export interface PreviousNextButtonsProps {
+  currentItemId: string;
+  items: NavigableItem[];
+  onPrevious: (previousItemId: string) => void;
+  onNext: (nextItemId: string) => void;
+  fetchNextItems?: () => Promise<any>;
+  hasNextItems?: boolean;
+}
 
-        <Button
-          asChild
-          variant="outline"
-          disabled={Boolean(nextRowId)}
-          className="bg-white px-6 py-2 shadow-lg dark:bg-zinc-800"
-        >
-          {nextRowId ? <Link href={`${path}${nextRowId}`}>Next →</Link> : <span className="opacity-50">Next →</span>}
-        </Button>
-      </div>
-    );
-  },
-);
+export function PreviousNextButtons({
+  currentItemId,
+  items,
+  onPrevious,
+  onNext,
+  fetchNextItems,
+  hasNextItems = false,
+}: PreviousNextButtonsProps) {
+  const [isFetchingNext, setIsFetchingNext] = React.useState(false);
 
-export default NextPrevButtons;
+  const currentIndex = items.findIndex((item) => item.id === currentItemId);
+  const exhausted = currentIndex >= 0 && (currentIndex < items.length - 1 || (hasNextItems && fetchNextItems));
+  const canGoPrev = currentIndex > 0;
+  const canGoNext = items[currentIndex + 1];
+
+  const handlePreiousOnClick = () => {
+    const prevItem = items[currentIndex - 1];
+    onPrevious(prevItem!.id);
+  };
+
+  const handleNextOnClick = async () => {
+    if (canGoNext) {
+      const nextItem = items[currentIndex + 1];
+      onNext(nextItem!.id);
+    } else if (hasNextItems && fetchNextItems) {
+      setIsFetchingNext(true);
+      const nextItems: NavigableItem[] = await fetchNextItems();
+      setIsFetchingNext(false);
+      const nextItem = nextItems[currentIndex + 1];
+      // should become available after fetching new page
+      if (nextItem) {
+        onNext(nextItem.id);
+      }
+    }
+  };
+
+  return (
+    <div className="flex justify-between">
+      <Button onClick={handlePreiousOnClick} variant="outline" size="sm" disabled={!canGoPrev}>
+        <ArrowLeft />
+        Previous
+      </Button>
+      <Button onClick={handleNextOnClick} variant="outline" size="sm" disabled={!exhausted || isFetchingNext}>
+        Next
+        <ArrowRight />
+      </Button>
+    </div>
+  );
+}
