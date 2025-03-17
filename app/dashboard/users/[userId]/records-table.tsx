@@ -11,11 +11,13 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { FlaskConical } from "lucide-react";
 import { Date } from "@/components/date";
 import { ActionMenu } from "../../records/action-menu";
+import { useActiveCollection } from "@/components/active-collection-context";
 
 export function RecordsTable({ clerkOrganizationId, userId }: { clerkOrganizationId: string; userId: string }) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const { setQuery } = useActiveCollection();
 
-  const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = trpc.record.infinite.useInfiniteQuery(
+  const queryResult = trpc.record.infinite.useInfiniteQuery(
     {
       clerkOrganizationId,
       userId,
@@ -24,6 +26,7 @@ export function RecordsTable({ clerkOrganizationId, userId }: { clerkOrganizatio
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
+  const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = queryResult;
   const records = useMemo(() => data?.pages?.flatMap((page) => page.records) ?? [], [data]);
 
   const fetchMoreOnBottomReached = useCallback(
@@ -73,6 +76,7 @@ export function RecordsTable({ clerkOrganizationId, userId }: { clerkOrganizatio
                         <Button
                           asChild
                           variant="link"
+                          onClick={() => setQuery(queryResult)}
                           className="text-md -mx-4 -my-2 block w-full truncate font-normal"
                         >
                           <Link href={`/dashboard/records/${record.id}`}>{record.name}</Link>

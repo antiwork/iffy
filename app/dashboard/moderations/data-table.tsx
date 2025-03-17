@@ -16,6 +16,7 @@ import { DataTableLoading } from "@/components/ui/data-table-loading";
 import { useRouter } from "next/navigation";
 
 import * as schema from "@/db/schema";
+import { useActiveCollection } from "@/components/active-collection-context";
 type ModerationStatus = (typeof schema.moderations.$inferSelect)["status"];
 
 const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => {
@@ -28,6 +29,7 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
   ]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([{ id: "sort", desc: true }]);
+  const { setQuery } = useActiveCollection();
 
   const query = {
     clerkOrganizationId: clerkOrganizationId,
@@ -36,9 +38,10 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
     entities: (columnFilters.find((filter) => filter.id === "entity")?.value as string[]) || [],
     search: globalFilter || undefined,
   };
-  const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = trpc.record.infinite.useInfiniteQuery(query, {
+  const queryResult = trpc.record.infinite.useInfiniteQuery(query, {
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
+  const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = queryResult;
   const records = useMemo(() => data?.pages?.flatMap((page) => page.records) ?? [], [data]);
 
   const table = useReactTable({
@@ -81,6 +84,10 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
       fetchMoreOnBottomReached(tableContainerRef.current);
     }
   }, [fetchMoreOnBottomReached]);
+
+  useEffect(() => {
+    setQuery(queryResult);
+  }, [records]);
 
   const router = useRouter();
 
