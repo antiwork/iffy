@@ -5,7 +5,6 @@ import { RecordImages } from "./record-images";
 import { Code, CodeInline } from "@/components/code";
 import { Header, HeaderContent, HeaderPrimary, HeaderSecondary, HeaderActions } from "@/components/sheet/header";
 import { Section, SectionContent, SectionTitle } from "@/components/sheet/section";
-import NextPrevButtons from "@/components/prev-next-buttons";
 import { DateFull } from "@/components/date";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -21,6 +20,7 @@ import * as schema from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import db from "@/db";
 import { parseMetadata } from "@/services/metadata";
+import { RecordsCollectionNavigation } from "./records-collection-navigation";
 
 export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const record = await db.query.records.findFirst({
@@ -223,7 +223,7 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
           </Section>
         </>
       )}
-      <NextPrevButtons rowId={record.id} path="/dashboard/records/" />
+      <RecordsCollectionNavigation currentRecordId={id} />
     </div>
   );
 }

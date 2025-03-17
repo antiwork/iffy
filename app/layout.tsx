@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import TRPCProvider from "@/components/trpc";
 import { ConfirmProvider } from "@/components/ui/confirm";
-import { ModalCollectionProvider } from "@/components/modal-collection-context";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -34,23 +33,21 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <TRPCProvider>
-      <ModalCollectionProvider>
-        <ClerkProvider>
-          <ConfirmProvider>
-            <html lang="en" suppressHydrationWarning>
-              <body
-                className={cn("bg-background min-h-screen font-sans antialiased", fontSans.variable, fontMono.variable)}
-                suppressHydrationWarning
-              >
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                  {children}
-                  <Toaster />
-                </ThemeProvider>
-              </body>
-            </html>
-          </ConfirmProvider>
-        </ClerkProvider>
-      </ModalCollectionProvider>
+      <ClerkProvider>
+        <ConfirmProvider>
+          <html lang="en" suppressHydrationWarning>
+            <body
+              className={cn("bg-background min-h-screen font-sans antialiased", fontSans.variable, fontMono.variable)}
+              suppressHydrationWarning
+            >
+              <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                {children}
+                <Toaster />
+              </ThemeProvider>
+            </body>
+          </html>
+        </ConfirmProvider>
+      </ClerkProvider>
     </TRPCProvider>
   );
 }

@@ -20,7 +20,7 @@ import { StripeAccount } from "./stripe-account";
 import { notFound } from "next/navigation";
 import { parseMetadata } from "@/services/metadata";
 import { formatLink } from "@/lib/url";
-import NextPrevButtons from "@/components/prev-next-buttons";
+import { UsersCollectionNavigation } from "./user-collection-navigation";
 
 export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const user = await db.query.users.findFirst({
@@ -163,7 +163,7 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
           <RecordsTable clerkOrganizationId={clerkOrganizationId} userId={user.id} />
         </SectionContent>
       </Section>
-      <NextPrevButtons rowId={user.id} path="/dashboard/users/" />
+      <UsersCollectionNavigation currentUserId={id} />
     </div>
   );
 }

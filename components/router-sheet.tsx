@@ -1,13 +1,11 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function RouterSheet({ children, title }: { children: React.ReactNode; title: string }) {
   const router = useRouter();
-  const pathname = usePathname();
-  console.log(title, pathname);
 
   return (
     <Sheet defaultOpen open>
@@ -18,6 +16,7 @@ export function RouterSheet({ children, title }: { children: React.ReactNode; ti
           e.preventDefault();
           router.back();
         }}
+        disableAnimation={true}
       >
         <VisuallyHidden asChild>
           <SheetTitle>{title}</SheetTitle>
