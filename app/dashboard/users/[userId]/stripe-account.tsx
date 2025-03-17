@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { decrypt } from "@/services/encrypt";
-import { getPaymentsAndPayouts } from "@/services/stripe";
+import { getPaymentsAndPayouts } from "@/services/stripe-account";
 import { eq } from "drizzle-orm";
 import { Suspense } from "react";
 

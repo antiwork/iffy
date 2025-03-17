@@ -132,6 +132,23 @@ export const PRODUCTS: ProductsCatalog = {
   },
 } as const;
 
+export const METERS = {
+  iffy_moderations: {
+    display_name: "Iffy moderations",
+    event_name: "iffy_moderations",
+    default_aggregation: {
+      formula: "sum",
+    },
+    value_settings: {
+      event_payload_key: "value",
+    },
+    customer_mapping: {
+      type: "by_id",
+      event_payload_key: "stripe_customer_id",
+    },
+  },
+} as const;
+
 export async function updateProducts() {
   for (const { prices, ...params } of Object.values(PRODUCTS)) {
     let product = await stripe.products.retrieve(params.id).catch(() => null);
@@ -155,4 +172,21 @@ export async function updateProducts() {
       await stripe.prices.create({ product: product.id, ...params, transfer_lookup_key: true });
     }
   }
+  console.log("Updating products completed successfully.");
+}
+
+export async function updateMeters() {
+  for (const [key, params] of Object.entries(METERS)) {
+    const existingMeters = await stripe.billing.meters.list();
+    const existingMeter = existingMeters.data.find((meter) => meter.event_name === params.event_name);
+
+    if (!existingMeter) {
+      await stripe.billing.meters.create(params);
+    } else {
+      await stripe.billing.meters.update(existingMeter.id, {
+        display_name: params.display_name,
+      });
+    }
+  }
+  console.log("Updating meters completed successfully.");
 }

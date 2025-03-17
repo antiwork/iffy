@@ -1,13 +1,13 @@
 import { close } from "@iffy/app/db";
-import { updateProducts } from "./products";
+import { updateProducts, updateMeters } from "./products";
 
 async function main() {
   await updateProducts();
+  await updateMeters();
 }
 
 main()
   .then(() => {
-    console.log("Updating products completed successfully.");
     close();
   })
   .catch((e) => {

@@ -7,6 +7,7 @@ import { createModeration, moderate } from "@/services/moderations";
 import { createOrUpdateRecord } from "@/services/records";
 import { createOrUpdateUser } from "@/services/users";
 import { parseRequestBody } from "@/app/api/parse";
+import { inngest } from "@/inngest/client";
 
 export async function POST(req: NextRequest) {
   const { data, error } = await parseRequestBody(req, ModerateRequestData, moderateAdapter);
@@ -74,6 +75,19 @@ export async function POST(req: NextRequest) {
     ...result,
     via: "AI",
   });
+
+  try {
+    await inngest.send({
+      name: "moderation/usage",
+      data: {
+        clerkOrganizationId,
+        id: moderation.id,
+        recordId: record.id,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+  }
 
   return NextResponse.json(
     {

@@ -93,6 +93,14 @@ export async function POST(req: NextRequest) {
           recordId: record.id,
         },
       });
+      await inngest.send({
+        name: "moderation/usage",
+        data: {
+          clerkOrganizationId,
+          id: pendingModeration.id,
+          recordId: record.id,
+        },
+      });
     } catch (error) {
       console.error(error);
     }

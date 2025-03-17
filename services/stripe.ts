@@ -1,53 +1,33 @@
 import Stripe from "stripe";
+import { findOrCreateOrganization } from "./organizations";
+import { env } from "@/lib/env";
+import { z } from "zod";
 
-export async function getPaymentsAndPayouts(stripeApiKey: string, stripeAccountId: string) {
-  if (!stripeApiKey) {
-    throw new Error("Stripe API key not provided");
+export const stripe = new Stripe(env.STRIPE_API_KEY);
+
+export async function createMeterEvent(clerkOrganizationId: string, eventName: string, value: number) {
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  if (!organization.stripeCustomerId) {
+    throw new Error("Organization does not have a Stripe Customer ID");
   }
 
-  const stripe = new Stripe(stripeApiKey);
-  const account = await stripe.accounts.retrieve(stripeAccountId);
+  // value must be a positive integer, sent to Stripe as a string
+  const valueSchema = z
+    .number()
+    .int()
+    .positive()
+    .transform((val) => val.toString());
 
-  return {
-    payments: account.charges_enabled,
-    payouts: account.payouts_enabled,
-    reason: account.requirements?.disabled_reason ?? undefined,
-  };
-}
-
-export async function pausePayments(stripeApiKey: string, stripeAccountId: string) {
-  if (!stripeApiKey) {
-    throw new Error("Stripe API key not provided");
+  const parsedValue = valueSchema.safeParse(value);
+  if (!parsedValue.success) {
+    throw new Error("Value is not an integer");
   }
 
-  const stripe = new Stripe(stripeApiKey);
-
-  await stripe.accounts.update(stripeAccountId, {
-    // @ts-ignore preview feature
-    risk_controls: {
-      charges: {
-        pause_requested: true,
-      },
-    },
-  });
-}
-
-export async function resumePayments(stripeApiKey: string, stripeAccountId: string) {
-  if (!stripeApiKey) {
-    throw new Error("Stripe API key not provided");
-  }
-
-  const stripe = new Stripe(stripeApiKey);
-
-  await stripe.accounts.update(stripeAccountId, {
-    // @ts-ignore preview feature
-    risk_controls: {
-      payouts: {
-        pause_requested: false,
-      },
-      charges: {
-        pause_requested: false,
-      },
+  await stripe.billing.meterEvents.create({
+    event_name: eventName,
+    payload: {
+      value: parsedValue.data,
+      stripe_customer_id: organization.stripeCustomerId,
     },
   });
 }

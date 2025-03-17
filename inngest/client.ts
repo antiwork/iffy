@@ -10,6 +10,9 @@ const eventsMap = {
   "moderation/moderated": {
     data: z.object({ clerkOrganizationId: z.string(), moderationId: z.string(), recordId: z.string() }),
   },
+  "moderation/usage": {
+    data: z.object({ clerkOrganizationId: z.string(), id: z.string(), recordId: z.string() }),
+  },
   "moderation/status-changed": {
     data: z.object({
       clerkOrganizationId: z.string(),

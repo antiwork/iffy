@@ -9,6 +9,7 @@ import { eq, and } from "drizzle-orm";
 import * as service from "@/services/moderations";
 import { parseMetadata } from "@/services/metadata";
 import { findOrCreateOrganization } from "@/services/organizations";
+import { createMeterEvent } from "@/services/stripe";
 
 const moderate = inngest.createFunction(
   { id: "moderate" },
@@ -178,4 +179,16 @@ const sendModerationWebhook = inngest.createFunction(
   },
 );
 
-export default [moderate, updateUserAfterModeration, sendModerationWebhook];
+const recordModerationUsage = inngest.createFunction(
+  { id: "record-moderation-usage" },
+  { event: "moderation/usage" },
+  async ({ event, step }) => {
+    const { clerkOrganizationId } = event.data;
+
+    await step.run("create-meter-event", async () => {
+      return await createMeterEvent(clerkOrganizationId, "iffy_moderations", 1);
+    });
+  },
+);
+
+export default [moderate, updateUserAfterModeration, sendModerationWebhook, recordModerationUsage];

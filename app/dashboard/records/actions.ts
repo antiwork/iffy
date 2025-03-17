@@ -63,6 +63,14 @@ export const moderateMany = actionClient
               recordId,
             },
           });
+          await inngest.send({
+            name: "moderation/usage",
+            data: {
+              clerkOrganizationId,
+              id: pendingModeration.id,
+              recordId,
+            },
+          });
         } catch (error) {
           console.error(error);
         }
