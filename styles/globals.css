@@ -4,6 +4,9 @@
 
 @source '../node_modules/fumadocs-ui/dist/**/*.js';
 @source '../node_modules/fumadocs-openapi/dist/**/*.js';
+/* when deployed in a monorepo, the node_modules path is different */
+@source '../../../node_modules/fumadocs-ui/dist/**/*.js';
+@source '../../../node_modules/fumadocs-openapi/dist/**/*.js';
 
 @plugin "tailwindcss-animate";
 
