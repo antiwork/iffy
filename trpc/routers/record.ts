@@ -116,22 +116,22 @@ export const recordRouter = router({
 
     // Check if we need to sort by flaggedModerationsCount
     const hasFlaggedModerationsCountSort = sorting.some(({ id }) => id === "flaggedModerationsCount");
-    
+
     // If sorting by flaggedModerationsCount, we need to use a custom orderBy with a subquery
     if (hasFlaggedModerationsCountSort) {
       const sortObj = sorting.find(({ id }) => id === "flaggedModerationsCount");
       const otherSortings = sorting.filter(({ id }) => id !== "flaggedModerationsCount");
-      
+
       // Create the orderBy array with the flaggedModerationsCount subquery
       const orderByArray = [];
-      
+
       // Add the flaggedModerationsCount subquery
       orderByArray.push(
         sortObj?.desc
           ? sql`(SELECT COUNT(*) FROM ${schema.moderations} WHERE ${schema.moderations.recordId} = ${schema.records.id} AND ${schema.moderations.status} = 'Flagged') DESC`
-          : sql`(SELECT COUNT(*) FROM ${schema.moderations} WHERE ${schema.moderations.recordId} = ${schema.records.id} AND ${schema.moderations.status} = 'Flagged') ASC`
+          : sql`(SELECT COUNT(*) FROM ${schema.moderations} WHERE ${schema.moderations.recordId} = ${schema.records.id} AND ${schema.moderations.status} = 'Flagged') ASC`,
       );
-      
+
       // Add other sortings
       if (otherSortings.length > 0) {
         for (const { id, desc: isDesc } of otherSortings) {
@@ -140,12 +140,12 @@ export const recordRouter = router({
             orderByArray.push(
               isDesc
                 ? desc(schema.records[id as "sort" | "createdAt" | "updatedAt"])
-                : asc(schema.records[id as "sort" | "createdAt" | "updatedAt"])
+                : asc(schema.records[id as "sort" | "createdAt" | "updatedAt"]),
             );
           }
         }
       }
-      
+
       records = await db.query.records.findMany({
         where: where(schema.records),
         limit: limit + 1,
