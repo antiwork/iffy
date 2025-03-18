@@ -4,7 +4,21 @@ import { router } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import * as schema from "@/db/schema";
-import { eq, inArray, ilike, asc, desc, and, or, lt, gt, isNull, sql } from "drizzle-orm";
+import {
+  eq,
+  inArray,
+  ilike,
+  asc,
+  desc,
+  and,
+  or,
+  lt,
+  gt,
+  isNull,
+  sql,
+  OrderByOperators,
+  TableRelationalConfig,
+} from "drizzle-orm";
 
 const paginationSchema = z.object({
   clerkOrganizationId: z.string(),
@@ -53,6 +67,45 @@ const getWhereInput = (
     }
 
     return and(...conditions);
+  };
+};
+
+const getOrderBy = (input: z.infer<typeof paginationSchema>) => {
+  const { sorting } = input;
+
+  return (records: TableRelationalConfig["columns"], { desc, asc }: OrderByOperators) => {
+    const hasModerationsStatusSort = sorting.some(({ id }) => id === "moderationStatus");
+
+    if (hasModerationsStatusSort) {
+      const sortObj = sorting.find(({ id }) => id === "moderationStatus");
+      const otherSortings = sorting.filter(({ id }) => id !== "moderationStatus");
+
+      const orderByArray = [];
+
+      orderByArray.push(
+        sortObj?.desc
+          ? sql`CASE ${records.moderationStatus}
+                  WHEN 'Flagged' THEN 0
+                  WHEN 'Compliant' THEN 1
+                  ELSE 2
+                  END ASC`
+          : sql`CASE ${records.moderationStatus}
+                  WHEN 'Compliant' THEN 0
+                  WHEN 'Flagged' THEN 1
+                  ELSE 2
+                  END ASC`,
+      );
+
+      if (otherSortings.length > 0) {
+        for (const { id, desc: isDesc } of otherSortings) {
+          orderByArray.push(isDesc ? desc(records[id]!) : asc(records[id]!));
+        }
+      }
+
+      return orderByArray;
+    }
+
+    return sorting.map(({ id, desc: isDesc }) => (isDesc ? [desc(records[id]!)] : [asc(records[id]!)])).flat();
   };
 };
 
@@ -114,68 +167,11 @@ export const recordRouter = router({
     const offsetValue = skip ?? 0;
     const where = getWhereInput(input, clerkOrganizationId);
 
-    // Function to get the appropriate orderBy based on sorting parameters
-    const getOrderBy = () => {
-      // Check if we need to sort by moderationStatus
-      const hasModerationsStatusSort = sorting.some(({ id }) => id === "moderationStatus");
-
-      if (hasModerationsStatusSort) {
-        const sortObj = sorting.find(({ id }) => id === "moderationStatus");
-        const otherSortings = sorting.filter(({ id }) => id !== "moderationStatus");
-
-        // Create the orderBy array with the moderationStatus CASE statement
-        const orderByArray = [];
-
-        // Add the moderationStatus CASE statement to sort "Flagged" before "Compliant"
-        // If desc is true, we reverse the order (but still keep Flagged first by default)
-        orderByArray.push(
-          sortObj?.desc
-            ? sql`CASE ${schema.records.moderationStatus} 
-                  WHEN 'Flagged' THEN 0 
-                  WHEN 'Compliant' THEN 1 
-                  ELSE 2 
-                  END ASC`
-            : sql`CASE ${schema.records.moderationStatus} 
-                  WHEN 'Compliant' THEN 0 
-                  WHEN 'Flagged' THEN 1 
-                  ELSE 2 
-                  END ASC`,
-        );
-
-        // Add other sortings
-        if (otherSortings.length > 0) {
-          for (const { id, desc: isDesc } of otherSortings) {
-            // Make sure the column exists and is a valid column for sorting
-            if (id === "sort" || id === "createdAt" || id === "updatedAt") {
-              orderByArray.push(
-                isDesc
-                  ? desc(schema.records[id as "sort" | "createdAt" | "updatedAt"])
-                  : asc(schema.records[id as "sort" | "createdAt" | "updatedAt"]),
-              );
-            }
-          }
-        }
-
-        return orderByArray;
-      } else {
-        // Use the standard orderBy for other sorting options
-        return (recordsTable: any, { asc, desc }: any) =>
-          sorting
-            .map(({ id, desc: isDesc }) =>
-              isDesc
-                ? [desc(recordsTable[id as keyof typeof recordsTable])]
-                : [asc(recordsTable[id as keyof typeof recordsTable])],
-            )
-            .flat();
-      }
-    };
-
-    // Execute the query with the determined orderBy
     records = await db.query.records.findMany({
       where: where(schema.records),
       limit: limit + 1,
       offset: offsetValue,
-      orderBy: getOrderBy(),
+      orderBy: getOrderBy(input),
       with: {
         moderations: {
           orderBy: [desc(schema.moderations.createdAt)],
