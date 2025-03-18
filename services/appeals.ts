@@ -13,8 +13,6 @@ export function generateAppealToken(userId: string) {
   return `${userId}-${signature}`;
 }
 
-
-
 export function validateAppealToken(token: string): [isValid: false, userId: null] | [isValid: true, userId: string] {
   const [userId, _] = token.split("-");
   if (!userId) {
