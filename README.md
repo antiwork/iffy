@@ -98,8 +98,21 @@ In order to send email with Iffy, you will additionally need a Resend API key.
 1. Add the desired from name (e.g. `Iffy`) to your `.env.local` file as `RESEND_FROM_NAME`.
 1. Create a new API key at [API Keys](https://resend.com/api-keys).
 1. Add the API key to your `.env.local` file as `RESEND_API_KEY`.
-
 </details>
+
+<details>
+<summary>Resend Audience (Optional, for customer communication)</summary>
+
+1. Create an account at [resend.com](https://resend.com/).
+1. Create a new audience at [Audiences](https://resend.com/audiences).
+1. Add the audience ID to your `.env.local` file as `RESEND_AUDIENCE_ID`.
+1. Create a new API key at [API Keys](https://resend.com/api-keys).
+1. Add the API key to your `.env.local` file as `RESEND_API_KEY`.
+1. Additionally, go to Clerk and create a new webhook at [Webhooks](https://clerk.com/settings/webhooks).
+1. Use the URL `https://<your-app-url>/api/webhooks/clerk` for the webhook URL.
+1. Add the webhook secret to your `.env.local` file as `CLERK_WEBHOOK_SECRET`.
+</details>
+
 
 <details>
 <summary>Shortest (Optional, for testing)</summary>

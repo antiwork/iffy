@@ -2,35 +2,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { Webhook } from "svix";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { inngest } from "@/inngest/client";
+import { env } from "@/lib/env";
 
 export async function POST(req: NextRequest) {
-  // Get the headers
-  const svix_id = req.headers.get("svix-id") || "";
-  const svix_timestamp = req.headers.get("svix-timestamp") || "";
-  const svix_signature = req.headers.get("svix-signature") || "";
+  const svix_id = req.headers.get("svix-id");
+  const svix_timestamp = req.headers.get("svix-timestamp");
+  const svix_signature = req.headers.get("svix-signature");
 
-  // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
     return new NextResponse("Error: Missing svix headers", { status: 400 });
   }
 
-  // Get the body
+  if (!env.CLERK_WEBHOOK_SECRET) {
+    return new NextResponse("Error: Missing CLERK_WEBHOOK_SECRET", { status: 500 });
+  }
+
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
-  // Create a new Svix instance with your webhook secret
-  const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
-  if (!webhookSecret) {
-    console.error("Error: Missing CLERK_WEBHOOK_SECRET");
-    return new NextResponse("Error: Missing webhook secret", { status: 500 });
-  }
-
-  // Create a new Svix instance with your webhook secret
-  const wh = new Webhook(webhookSecret);
+  const wh = new Webhook(env.CLERK_WEBHOOK_SECRET);
 
   let evt: WebhookEvent;
 
-  // Verify the webhook payload
   try {
     evt = wh.verify(body, {
       "svix-id": svix_id,
@@ -42,18 +35,12 @@ export async function POST(req: NextRequest) {
     return new NextResponse("Error verifying webhook", { status: 400 });
   }
 
-  // Handle the webhook event
   const eventType = evt.type;
 
   if (eventType === "user.created") {
-    // Send the event to Inngest for processing
     await inngest.send({
       name: "clerk/user.created",
-      data: {
-        id: "clerk-webhook",
-        clerkOrganizationId: "clerk-webhook",
-        ...evt,
-      },
+      data: evt.data,
     });
   }
 

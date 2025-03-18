@@ -3,7 +3,7 @@
 import { Resend } from "resend";
 import { env } from "@/lib/env";
 
-export async function addContactToAudience({
+export async function addUserToAudience({
   email,
   firstName,
   lastName,
