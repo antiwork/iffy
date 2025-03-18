@@ -1,4 +1,12 @@
 @import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+@source '../node_modules/fumadocs-ui/dist/**/*.js';
+@source '../node_modules/fumadocs-openapi/dist/**/*.js';
+/* when deployed in a monorepo, the node_modules path is different */
+@source '../../../node_modules/fumadocs-ui/dist/**/*.js';
+@source '../../../node_modules/fumadocs-openapi/dist/**/*.js';
 
 @plugin "tailwindcss-animate";
 
@@ -58,5 +66,22 @@
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
+  }
+
+  /* override Fumadocs body styles */
+  body {
+    background-color: inherit;
+    color: inherit;
+  }
+
+  /* reapply Fumadocs styles on inner container */
+  #nd-docs-layout {
+    background-color: var(--color-fd-background);
+    color: var(--color-fd-foreground);
+  }
+
+  #nd-docs-layout button,
+  #nd-docs-layout [role="button"] {
+    cursor: pointer;
   }
 }

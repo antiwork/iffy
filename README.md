@@ -4,7 +4,7 @@
 </p>
 <p align="center">
     <a href="https://iffy.com/">iffy.com</a> |
-    <a href="https://docs.iffy.com/">Docs</a>
+    <a href="https://iffy.com/docs">Docs</a>
 </p>
 
 # Iffy
