@@ -9,7 +9,7 @@ import { eq, and } from "drizzle-orm";
 import * as service from "@/services/moderations";
 import { parseMetadata } from "@/services/metadata";
 import { findOrCreateOrganization } from "@/services/organizations";
-import { createMeterEvent } from "@/services/stripe";
+import { createMeterEvent } from "@/services/stripe/usage";
 
 const moderate = inngest.createFunction(
   { id: "moderate" },

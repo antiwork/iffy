@@ -2,7 +2,7 @@ import { findOrCreateOrganization } from "@/services/organizations";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
-import { hasActiveSubscription } from "@/services/subscriptions";
+import { hasActiveSubscription } from "@/services/stripe/subscriptions";
 import { hasAdminRole } from "@/services/auth";
 import { Subscribe } from "./subscribe";
 import { PRODUCTS } from "@/products/products";

@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { findOrCreateOrganization } from "./organizations";
+import { findOrCreateOrganization } from "../organizations";
 import { env } from "@/lib/env";
 import { z } from "zod";
 

@@ -6,7 +6,7 @@ import { env } from "@/lib/env";
 import Stripe from "stripe";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { createSubscription } from "@/services/subscriptions";
+import { createSubscription } from "@/services/stripe/subscriptions";
 
 const stripe = new Stripe(env.STRIPE_API_KEY);
 

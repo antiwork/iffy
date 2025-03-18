@@ -5,7 +5,7 @@ import * as schema from "@/db/schema";
 import { generateAppealToken } from "@/services/appeals";
 import { createMessage } from "@/services/messages";
 import { sendEmail, renderEmailTemplate } from "@/services/email";
-import { pausePayments, resumePayments } from "@/services/stripe-account";
+import { pausePayments, resumePayments } from "@/services/stripe/accounts";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { RenderedTemplate } from "@/emails/types";
 import { getAbsoluteUrl } from "@/lib/url";
