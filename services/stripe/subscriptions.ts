@@ -44,7 +44,7 @@ export async function hasActiveSubscription(clerkOrganizationId: string) {
   return subscription.status === "active" || subscription.status === "trialing" || subscription.status === "past_due";
 }
 
-export async function hasPaidSubscription(clerkOrganizationId: string) {
+export async function hasNonTrialingSubscription(clerkOrganizationId: string) {
   const subscription = await findSubscription(clerkOrganizationId);
   if (!subscription) {
     return false;

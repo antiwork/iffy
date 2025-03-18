@@ -11,6 +11,7 @@ import { inngest } from "@/inngest/client";
 import { parseRequestBody } from "@/app/api/parse";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { authenticateRequest } from "../../auth";
+import { hasActiveSubscription } from "@/services/stripe/subscriptions";
 
 export async function POST(req: NextRequest) {
   const [isValid, clerkOrganizationId] = await authenticateRequest(req);
@@ -21,6 +22,13 @@ export async function POST(req: NextRequest) {
   const { data, error } = await parseRequestBody(req, IngestUpdateRequestData, ingestUpdateAdapter);
   if (error) {
     return NextResponse.json({ error }, { status: 400 });
+  }
+
+  if (!(await hasActiveSubscription(clerkOrganizationId))) {
+    return NextResponse.json(
+      { error: { message: "No active subscription. Please sign up for a subscription." } },
+      { status: 403 },
+    );
   }
 
   let user: typeof schema.users.$inferSelect | undefined;
