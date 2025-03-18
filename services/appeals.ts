@@ -13,13 +13,7 @@ export function generateAppealToken(userId: string) {
   return `${userId}-${signature}`;
 }
 
-export function generateLegacyAppealToken(userId: string) {
-  if (!env.APPEAL_ENCRYPTION_KEY) {
-    throw new Error("APPEAL_ENCRYPTION_KEY is not set");
-  }
-  const signature = crypto.createHmac("sha256", env.APPEAL_ENCRYPTION_KEY).update(userId).digest("hex");
-  return `${userId}-${signature}`;
-}
+
 
 export function validateAppealToken(token: string): [isValid: false, userId: null] | [isValid: true, userId: string] {
   const [userId, _] = token.split("-");
@@ -28,11 +22,6 @@ export function validateAppealToken(token: string): [isValid: false, userId: nul
   }
 
   if (token === generateAppealToken(userId)) {
-    return [true, userId];
-  }
-
-  // TODO(s3ththompson): Remove once all old appeals have been closed
-  if (env.APPEAL_ENCRYPTION_KEY && token === generateLegacyAppealToken(userId)) {
     return [true, userId];
   }
 
