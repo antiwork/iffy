@@ -3,19 +3,14 @@ import { and, eq } from "drizzle-orm";
 
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { validateApiKey } from "@/services/api-keys";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { generateAppealToken } from "@/services/appeals";
 import { getAbsoluteUrl } from "@/lib/url";
+import { authenticateRequest } from "@/app/api/auth";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
-  }
-  const apiKey = authHeader.split(" ")[1];
-  const clerkOrganizationId = await validateApiKey(apiKey);
-  if (!clerkOrganizationId) {
+  const [isValid, clerkOrganizationId] = await authenticateRequest(req);
+  if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 

@@ -2,27 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { moderateAdapter, ModerateRequestData } from "./schema";
 import * as schema from "@/db/schema";
-import { validateApiKey } from "@/services/api-keys";
 import { createModeration, moderate } from "@/services/moderations";
 import { createOrUpdateRecord } from "@/services/records";
 import { createOrUpdateUser } from "@/services/users";
 import { parseRequestBody } from "@/app/api/parse";
 import { inngest } from "@/inngest/client";
+import { authenticateRequest } from "../../auth";
 
 export async function POST(req: NextRequest) {
+  const [isValid, clerkOrganizationId] = await authenticateRequest(req);
+  if (!isValid) {
+    return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
+  }
+
   const { data, error } = await parseRequestBody(req, ModerateRequestData, moderateAdapter);
   if (error) {
     return NextResponse.json({ error }, { status: 400 });
-  }
-
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
-  }
-  const apiKey = authHeader.split(" ")[1];
-  const clerkOrganizationId = await validateApiKey(apiKey);
-  if (!clerkOrganizationId) {
-    return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
   let user: typeof schema.users.$inferSelect | undefined;

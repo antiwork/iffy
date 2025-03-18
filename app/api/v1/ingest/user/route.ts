@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { IngestUserRequestData } from "./schema";
-import { validateApiKey } from "@/services/api-keys";
 import { parseRequestBody } from "@/app/api/parse";
 import { createOrUpdateUser } from "@/services/users";
+import { authenticateRequest } from "@/app/api/auth";
 
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
-  }
-  const apiKey = authHeader.split(" ")[1];
-  const clerkOrganizationId = await validateApiKey(apiKey);
-  if (!clerkOrganizationId) {
+  const [isValid, clerkOrganizationId] = await authenticateRequest(req);
+  if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 

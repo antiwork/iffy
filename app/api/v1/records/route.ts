@@ -5,9 +5,9 @@ import { SQL } from "drizzle-orm";
 
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { validateApiKey } from "@/services/api-keys";
 import { parseQueryParams } from "@/app/api/parse";
 import { parseMetadata } from "@/services/metadata";
+import { authenticateRequest } from "../../auth";
 
 const ListRecordsRequestData = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
@@ -20,13 +20,8 @@ const ListRecordsRequestData = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
-  }
-  const apiKey = authHeader.split(" ")[1];
-  const clerkOrganizationId = await validateApiKey(apiKey);
-  if (!clerkOrganizationId) {
+  const [isValid, clerkOrganizationId] = await authenticateRequest(req);
+  if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
