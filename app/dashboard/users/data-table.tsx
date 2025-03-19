@@ -89,7 +89,7 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
     if (pathname.includes("/dashboard/users")) {
       setQuery(queryResult);
     }
-  }, [pathname, users]);
+  }, [pathname]);
 
   const router = useRouter();
 

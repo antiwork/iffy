@@ -85,10 +85,6 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
     }
   }, [fetchMoreOnBottomReached]);
 
-  useEffect(() => {
-    setQuery(queryResult);
-  }, [records]);
-
   const router = useRouter();
 
   return (
@@ -103,7 +99,13 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
         {isLoading ? (
           <DataTableLoading table={table} />
         ) : (
-          <DataTableInfinite table={table} onRowClick={(row) => router.push(`/dashboard/records/${row.original.id}`)} />
+          <DataTableInfinite
+            table={table}
+            onRowClick={(row) => {
+              setQuery(queryResult);
+              router.push(`/dashboard/records/${row.original.id}`);
+            }}
+          />
         )}
       </div>
     </div>
