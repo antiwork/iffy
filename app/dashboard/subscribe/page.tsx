@@ -18,7 +18,6 @@ export default async function SubscribePage() {
     redirect("/");
   }
 
-  const organization = await findOrCreateOrganization(orgId);
   if (await hasActiveSubscription(orgId)) {
     redirect("/dashboard");
   }

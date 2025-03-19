@@ -4,8 +4,9 @@ import * as React from "react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { updateOrganization } from "../developer/actions";
+import { createPortalSession } from "./actions";
 
-export const Settings = ({
+export const GeneralSettings = ({
   organization: initialOrganization,
 }: {
   organization: {
@@ -105,9 +106,17 @@ export const Settings = ({
     }
   };
 
+  const handlePortalClick = async () => {
+    try {
+      await createPortalSession();
+    } catch (error) {
+      console.error("Error creating portal session:", error);
+    }
+  };
+
   return (
-    <div className="text-gray-950 dark:text-stone-50">
-      <h2 className="mb-6 text-2xl font-bold">Settings</h2>
+    <div className="space-y-4">
+      <h3 className="text-xl font-semibold">General</h3>
       <div className="space-y-4">
         <div className="space-y-1">
           <div className="flex items-center justify-between">
