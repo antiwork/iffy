@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { ClerkLoaded, ClerkLoading, OrganizationSwitcher } from "@clerk/nextjs";
+import { ClerkLoaded, ClerkLoading, OrganizationSwitcher, SignOutButton } from "@clerk/nextjs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
@@ -20,7 +20,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/toaster";
@@ -148,15 +148,20 @@ export default function DynamicLayout({
           <ResizableHandle withHandle className="dark:bg-green-900" />
           <ResizablePanel defaultSize={80}>
             <div className={cn("flex h-[52px] items-center justify-end px-4 dark:bg-zinc-900")}>
-              <ClerkLoading>
-                <Skeleton className="mr-2 h-[20px] w-[125px] rounded-sm" />
-              </ClerkLoading>
-              <ClerkLoaded>
-                <OrganizationSwitcher
-                  appearance={{ elements: { organizationSwitcherTrigger: "dark:text-white" } }}
-                  hidePersonal={true}
-                />
-              </ClerkLoaded>
+              <div className="flex gap-2">
+                <ClerkLoading>
+                  <Skeleton className="mr-2 h-[20px] w-[125px] rounded-sm" />
+                </ClerkLoading>
+                <ClerkLoaded>
+                  <Button asChild variant="ghost" size="sm">
+                    <SignOutButton />
+                  </Button>
+                  <OrganizationSwitcher
+                    appearance={{ elements: { organizationSwitcherTrigger: "dark:text-white" } }}
+                    hidePersonal={true}
+                  />
+                </ClerkLoaded>
+              </div>
             </div>
             <Separator />
             <div className="h-[calc(100%-52px-1px)] overflow-y-scroll dark:bg-zinc-900">{children}</div>

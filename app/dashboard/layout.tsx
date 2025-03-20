@@ -15,8 +15,8 @@ export default async function Layout({ children, sheet }: { children: React.Reac
         <OrganizationList
           hidePersonal={true}
           skipInvitationScreen={true}
-          afterCreateOrganizationUrl="/dashboard"
-          afterSelectOrganizationUrl="/dashboard"
+          afterCreateOrganizationUrl="/dashboard/subscription"
+          afterSelectOrganizationUrl="/dashboard/subscription"
         />
       </div>
     );
