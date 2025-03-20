@@ -234,14 +234,14 @@ export function Pricing({
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-4">
           {Object.entries(products).map(([key, tier], index) => {
             const features = PRODUCTS_FEATURES[key as keyof ProductsCatalog];
             return (
               <div key={key} className="transition-transform duration-200 hover:scale-105">
                 <Card
                   onClick={() => onSelect?.(key as keyof ProductsCatalog)}
-                  className={`group relative cursor-pointer ${key === recommendedTier ? "z-10 border-2 border-emerald-500 shadow-lg" : ""}`}
+                  className={`group relative h-full cursor-pointer ${key === recommendedTier ? "z-10 border-2 border-emerald-500 shadow-lg" : ""}`}
                 >
                   {key === recommendedTier && (
                     <motion.div

@@ -43,20 +43,29 @@ export default async function SettingsPage() {
                 {subscription ? (
                   <>
                     <div className="space-y-6">
-                      {tier && (
-                        <>
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <h3 className="font-mono text-xl font-bold">{tier.name}</h3>
-                              <p className="text-sm text-gray-500">{tier.description}</p>
-                            </div>
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                {formatSubscriptionStatus({ status: subscription.status })}
-                              </div>
+                      {tier ? (
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <h3 className="font-mono text-xl font-bold">{tier.name}</h3>
+                            <p className="text-sm text-gray-500">{tier.description}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              {formatSubscriptionStatus({ status: subscription.status })}
                             </div>
                           </div>
-                        </>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <h3 className="font-mono text-xl font-bold">Custom</h3>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              {formatSubscriptionStatus({ status: subscription.status })}
+                            </div>
+                          </div>
+                        </div>
                       )}
                     </div>
                     {isAdmin && (

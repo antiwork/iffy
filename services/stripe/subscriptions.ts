@@ -26,6 +26,7 @@ export async function findSubscriptionTier(clerkOrganizationId: string) {
   if (!subscription) {
     return null;
   }
+
   const id = subscription.items.data[0]?.plan.product;
   const product = Object.values(PRODUCTS).find((p) => p.id === id);
   if (!product) {

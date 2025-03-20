@@ -1,7 +1,4 @@
 import { Metadata } from "next";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { env } from "@/lib/env";
 import Stripe from "stripe";
 import { redirect } from "next/navigation";
@@ -37,21 +34,7 @@ export default async function SubscriptionSuccessPage({
     redirect("/dashboard/subscribe");
   }
 
-  const subscription = await createSubscription(orgId, session.subscription);
+  await createSubscription(orgId, session.subscription);
 
-  return (
-    <div className="container flex h-[calc(100vh-4rem)] items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Subscription successful</CardTitle>
-          <CardDescription>Your subscription has been activated</CardDescription>
-        </CardHeader>
-        <CardContent className="flex justify-center">
-          <Button asChild>
-            <Link href="/dashboard">Go to dashboard</Link>
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  redirect("/dashboard");
 }
