@@ -27,12 +27,17 @@ const envSchema = z
     NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
     NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
     SEED_CLERK_ORGANIZATION_ID: z.string().optional(),
-    STRIPE_API_KEY: z.string(),
+    STRIPE_API_KEY: z.string().optional(),
     POSTGRES_URL: z.string(),
     POSTGRES_URL_NON_POOLING: z.string(),
     INNGEST_APP_NAME: z.string(),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
     ENABLE_PUBLIC_SIGNUP: z
+      .enum(["true", "false"])
+      .transform((s) => s === "true")
+      .optional()
+      .default("false"),
+    ENABLE_BILLING: z
       .enum(["true", "false"])
       .transform((s) => s === "true")
       .optional()

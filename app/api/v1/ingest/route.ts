@@ -12,6 +12,7 @@ import { parseRequestBody } from "@/app/api/parse";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { authenticateRequest } from "../../auth";
 import { hasActiveSubscription } from "@/services/stripe/subscriptions";
+import { env } from "@/lib/env";
 
 export async function POST(req: NextRequest) {
   const [isValid, clerkOrganizationId] = await authenticateRequest(req);
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  if (!(await hasActiveSubscription(clerkOrganizationId))) {
+  if (env.ENABLE_BILLING && !(await hasActiveSubscription(clerkOrganizationId))) {
     return NextResponse.json(
       { error: { message: "No active subscription. Please sign up for a subscription." } },
       { status: 403 },

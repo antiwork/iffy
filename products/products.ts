@@ -1,8 +1,6 @@
-import { Stripe } from "stripe";
-import { env } from "@/lib/env";
+import stripe from "@/lib/stripe";
 import { ProductsCatalog } from "./types";
-
-const stripe = new Stripe(env.STRIPE_API_KEY);
+import { env } from "process";
 
 const OVERAGE_PRICE = 2; // cents
 
@@ -150,6 +148,10 @@ export const METERS = {
 } as const;
 
 export async function updateProducts() {
+  if (!env.ENABLE_BILLING || !stripe) {
+    throw new Error("Billing is not enabled");
+  }
+
   for (const { prices, ...params } of Object.values(PRODUCTS)) {
     let product = await stripe.products.retrieve(params.id).catch(() => null);
 
@@ -176,6 +178,10 @@ export async function updateProducts() {
 }
 
 export async function updateMeters() {
+  if (!env.ENABLE_BILLING || !stripe) {
+    throw new Error("Billing is not enabled");
+  }
+
   for (const [key, params] of Object.entries(METERS)) {
     const existingMeters = await stripe.billing.meters.list();
     const existingMeter = existingMeters.data.find((meter) => meter.event_name === params.event_name);

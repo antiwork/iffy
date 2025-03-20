@@ -1,12 +1,14 @@
-import Stripe from "stripe";
-import { findOrCreateOrganization } from "../organizations";
 import { env } from "@/lib/env";
-import { z } from "zod";
+import { findOrCreateOrganization } from "../organizations";
 import { startOfCurrentBillingPeriod } from "./subscriptions";
-
-export const stripe = new Stripe(env.STRIPE_API_KEY);
+import stripe from "@/lib/stripe";
+import { z } from "zod";
 
 export async function createMeterEvent(clerkOrganizationId: string, eventName: string, value: number) {
+  if (!env.ENABLE_BILLING || !stripe) {
+    throw new Error("Billing is not enabled");
+  }
+
   const organization = await findOrCreateOrganization(clerkOrganizationId);
   if (!organization.stripeCustomerId) {
     throw new Error("Organization does not have a Stripe Customer ID");
@@ -34,6 +36,10 @@ export async function createMeterEvent(clerkOrganizationId: string, eventName: s
 }
 
 export async function getUsage(clerkOrganizationId: string, eventName: string, start: Date, end?: Date) {
+  if (!env.ENABLE_BILLING || !stripe) {
+    throw new Error("Billing is not enabled");
+  }
+
   const organization = await findOrCreateOrganization(clerkOrganizationId);
   if (!organization || !organization.stripeCustomerId) {
     return null;
@@ -62,6 +68,10 @@ export async function getUsage(clerkOrganizationId: string, eventName: string, s
 }
 
 export async function getUsageForCurrentBillingPeriod(clerkOrganizationId: string, eventName: string) {
+  if (!env.ENABLE_BILLING || !stripe) {
+    throw new Error("Billing is not enabled");
+  }
+
   const start = await startOfCurrentBillingPeriod(clerkOrganizationId);
   if (!start) {
     return null;

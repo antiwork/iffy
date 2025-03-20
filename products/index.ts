@@ -1,9 +1,12 @@
 import { close } from "@iffy/app/db";
 import { updateProducts, updateMeters } from "./products";
+import { env } from "@/lib/env";
 
 async function main() {
-  await updateProducts();
-  await updateMeters();
+  if (env.ENABLE_BILLING) {
+    await updateProducts();
+    await updateMeters();
+  }
 }
 
 main()

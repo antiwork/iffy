@@ -6,12 +6,18 @@ import { Subscribe } from "./subscribe";
 import { PRODUCTS } from "@/products/products";
 import NotAdmin from "./not-admin";
 import ManageSubscription from "./manage";
+import { env } from "@/lib/env";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Subscription | Iffy",
 };
 
 export default async function SubscriptionPage() {
+  if (!env.ENABLE_BILLING) {
+    notFound();
+  }
+
   const { orgId } = await authWithOrg();
 
   const isAdmin = await hasAdminRole();

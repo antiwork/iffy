@@ -34,12 +34,12 @@ export default function DynamicLayout({
   children,
   organization,
   inboxCount,
-  isAdmin,
+  showSubscription,
 }: Readonly<{
   children: React.ReactNode;
   organization: organization;
   inboxCount: number;
-  isAdmin: boolean;
+  showSubscription: boolean;
 }>) {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
@@ -96,7 +96,7 @@ export default function DynamicLayout({
       icon: Settings,
       slug: "settings",
     },
-    ...(isAdmin
+    ...(showSubscription
       ? [
           {
             title: "Subscription",

@@ -1,6 +1,7 @@
 import { authWithOrg } from "@/app/dashboard/auth";
+import { env } from "@/lib/env";
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Subscription Cancelled | Iffy",
@@ -11,6 +12,10 @@ export default async function SubscriptionCancelPage({
 }: {
   searchParams: Promise<{ session_id?: string }>;
 }) {
+  if (!env.ENABLE_BILLING) {
+    notFound();
+  }
+
   await authWithOrg();
 
   redirect("/dashboard/subscription");

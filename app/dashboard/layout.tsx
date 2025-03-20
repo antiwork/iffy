@@ -4,6 +4,7 @@ import { findOrCreateOrganization } from "@/services/organizations";
 import { getInboxCount } from "@/services/appeals";
 import { auth } from "@clerk/nextjs/server";
 import { hasAdminRole } from "@/services/auth";
+import { env } from "@/lib/env";
 
 export default async function Layout({ children, sheet }: { children: React.ReactNode; sheet: React.ReactNode }) {
   const { orgId } = await auth();
@@ -20,7 +21,11 @@ export default async function Layout({ children, sheet }: { children: React.Reac
   const isAdmin = await hasAdminRole();
   return (
     <>
-      <DynamicLayout organization={organization} inboxCount={inboxCount} isAdmin={isAdmin}>
+      <DynamicLayout
+        organization={organization}
+        inboxCount={inboxCount}
+        showSubscription={isAdmin && env.ENABLE_BILLING}
+      >
         {children}
       </DynamicLayout>
       {sheet}

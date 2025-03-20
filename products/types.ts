@@ -1,4 +1,4 @@
-import { Stripe } from "stripe";
+import type { Stripe } from "stripe";
 
 // The following constraints on the default Stripe Price & Product params types
 // allow the rest of the application to reason about the structure of the

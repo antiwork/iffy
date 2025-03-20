@@ -1,12 +1,10 @@
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
-import { Stripe } from "stripe";
-import { env } from "@/lib/env";
 import { PRODUCTS } from "@/products/products";
-import { findOrCreateOrganization } from "../organizations";
-
-const stripe = new Stripe(env.STRIPE_API_KEY);
+import stripe from "@/lib/stripe";
+import type { Stripe } from "stripe";
+import { env } from "@/lib/env";
 
 // A subscription is current if it can be updated in the Customer Portal
 export function isCurrentSubscription(subscription: Stripe.Subscription) {
@@ -20,18 +18,23 @@ export function isActiveSubscription(subscription: Stripe.Subscription) {
 
 // Find the first current subscription for an organization
 export async function findSubscription(clerkOrganizationId: string) {
+  if (!env.ENABLE_BILLING || !stripe) {
+    throw new Error("Billing is not enabled");
+  }
+
   const subscriptions = await db.query.subscriptions.findMany({
     where: eq(schema.subscriptions.clerkOrganizationId, clerkOrganizationId),
     orderBy: desc(schema.subscriptions.createdAt),
   });
 
-  const stripeSubscriptions: Stripe.Response<Stripe.Subscription>[] = (
-    await Promise.all(
-      subscriptions.map((subscription) => stripe.subscriptions.retrieve(subscription.stripeSubscriptionId)),
-    )
-  ).filter((subscription) => isCurrentSubscription(subscription));
+  for (const subscription of subscriptions) {
+    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+    if (isCurrentSubscription(stripeSubscription)) {
+      return stripeSubscription;
+    }
+  }
 
-  return stripeSubscriptions[0] ?? null;
+  return null;
 }
 
 export async function findSubscriptionTier(clerkOrganizationId: string) {
@@ -50,6 +53,10 @@ export async function findSubscriptionTier(clerkOrganizationId: string) {
 }
 
 export async function createSubscription(clerkOrganizationId: string, stripeSubscriptionId: string) {
+  if (!env.ENABLE_BILLING || !stripe) {
+    throw new Error("Billing is not enabled");
+  }
+
   const [subscription] = await db
     .insert(schema.subscriptions)
     .values({

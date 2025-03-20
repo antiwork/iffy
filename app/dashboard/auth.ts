@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { findSubscription, isActiveSubscription } from "@/services/stripe/subscriptions";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -11,6 +12,10 @@ export async function authWithOrgSubscription() {
 
   if (!orgId) {
     redirect("/dashboard");
+  }
+
+  if (!env.ENABLE_BILLING) {
+    return { orgId, userId, ...data };
   }
 
   const subscription = await findSubscription(orgId);

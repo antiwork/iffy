@@ -2,15 +2,14 @@
 
 import { z } from "zod";
 import { actionClient } from "@/lib/action-client";
-import { env } from "@/lib/env";
 import { PRODUCTS } from "@/products/products";
-import Stripe from "stripe";
+import stripe from "@/lib/stripe";
+import type { Stripe } from "stripe";
 import { findOrCreateOrganization, updateOrganization } from "@/services/organizations";
 import { isFixedFeeAndOverage, isPayAsYouGo } from "@/products/types";
 import { clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-
-const stripe = new Stripe(env.STRIPE_API_KEY);
+import { env } from "@/lib/env";
 
 const createCheckoutSessionSchema = z.object({
   tier: z.enum(Object.keys(PRODUCTS) as [keyof typeof PRODUCTS, ...(keyof typeof PRODUCTS)[]]),
@@ -20,6 +19,10 @@ const createCheckoutSessionSchema = z.object({
 export const createCheckoutSession = actionClient
   .schema(createCheckoutSessionSchema)
   .action(async ({ parsedInput: { tier, term }, ctx: { clerkOrganizationId, clerkUserId } }) => {
+    if (!env.ENABLE_BILLING || !stripe) {
+      throw new Error("Billing is not enabled");
+    }
+
     const organization = await findOrCreateOrganization(clerkOrganizationId);
 
     const product = PRODUCTS[tier];
@@ -102,6 +105,10 @@ export const createCheckoutSession = actionClient
   });
 
 export const createPortalSession = actionClient.action(async ({ ctx: { clerkOrganizationId } }) => {
+  if (!env.ENABLE_BILLING || !stripe) {
+    throw new Error("Billing is not enabled");
+  }
+
   const organization = await findOrCreateOrganization(clerkOrganizationId);
   if (!organization.stripeCustomerId) {
     return null;

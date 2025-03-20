@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Stripe } from "stripe";
+import type { Stripe } from "stripe";
 
 export function formatSubscriptionStatus({ status }: Pick<Stripe.Subscription, "status">) {
   if (status === "active") {

@@ -1,11 +1,9 @@
 import { Metadata } from "next";
-import { env } from "@/lib/env";
-import Stripe from "stripe";
-import { redirect } from "next/navigation";
+import stripe from "@/lib/stripe";
+import { notFound, redirect } from "next/navigation";
 import { authWithOrg } from "@/app/dashboard/auth";
 import { createSubscription } from "@/services/stripe/subscriptions";
-
-const stripe = new Stripe(env.STRIPE_API_KEY);
+import { env } from "@/lib/env";
 
 export const metadata: Metadata = {
   title: "Subscription Success | Iffy",
@@ -16,6 +14,10 @@ export default async function SubscriptionSuccessPage({
 }: {
   searchParams: Promise<{ session_id?: string }>;
 }) {
+  if (!env.ENABLE_BILLING || !stripe) {
+    notFound();
+  }
+
   const { orgId } = await authWithOrg();
 
   const { session_id } = await searchParams;
