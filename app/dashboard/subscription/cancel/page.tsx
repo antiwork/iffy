@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrg } from "@/app/dashboard/auth";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -11,10 +11,7 @@ export default async function SubscriptionCancelPage({
 }: {
   searchParams: Promise<{ session_id?: string }>;
 }) {
-  const { orgId } = await auth();
+  await authWithOrg();
 
-  if (!orgId) {
-    redirect("/");
-  }
-  redirect("/dashboard/subscribe");
+  redirect("/dashboard/subscription");
 }

@@ -3,7 +3,7 @@ import { ChartSkeleton, TotalsSkeleton } from "./skeletons";
 import { DailyAnalyticsChart } from "./daily-analytics-chart";
 import { HourlyAnalyticsChart } from "./hourly-analytics-chart";
 import { TotalsCards } from "./totals-cards";
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
 
@@ -108,10 +108,7 @@ async function DailySection({ orgId }: { orgId: string }) {
 }
 
 export default async function Analytics() {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   return (
     <div className="space-y-6 px-12 py-8">

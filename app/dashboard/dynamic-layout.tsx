@@ -7,7 +7,18 @@ import { ClerkLoaded, ClerkLoading, OrganizationSwitcher } from "@clerk/nextjs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
-import { MessageSquareX, LucideIcon, Book, Inbox, Code, Users, Mail, Settings, ChartBar } from "lucide-react";
+import {
+  MessageSquareX,
+  LucideIcon,
+  Book,
+  Inbox,
+  Code,
+  Users,
+  Mail,
+  Settings,
+  ChartBar,
+  CreditCard,
+} from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { useSelectedLayoutSegment } from "next/navigation";
@@ -23,10 +34,12 @@ export default function DynamicLayout({
   children,
   organization,
   inboxCount,
+  isAdmin,
 }: Readonly<{
   children: React.ReactNode;
   organization: organization;
   inboxCount: number;
+  isAdmin: boolean;
 }>) {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
@@ -83,6 +96,15 @@ export default function DynamicLayout({
       icon: Settings,
       slug: "settings",
     },
+    ...(isAdmin
+      ? [
+          {
+            title: "Subscription",
+            icon: CreditCard,
+            slug: "subscription",
+          },
+        ]
+      : []),
   ];
 
   return (

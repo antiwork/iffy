@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { findOrCreateOrganization } from "@/services/organizations";
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 
@@ -65,10 +65,7 @@ const EmailPreview = async <T extends (typeof schema.emailTemplateType.enumValue
 };
 
 const Emails = async () => {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const organization = await findOrCreateOrganization(orgId);
   if (!organization.emailsEnabled) {

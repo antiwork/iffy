@@ -1,16 +1,13 @@
 import { notFound, redirect } from "next/navigation";
 import { RecordDetail } from "./record";
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { Metadata } from "next";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 
 export async function generateMetadata({ params }: { params: Promise<{ recordId: string }> }): Promise<Metadata> {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const id = (await params).recordId;
 
@@ -28,10 +25,8 @@ export async function generateMetadata({ params }: { params: Promise<{ recordId:
 }
 
 export default async function Page({ params }: { params: Promise<{ recordId: string }> }) {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
+
   const id = (await params).recordId;
   return <RecordDetail clerkOrganizationId={orgId} id={id} />;
 }

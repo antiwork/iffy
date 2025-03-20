@@ -1,17 +1,16 @@
 import { clerkClient } from "@clerk/nextjs/server";
 
 export async function formatClerkUser(clerkUserId: string) {
+  const clerkUser = await (await clerkClient()).users.getUser(clerkUserId);
+  let output = clerkUserId;
   try {
-    const clerkUser = await (await clerkClient()).users.getUser(clerkUserId);
-    if (clerkUser.firstName && clerkUser.lastName) {
-      return `${clerkUser.firstName} ${clerkUser.lastName}`;
-    }
     const email = clerkUser.emailAddresses.find((email) => email.id === clerkUser.primaryEmailAddressId)?.emailAddress;
     if (email) {
-      return email;
+      output = email;
     }
-  } catch (error) {
-    return clerkUserId;
-  }
-  return clerkUserId;
+    if (email && clerkUser.firstName && clerkUser.lastName) {
+      output = `${clerkUser.firstName} ${clerkUser.lastName} (${email})`;
+    }
+  } catch (error) {}
+  return output;
 }

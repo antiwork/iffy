@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { UserDetail } from "@/app/dashboard/users/[userId]/user";
 import { notFound, redirect } from "next/navigation";
 import { RouterSheet } from "@/components/router-sheet";
@@ -9,10 +9,7 @@ import { and, eq } from "drizzle-orm";
 import { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ userId: string }> }): Promise<Metadata> {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const id = (await params).userId;
 
@@ -30,10 +27,8 @@ export async function generateMetadata({ params }: { params: Promise<{ userId: s
 }
 
 export default async function Page({ params }: { params: Promise<{ userId: string }> }) {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
+
   const id = (await params).userId;
   return (
     <RouterSheet title="User">

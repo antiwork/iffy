@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { env } from "@/lib/env";
 import Stripe from "stripe";
 import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrg } from "@/app/dashboard/auth";
 import { createSubscription } from "@/services/stripe/subscriptions";
 
 const stripe = new Stripe(env.STRIPE_API_KEY);
@@ -16,22 +16,18 @@ export default async function SubscriptionSuccessPage({
 }: {
   searchParams: Promise<{ session_id?: string }>;
 }) {
-  const { orgId } = await auth();
-
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrg();
 
   const { session_id } = await searchParams;
 
   if (!session_id) {
-    redirect("/dashboard/subscribe");
+    redirect("/dashboard/subscription");
   }
 
   const session = await stripe.checkout.sessions.retrieve(session_id);
 
   if (!session || session.status !== "complete" || !session.subscription || typeof session.subscription !== "string") {
-    redirect("/dashboard/subscribe");
+    redirect("/dashboard/subscription");
   }
 
   await createSubscription(orgId, session.subscription);

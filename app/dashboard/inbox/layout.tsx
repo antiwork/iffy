@@ -1,13 +1,10 @@
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { notFound, redirect } from "next/navigation";
 import { Appeals } from "./appeals";
 import { findOrCreateOrganization } from "@/services/organizations";
 
 const InboxLayout = async ({ children }: { children: React.ReactNode }) => {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const organization = await findOrCreateOrganization(orgId);
   if (!organization.appealsEnabled) {

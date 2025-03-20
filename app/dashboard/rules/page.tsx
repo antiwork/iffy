@@ -1,5 +1,5 @@
 import React from "react";
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
 
@@ -12,10 +12,7 @@ import { getRules } from "@/services/rules";
 import { findOrCreateDefaultRuleset } from "@/services/ruleset";
 
 async function Page() {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const defaultRuleset = await findOrCreateDefaultRuleset(orgId);
 

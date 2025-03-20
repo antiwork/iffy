@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { findOrCreateOrganization } from "../organizations";
 import { env } from "@/lib/env";
 import { z } from "zod";
-import { findSubscription, startOfCurrentBillingPeriod } from "./subscriptions";
+import { startOfCurrentBillingPeriod } from "./subscriptions";
 
 export const stripe = new Stripe(env.STRIPE_API_KEY);
 
@@ -39,11 +39,6 @@ export async function getUsage(clerkOrganizationId: string, eventName: string, s
     return null;
   }
 
-  const subscription = await findSubscription(clerkOrganizationId);
-  if (!subscription) {
-    return null;
-  }
-
   const meters = await stripe.billing.meters.list({ status: "active" });
   const meter = meters.data.find((meter) => meter.event_name === eventName);
   if (!meter) {
@@ -60,8 +55,6 @@ export async function getUsage(clerkOrganizationId: string, eventName: string, s
     start_time: startTime,
     end_time: endTime,
   });
-
-  console.log("usage", usage);
 
   const total = usage.data[0]?.aggregated_value ?? 0;
 

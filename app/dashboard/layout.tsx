@@ -1,8 +1,9 @@
-import { auth } from "@clerk/nextjs/server";
 import DynamicLayout from "./dynamic-layout";
 import { OrganizationList } from "@clerk/nextjs";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { getInboxCount } from "@/services/appeals";
+import { auth } from "@clerk/nextjs/server";
+import { hasAdminRole } from "@/services/auth";
 
 export default async function Layout({ children, sheet }: { children: React.ReactNode; sheet: React.ReactNode }) {
   const { orgId } = await auth();
@@ -16,10 +17,10 @@ export default async function Layout({ children, sheet }: { children: React.Reac
 
   const organization = await findOrCreateOrganization(orgId);
   const inboxCount = await getInboxCount(orgId);
-
+  const isAdmin = await hasAdminRole();
   return (
     <>
-      <DynamicLayout organization={organization} inboxCount={inboxCount}>
+      <DynamicLayout organization={organization} inboxCount={inboxCount} isAdmin={isAdmin}>
         {children}
       </DynamicLayout>
       {sheet}

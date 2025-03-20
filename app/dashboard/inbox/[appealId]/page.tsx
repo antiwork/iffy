@@ -1,6 +1,6 @@
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { notFound, redirect } from "next/navigation";
 import { Appeal } from "../appeal";
 import { subDays } from "date-fns";
@@ -10,10 +10,7 @@ import { formatUserCompact } from "@/lib/user";
 const HISTORY_DAYS = 7;
 
 export async function generateMetadata({ params }: { params: Promise<{ appealId: string }> }) {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const id = (await params).appealId;
 
@@ -38,10 +35,8 @@ export async function generateMetadata({ params }: { params: Promise<{ appealId:
 }
 
 export default async function Page({ params }: { params: Promise<{ appealId: string }> }) {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
+
   const id = (await params).appealId;
 
   const appealWithMessages = await db.query.appeals.findFirst({

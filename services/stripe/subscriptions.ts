@@ -8,17 +8,30 @@ import { findOrCreateOrganization } from "../organizations";
 
 const stripe = new Stripe(env.STRIPE_API_KEY);
 
+// A subscription is current if it can be updated in the Customer Portal
+export function isCurrentSubscription(subscription: Stripe.Subscription) {
+  return subscription.status !== "canceled" && subscription.status !== "incomplete_expired";
+}
+
+// A subscription is active if it should allow access to the app
+export function isActiveSubscription(subscription: Stripe.Subscription) {
+  return subscription.status === "active" || subscription.status === "trialing" || subscription.status === "past_due";
+}
+
+// Find the first current subscription for an organization
 export async function findSubscription(clerkOrganizationId: string) {
-  const subscription = await db.query.subscriptions.findFirst({
+  const subscriptions = await db.query.subscriptions.findMany({
     where: eq(schema.subscriptions.clerkOrganizationId, clerkOrganizationId),
     orderBy: desc(schema.subscriptions.createdAt),
   });
 
-  if (!subscription) {
-    return null;
-  }
+  const stripeSubscriptions: Stripe.Response<Stripe.Subscription>[] = (
+    await Promise.all(
+      subscriptions.map((subscription) => stripe.subscriptions.retrieve(subscription.stripeSubscriptionId)),
+    )
+  ).filter((subscription) => isCurrentSubscription(subscription));
 
-  return await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+  return stripeSubscriptions[0] ?? null;
 }
 
 export async function findSubscriptionTier(clerkOrganizationId: string) {
@@ -58,16 +71,7 @@ export async function hasActiveSubscription(clerkOrganizationId: string) {
     return false;
   }
 
-  return subscription.status === "active" || subscription.status === "trialing" || subscription.status === "past_due";
-}
-
-export async function hasNonTrialingSubscription(clerkOrganizationId: string) {
-  const subscription = await findSubscription(clerkOrganizationId);
-  if (!subscription) {
-    return false;
-  }
-
-  return subscription.status === "active" || subscription.status === "past_due";
+  return isActiveSubscription(subscription);
 }
 
 export async function startOfCurrentBillingPeriod(clerkOrganizationId: string) {
@@ -77,18 +81,4 @@ export async function startOfCurrentBillingPeriod(clerkOrganizationId: string) {
   }
 
   return new Date(subscription.current_period_start * 1000);
-}
-
-export async function createCustomerPortalSession(clerkOrganizationId: string) {
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
-  if (!organization.stripeCustomerId) {
-    return null;
-  }
-
-  const session = await stripe.billingPortal.sessions.create({
-    customer: organization.stripeCustomerId,
-    return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/settings`,
-  });
-
-  return session.url;
 }

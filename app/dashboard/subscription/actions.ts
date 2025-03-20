@@ -8,6 +8,7 @@ import Stripe from "stripe";
 import { findOrCreateOrganization, updateOrganization } from "@/services/organizations";
 import { isFixedFeeAndOverage, isPayAsYouGo } from "@/products/types";
 import { clerkClient } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 const stripe = new Stripe(env.STRIPE_API_KEY);
 
@@ -86,8 +87,8 @@ export const createCheckoutSession = actionClient
       customer: stripeCustomerId,
       line_items: lineItems,
       mode: "subscription",
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/subscribe/cancel?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/subscription/cancel?session_id={CHECKOUT_SESSION_ID}`,
       subscription_data: {
         trial_period_days: 7,
       },
@@ -99,3 +100,21 @@ export const createCheckoutSession = actionClient
 
     return session.url;
   });
+
+export const createPortalSession = actionClient.action(async ({ ctx: { clerkOrganizationId } }) => {
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  if (!organization.stripeCustomerId) {
+    return null;
+  }
+
+  const session = await stripe.billingPortal.sessions.create({
+    customer: organization.stripeCustomerId,
+    return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/subscription`,
+  });
+
+  if (!session.url) {
+    throw new Error("Failed to create portal session");
+  }
+
+  redirect(session.url);
+});

@@ -9,17 +9,13 @@ export const metadata: Metadata = {
 
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { decrypt } from "@/services/encrypt";
 
 export default async function DeveloperPage() {
-  const { orgId } = await auth();
-
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const keys = await getApiKeys({ clerkOrganizationId: orgId });
   const webhookEndpoint = await db.query.webhookEndpoints.findFirst({

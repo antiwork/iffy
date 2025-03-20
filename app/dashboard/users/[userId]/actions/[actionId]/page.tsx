@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { redirect, notFound } from "next/navigation";
 import { Metadata } from "next";
 import { UserActionDetail } from "./user-action";
@@ -8,10 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { formatUser } from "@/lib/user";
 
 export async function generateMetadata({ params }: { params: Promise<{ actionId: string }> }): Promise<Metadata> {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const id = (await params).actionId;
 
@@ -32,10 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ actionId:
 }
 
 export default async function UserActionPage({ params }: { params: Promise<{ actionId: string }> }) {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const id = (await params).actionId;
 

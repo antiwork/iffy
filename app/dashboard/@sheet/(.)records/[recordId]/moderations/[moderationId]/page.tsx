@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { ModerationDetail } from "@/app/dashboard/records/[recordId]/moderations/[moderationId]/moderation";
 import { redirect, notFound } from "next/navigation";
 import { RouterSheet } from "@/components/router-sheet";
@@ -8,10 +8,7 @@ import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 
 export async function generateMetadata({ params }: { params: Promise<{ moderationId: string }> }): Promise<Metadata> {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const id = (await params).moderationId;
 
@@ -32,10 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ moderatio
 }
 
 export default async function Page({ params }: { params: Promise<{ moderationId: string }> }) {
-  const { orgId } = await auth();
-  if (!orgId) {
-    redirect("/");
-  }
+  const { orgId } = await authWithOrgSubscription();
 
   const id = (await params).moderationId;
 
