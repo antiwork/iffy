@@ -12,7 +12,12 @@ export default async function Layout({ children, sheet }: { children: React.Reac
   if (!orgId)
     return (
       <div className="flex h-screen items-center justify-center">
-        <OrganizationList hidePersonal={true} skipInvitationScreen={true} />
+        <OrganizationList
+          hidePersonal={true}
+          skipInvitationScreen={true}
+          afterCreateOrganizationUrl="/dashboard"
+          afterSelectOrganizationUrl="/dashboard"
+        />
       </div>
     );
 
