@@ -10,8 +10,8 @@ export function Subscribe({ products }: { products: ProductsCatalog }) {
   const router = useRouter();
 
   const handleSelect = useCallback(
-    async (tier: keyof ProductsCatalog) => {
-      const result = await createCheckoutSession({ tier, term: "monthly" });
+    async (tier: keyof ProductsCatalog, term: "monthly" | "yearly") => {
+      const result = await createCheckoutSession({ tier, term });
       if (result?.data) {
         router.push(result.data);
       }

@@ -138,11 +138,11 @@ export function Pricing({
   onSelect,
 }: {
   products: ProductsCatalog;
-  onSelect?: (tier: keyof ProductsCatalog) => void;
+  onSelect: (tier: keyof ProductsCatalog, term: "monthly" | "yearly") => void;
 }) {
   const [tick, setTick] = useState(2);
   const [recommendedTier, setRecommendedTier] = useState("Growth");
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [term, setTerm] = useState<"monthly" | "yearly">("monthly");
 
   const steps = [
     { tick: 0, volume: 0, label: "0" },
@@ -219,8 +219,8 @@ export function Pricing({
         <div className="flex items-center justify-center">
           <ToggleGroup
             type="single"
-            value={billingPeriod}
-            onValueChange={(value) => value && setBillingPeriod(value as "monthly" | "yearly")}
+            value={term}
+            onValueChange={(value) => value && setTerm(value as "monthly" | "yearly")}
             className="inline-flex items-center rounded-lg border bg-stone-100"
           >
             <ToggleGroupItem
@@ -240,7 +240,7 @@ export function Pricing({
             return (
               <div key={key} className="transition-transform duration-200 hover:scale-105">
                 <Card
-                  onClick={() => onSelect?.(key as keyof ProductsCatalog)}
+                  onClick={() => onSelect?.(key as keyof ProductsCatalog, term)}
                   className={`group relative h-full cursor-pointer ${key === recommendedTier ? "z-10 border-2 border-emerald-500 shadow-lg" : ""}`}
                 >
                   {key === recommendedTier && (
@@ -256,7 +256,7 @@ export function Pricing({
                   <CardHeader className="space-y-4">
                     <div className="space-y-2">
                       <h3 className="font-mono text-xl font-bold">{tier.name}</h3>
-                      <PlanPrice prices={tier.prices} term={billingPeriod} />
+                      <PlanPrice prices={tier.prices} term={term} />
                       <p className="text-sm text-gray-500">{tier.description}</p>
                     </div>
                     <Separator />
