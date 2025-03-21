@@ -23,6 +23,7 @@ The system is built with Next.js, uses Drizzle ORM for database interactions (Po
    - `rules`: Allows the creation and management of custom moderation rules and presets.
    - `settings`: Configures global settings like email notifications, test mode, appeals, and moderation percentage.
    - `users`: Manages user accounts and their associated data.
+   - `subscription`: Manages the subscription for the organization.
 
 3. **Inngest Functions (`inngest/functions`):** Defines background tasks processed by the Inngest platform. These functions handle asynchronous operations like updating user statuses after moderation, sending webhooks, refreshing analytics views, and performing automated actions.
 
@@ -39,7 +40,9 @@ The system is built with Next.js, uses Drizzle ORM for database interactions (Po
    - `records`: Manages the creation, updating, and deletion of records.
    - `rules`: Manages moderation rules and presets.
    - `ruleset`: Manages rulesets.
-   - `stripe`: Integrates with Stripe for payment and payout control.
+   - `stripe/accounts`: Manages Stripe connected accounts on behalf of customers (uses Stripe API key from customer)
+   - `stripe/subscriptions`: Manages Stripe subscriptions
+   - `stripe/usage`: Records and reports per-customer organization usage
    - `url-moderation`: Extracts URLs from text and fetches page data for analysis.
    - `user-actions`: Manages actions taken on user accounts (e.g., suspension, ban).
    - `webhook`: Sends webhook notifications to external systems.

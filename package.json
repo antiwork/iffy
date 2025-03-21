@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
-    "dev:db:setup": "npm run dev:db:migrate && npm run db:presets && npm run dev:db:seed",
+    "dev:db:setup": "npm run dev:db:migrate && npm run db:presets && npm run dev:db:seed && npm run stripe:products",
     "dev:db:migrate": "dotenv -e .env.local -- drizzle-kit migrate",
     "dev:db:reset": "dotenv -e .env.local -- tsx db/seed/reset.ts",
     "dev:db:seed": "dotenv -e .env.local -- tsx db/seed/index.ts",
@@ -13,7 +13,7 @@
     "dev:inngest": "dotenv -e .env.local -- inngest-cli dev",
     "stripe:products": "dotenv -e .env.local -- tsx products/index.ts",
     "db:presets": "dotenv -e .env.local -- tsx presets/index.ts",
-    "build": "npm run dev:db:migrate && npm run db:presets && next build",
+    "build": "npm run dev:db:migrate && npm run db:presets && npm run stripe:products && next build",
     "start": "next start",
     "format": "prettier --check . --ignore-path ./.gitignore --ignore-path ./.prettierignore",
     "lint": "next lint",

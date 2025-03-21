@@ -64,13 +64,28 @@ Generate a `SECRET_KEY`:
 openssl rand -base64 32
 ```
 
+Optionally enable public sign-ups:
+
+```
+# .env.local
+ENABLE_PUBLIC_SIGNUP=true
+```
+
+Optionally enable subscriptions & billing with Stripe:
+
+```
+# .env.local
+STRIPE_API_KEY=sk_test_...
+ENABLE_BILLING=true
+```
+
 <details>
 <summary>Clerk</summary>
 
 1. Go to [clerk.com](https://clerk.com) and create a new app.
 1. Name the app and **disable all login methods except Email**.
 1. Under "Configure > Email, phone, username", limit authentication strategies to "Email verification link" and "Email verification code". Turn on "Personal information > Name"
-1. Under "Configure > Restrictions", turn on "Sign-up mode > Restricted"
+1. (Optional) Under "Configure > Restrictions", turn on "Sign-up mode > Restricted"
 1. Under "Configure > Organization Management", turn on "Enable organizations"
 1. Under "Configure > API Keys", add `CLERK_SECRET_KEY` and `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` to your `.env.local` file.
 1. Under "Organizations", create a new organization and add your email to the "Members" list.
