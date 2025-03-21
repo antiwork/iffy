@@ -67,6 +67,7 @@ export const createCheckoutSession = actionClient
 
     if (isFixedFeeAndOverage(product.prices)) {
       const flatKey = term === "monthly" ? "flat_monthly" : "flat_yearly";
+      const graduatedKey = term === "monthly" ? "graduated_monthly" : "graduated_yearly";
       const flatPrice = await stripe.prices
         .list({
           lookup_keys: [product.prices[flatKey].lookup_key],
@@ -75,7 +76,7 @@ export const createCheckoutSession = actionClient
         .then((res) => res.data[0]);
       const graduatedPrice = await stripe.prices
         .list({
-          lookup_keys: [product.prices.graduated.lookup_key],
+          lookup_keys: [product.prices[graduatedKey].lookup_key],
           limit: 1,
         })
         .then((res) => res.data[0]);

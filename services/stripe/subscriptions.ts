@@ -1,6 +1,6 @@
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { PRODUCTS } from "@/products/products";
 import stripe from "@/lib/stripe";
 import type { Stripe } from "stripe";
@@ -52,9 +52,20 @@ export async function findSubscriptionTier(clerkOrganizationId: string) {
   return product;
 }
 
-export async function createSubscription(clerkOrganizationId: string, stripeSubscriptionId: string) {
+export async function findOrCreateSubscription(clerkOrganizationId: string, stripeSubscriptionId: string) {
   if (!env.ENABLE_BILLING || !stripe) {
     throw new Error("Billing is not enabled");
+  }
+
+  const existingSubscription = await db.query.subscriptions.findFirst({
+    where: and(
+      eq(schema.subscriptions.clerkOrganizationId, clerkOrganizationId),
+      eq(schema.subscriptions.stripeSubscriptionId, stripeSubscriptionId),
+    ),
+  });
+
+  if (existingSubscription) {
+    return await stripe.subscriptions.retrieve(existingSubscription.stripeSubscriptionId);
   }
 
   const [subscription] = await db

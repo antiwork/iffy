@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import stripe from "@/lib/stripe";
 import { notFound, redirect } from "next/navigation";
 import { authWithOrg } from "@/app/dashboard/auth";
-import { createSubscription } from "@/services/stripe/subscriptions";
+import { findOrCreateSubscription } from "@/services/stripe/subscriptions";
 import { env } from "@/lib/env";
 
 export const metadata: Metadata = {
@@ -32,7 +32,7 @@ export default async function SubscriptionSuccessPage({
     redirect("/dashboard/subscription");
   }
 
-  await createSubscription(orgId, session.subscription);
+  await findOrCreateSubscription(orgId, session.subscription);
 
   redirect("/dashboard");
 }

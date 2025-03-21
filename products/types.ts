@@ -23,7 +23,8 @@ export type PayAsYouGoPrices = {
 export type FixedFeeAndOveragePrices = {
   flat_monthly: FlatPriceParams;
   flat_yearly: FlatPriceParams;
-  graduated: GraduatedPriceParams;
+  graduated_monthly: GraduatedPriceParams;
+  graduated_yearly: GraduatedPriceParams;
 };
 
 export type ProductParams = Stripe.ProductCreateParams & {

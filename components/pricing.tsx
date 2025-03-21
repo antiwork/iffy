@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Check, Shield } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { ProductsCatalog, isFixedFeeAndOverage, isPayAsYouGo } from "@/products/types";

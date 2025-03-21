@@ -53,8 +53,8 @@ export const PRODUCTS: ProductsCatalog = {
           usage_type: "licensed",
         },
       },
-      graduated: {
-        lookup_key: "price_iffy_growth_usage",
+      graduated_monthly: {
+        lookup_key: "price_iffy_growth_usage_monthly",
         currency: "usd",
         billing_scheme: "tiered",
         recurring: {
@@ -65,6 +65,26 @@ export const PRODUCTS: ProductsCatalog = {
         tiers: [
           {
             up_to: 10000,
+            unit_amount: 0,
+          },
+          {
+            up_to: "inf",
+            unit_amount: OVERAGE_PRICE,
+          },
+        ],
+      },
+      graduated_yearly: {
+        lookup_key: "price_iffy_growth_usage_yearly",
+        currency: "usd",
+        billing_scheme: "tiered",
+        recurring: {
+          interval: "year",
+          usage_type: "metered",
+        },
+        tiers_mode: "graduated",
+        tiers: [
+          {
+            up_to: 10000 * 12,
             unit_amount: 0,
           },
           {
@@ -100,8 +120,8 @@ export const PRODUCTS: ProductsCatalog = {
           usage_type: "licensed",
         },
       },
-      graduated: {
-        lookup_key: "price_iffy_pro_usage",
+      graduated_monthly: {
+        lookup_key: "price_iffy_pro_usage_monthly",
         currency: "usd",
         billing_scheme: "tiered",
         recurring: {
@@ -112,6 +132,26 @@ export const PRODUCTS: ProductsCatalog = {
         tiers: [
           {
             up_to: 100000,
+            unit_amount: 0,
+          },
+          {
+            up_to: "inf",
+            unit_amount: OVERAGE_PRICE,
+          },
+        ],
+      },
+      graduated_yearly: {
+        lookup_key: "price_iffy_pro_usage_yearly",
+        currency: "usd",
+        billing_scheme: "tiered",
+        recurring: {
+          interval: "year",
+          usage_type: "metered",
+        },
+        tiers_mode: "graduated",
+        tiers: [
+          {
+            up_to: 100000 * 12,
             unit_amount: 0,
           },
           {
