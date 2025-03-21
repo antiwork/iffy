@@ -16,6 +16,7 @@ export function RouterSheet({ children, title }: { children: React.ReactNode; ti
           e.preventDefault();
           router.back();
         }}
+        disableAnimation={true}
       >
         <VisuallyHidden asChild>
           <SheetTitle>{title}</SheetTitle>

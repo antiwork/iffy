@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { formatModerationStatus, formatRecordStatus, formatUserStatus, formatVia } from "@/lib/badges";
+import { formatRecordStatus, formatUserStatus } from "@/lib/badges";
 import { ExternalLink, FlaskConical, FlaskConicalOff, ShieldCheck, ShieldOff } from "lucide-react";
 import { RecordImages } from "./record-images";
 import { Code, CodeInline } from "@/components/code";
@@ -20,6 +20,7 @@ import * as schema from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import db from "@/db";
 import { parseMetadata } from "@/services/metadata";
+import { RecordsCollectionNavigation } from "./record-collection-navigation";
 
 export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const record = await db.query.records.findFirst({
@@ -222,6 +223,7 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
           </Section>
         </>
       )}
+      <RecordsCollectionNavigation currentRecordId={id} />
     </div>
   );
 }
