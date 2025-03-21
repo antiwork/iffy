@@ -118,7 +118,7 @@ export const createPortalSession = actionClient.action(async ({ ctx: { clerkOrga
 
   const session = await stripe.billingPortal.sessions.create({
     customer: organization.stripeCustomerId,
-    return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/subscription`,
+    return_url: getAbsoluteUrl("/dashboard/subscription"),
   });
 
   if (!session.url) {
