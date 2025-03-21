@@ -10,6 +10,7 @@ import { isFixedFeeAndOverage, isPayAsYouGo } from "@/products/types";
 import { clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
+import { getAbsoluteUrl } from "@/lib/url";
 
 const createCheckoutSessionSchema = z.object({
   tier: z.enum(Object.keys(PRODUCTS) as [keyof typeof PRODUCTS, ...(keyof typeof PRODUCTS)[]]),
@@ -90,8 +91,8 @@ export const createCheckoutSession = actionClient
       customer: stripeCustomerId,
       line_items: lineItems,
       mode: "subscription",
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/subscription/cancel?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: getAbsoluteUrl("/dashboard/subscription/success?session_id={CHECKOUT_SESSION_ID}"),
+      cancel_url: getAbsoluteUrl("/dashboard/subscription/cancel?session_id={CHECKOUT_SESSION_ID}"),
       subscription_data: {
         trial_period_days: 7,
       },
