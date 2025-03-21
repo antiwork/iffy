@@ -75,7 +75,6 @@
     "date-fns": "^4.1.0",
     "dotenv-cli": "^7.4.2",
     "drizzle-orm": "^0.39.3",
-    "flags": "^3.1.1",
     "framer-motion": "^11.8.0",
     "fumadocs-core": "^15.0.14",
     "fumadocs-mdx": "^11.5.6",

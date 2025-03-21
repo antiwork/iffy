@@ -16,7 +16,7 @@ import { CountLazy } from "./count-lazy";
 import AntiworkFooter from "@/components/antiwork-footer";
 import { DashboardTabs } from "@/components/dashboard-tabs";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { enablePublicSignupFlag } from "@/flags";
+import { env } from "@/lib/env";
 
 const getCount = cache(
   async () => {
@@ -49,7 +49,7 @@ const getCount = cache(
 
 export default async function Page() {
   const { count, countAt, ratePerHour } = await getCount();
-  const enablePublicSignup = await enablePublicSignupFlag();
+  const enablePublicSignup = env.ENABLE_PUBLIC_SIGNUP;
 
   return (
     <div className="min-h-screen space-y-12 bg-white pt-6 font-sans text-black sm:space-y-24 sm:pt-12">
