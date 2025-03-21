@@ -1,24 +1,43 @@
 import { z } from "zod";
 
-const resendSchema = z.object({
+const resendEmailSchema = z.object({
   RESEND_API_KEY: z.string(),
   RESEND_FROM_NAME: z.string(),
   RESEND_FROM_EMAIL: z.string().email(),
+  RESEND_AUDIENCE_ID: z.undefined(),
+  CLERK_WEBHOOK_SECRET: z.undefined(),
+});
+
+const resendAudienceSchema = z.object({
+  RESEND_API_KEY: z.string(),
+  RESEND_AUDIENCE_ID: z.string(),
+  RESEND_FROM_NAME: z.undefined(),
+  RESEND_FROM_EMAIL: z.undefined(),
+  CLERK_WEBHOOK_SECRET: z.string(),
+});
+
+const resendFullSchema = z.object({
+  RESEND_API_KEY: z.string(),
+  RESEND_FROM_NAME: z.string(),
+  RESEND_FROM_EMAIL: z.string().email(),
+  RESEND_AUDIENCE_ID: z.string(),
+  CLERK_WEBHOOK_SECRET: z.string(),
 });
 
 const noResendSchema = z.object({
   RESEND_API_KEY: z.undefined(),
   RESEND_FROM_NAME: z.undefined(),
   RESEND_FROM_EMAIL: z.undefined(),
+  RESEND_AUDIENCE_ID: z.undefined(),
+  CLERK_WEBHOOK_SECRET: z.undefined(),
 });
 
-const resendOrNoResendSchema = resendSchema.or(noResendSchema);
+const resendOrNoResendSchema = resendEmailSchema.or(resendAudienceSchema).or(resendFullSchema).or(noResendSchema);
 
 const envSchema = z
   .object({
     OPENAI_API_KEY: z.string(),
     FIELD_ENCRYPTION_KEY: z.string(),
-    APPEAL_ENCRYPTION_KEY: z.string().optional(),
     SECRET_KEY: z.string(),
     CLERK_SECRET_KEY: z.string(),
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),

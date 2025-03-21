@@ -19,7 +19,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit --incremental",
     "test": "dotenv -e .env.local -- vitest",
-    "shortest": "dotenv -e .env.local -- shortest"
+    "shortest": "dotenv -e .env.local -- shortest",
+    "docs:openapi:generate": "tsx scripts/generate-openapi-docs.ts",
+    "postinstall": "fumadocs-mdx"
   },
   "exports": {
     "./db": "./db/index.ts",
@@ -63,6 +65,7 @@
     "@trpc/next": "11.0.0-rc.553",
     "@trpc/react-query": "11.0.0-rc.553",
     "@trpc/server": "11.0.0-rc.553",
+    "@types/mdx": "^2.0.13",
     "ai": "^4.1.17",
     "cheerio": "^1.0.0",
     "class-variance-authority": "^0.7.0",
@@ -74,6 +77,10 @@
     "drizzle-orm": "^0.39.3",
     "flags": "^3.1.1",
     "framer-motion": "^11.8.0",
+    "fumadocs-core": "^15.0.14",
+    "fumadocs-mdx": "^11.5.6",
+    "fumadocs-openapi": "^6.2.1",
+    "fumadocs-ui": "^15.0.14",
     "inngest": "^3.23.1",
     "linkify-it": "^5.0.0",
     "liquidjs": "^10.17.0",
@@ -95,6 +102,7 @@
     "resend": "^4.0.0",
     "stripe": "^17.1.0",
     "superjson": "^2.2.1",
+    "svix": "^1.61.4",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "tlds": "^1.255.0",
