@@ -49,7 +49,6 @@ const getCount = cache(
 
 export default async function Page() {
   const { count, countAt, ratePerHour } = await getCount();
-  const enablePublicSignup = env.ENABLE_PUBLIC_SIGNUP;
 
   return (
     <div className="min-h-screen space-y-12 bg-white pt-6 font-sans text-black sm:space-y-24 sm:pt-12">
@@ -68,7 +67,7 @@ export default async function Page() {
               </Button>
             </SignedIn>
             <SignedOut>
-              {enablePublicSignup ? (
+              {env.ENABLE_PUBLIC_SIGNUP ? (
                 <>
                   <Button asChild variant="ghost" size="sm">
                     <Link href="/sign-in">Sign in</Link>
@@ -103,7 +102,7 @@ export default async function Page() {
                     Keep unwanted content off your platform without managing a team of moderators.{" "}
                   </p>
                 </div>
-                {enablePublicSignup ? (
+                {env.ENABLE_PUBLIC_SIGNUP ? (
                   <Button asChild className="rounded-full px-5 py-2.5 text-lg">
                     <Link href="/sign-up">Start for free</Link>
                   </Button>

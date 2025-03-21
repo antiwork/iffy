@@ -5,9 +5,8 @@ import { notFound, redirect } from "next/navigation";
 
 export default async function Page() {
   const { userId } = await auth();
-  const enablePublicSignup = env.ENABLE_PUBLIC_SIGNUP;
 
-  if (!enablePublicSignup) {
+  if (!env.ENABLE_PUBLIC_SIGNUP) {
     return notFound();
   }
 
