@@ -18,7 +18,7 @@ Features:
 - **Appeals Management:** Handle user appeals efficiently through email notifications and a user-friendly web form.
 - **Powerful Rules & Presets:** Create rules to automatically moderate content based on your unique business needs.
 
-## Getting Started
+## Getting started
 
 ### Dependencies
 
@@ -53,40 +53,6 @@ Generate a `SECRET_KEY`:
 openssl rand -base64 32
 ```
 
-### Running locally
-
-Set up the database, run migrations, and add seed data:
-
-```bash
-createdb iffy_development
-npm run dev:db:setup
-```
-
-Run the development server:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) to access the app.
-
---
-
-To enable public sign-ups:
-
-```
-# .env.local
-ENABLE_PUBLIC_SIGNUP=true
-```
-
-To enable subscriptions and billing with Stripe:
-
-```
-# .env.local
-STRIPE_API_KEY=sk_test_...
-ENABLE_BILLING=true
-```
-
 <details>
 <summary>Clerk</summary>
 
@@ -111,8 +77,42 @@ ENABLE_BILLING=true
 
 </details>
 
+### Running locally
+
+Set up the database, run migrations, and add seed data:
+
+```bash
+createdb iffy_development
+npm run dev:db:setup
+```
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to access the app.
+
+### Optional features
+
+To enable public sign-ups:
+
+```
+# .env.local
+ENABLE_PUBLIC_SIGNUP=true
+```
+
+To enable subscriptions and billing with Stripe:
+
+```
+# .env.local
+STRIPE_API_KEY=sk_test_...
+ENABLE_BILLING=true
+```
+
 <details>
-<summary>Resend (Optional, for email notifications)</summary>
+<summary>Email notifications (optional, via Resend)</summary>
 
 In order to send email with Iffy, you will additionally need a Resend API key.
 
@@ -124,7 +124,7 @@ In order to send email with Iffy, you will additionally need a Resend API key.
 </details>
 
 <details>
-<summary>Resend Audience (Optional, for customer communication)</summary>
+<summary>Email audiences (optional, via Resend)</summary>
 
 1. Create an account at [resend.com](https://resend.com/).
 1. Create a new audience (or use the default audience) at [Audiences](https://resend.com/audiences).
@@ -138,7 +138,7 @@ In order to send email with Iffy, you will additionally need a Resend API key.
 </details>
 
 <details>
-<summary>Shortest (Optional, for testing)</summary>
+<summary>Natural language AI tests (optional, via Shortest)</summary>
 
 In order to write and run natural language AI tests with [Shortest](https://shortest.com), you will additionally need an Anthropic API key and a Mailosaur API key.
 
@@ -154,7 +154,7 @@ In order to write and run natural language AI tests with [Shortest](https://shor
 
 </details>
 
-### Jobs (Optional)
+### Jobs
 
 To run asynchronous jobs, you will need to set up a local Inngest server. In a separate terminal, run:
 
