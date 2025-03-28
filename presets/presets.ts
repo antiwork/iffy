@@ -79,7 +79,7 @@ export async function updatePresets() {
         .set({
           name: preset.name,
           description: preset.description,
-          default: preset.default,
+          default: preset.default ?? false,
         })
         .where(eq(schema.presets.id, preset.id));
     } else {
@@ -87,7 +87,7 @@ export async function updatePresets() {
         id: preset.id,
         name: preset.name,
         description: preset.description,
-        default: preset.default,
+        default: preset.default ?? false,
       });
     }
 
