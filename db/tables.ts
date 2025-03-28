@@ -217,6 +217,7 @@ export const presets = pgTable("presets", {
   id: text().primaryKey().notNull().$defaultFn(cuid),
   name: text().notNull(),
   description: text(),
+  default: boolean().default(false).notNull(),
   createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
     .defaultNow()

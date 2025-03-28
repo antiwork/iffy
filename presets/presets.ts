@@ -18,6 +18,7 @@ const PRESETS: {
         options: PromptOptions;
       }
   )[];
+  default?: boolean;
 }[] = [
   {
     id: "cm5vg3rah00025vl52pgd2ha4",
@@ -37,6 +38,7 @@ Not allowed:
         },
       },
     ],
+    default: true,
   },
   {
     id: "cm5vg3rij00055vl57gdyge06",
@@ -60,6 +62,7 @@ Not allowed:
         },
       },
     ],
+    default: true,
   },
 ];
 
@@ -76,6 +79,7 @@ export async function updatePresets() {
         .set({
           name: preset.name,
           description: preset.description,
+          default: preset.default,
         })
         .where(eq(schema.presets.id, preset.id));
     } else {
@@ -83,6 +87,7 @@ export async function updatePresets() {
         id: preset.id,
         name: preset.name,
         description: preset.description,
+        default: preset.default,
       });
     }
 

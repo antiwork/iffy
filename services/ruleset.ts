@@ -24,6 +24,21 @@ export async function findOrCreateDefaultRuleset(clerkOrganizationId: string) {
       throw new Error("Failed to create default ruleset");
     }
 
+    const defaultPresets = await tx.query.presets.findMany({
+      where: eq(schema.presets.default, true),
+    });
+
+    for (const preset of defaultPresets) {
+      const [newRule] = await tx
+        .insert(schema.rules)
+        .values({ clerkOrganizationId, rulesetId: newRuleset.id, presetId: preset.id })
+        .returning();
+
+      if (!newRule) {
+        throw new Error("Failed to create rule");
+      }
+    }
+
     return newRuleset;
   });
 }
