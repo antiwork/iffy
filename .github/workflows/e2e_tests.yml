@@ -52,7 +52,7 @@ jobs:
         id: shortest_tests
         run: |
           export $(cat .env.local | grep -v '^#' | xargs)
-          npm run shortest -- --headless --target=${{ steps.waitFor.outputs.url }}
+          npm run shortest -- --headless --log-level=trace --target=${{ steps.waitFor.outputs.url }}
         env:
           BASE_URL: ${{ steps.waitFor.outputs.url }}
 
