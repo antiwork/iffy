@@ -4,9 +4,12 @@ import { formatUserActionStatus, formatVia } from "@/lib/badges";
 import { Date, DateFull } from "@/components/date";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { findOrCreateOrganization } from "@/services/organizations";
 
-export function ActionsTable({ actions }: { actions: UserDetail["actions"] }) {
+export async function ActionsTable({ actions, clerkOrganizationId }: { actions: UserDetail["actions"]; clerkOrganizationId: string }) {
   const latestAction = actions[0];
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const appealsEnabled = organization.appealsEnabled;
 
   return (
     <div>
@@ -35,7 +38,7 @@ export function ActionsTable({ actions }: { actions: UserDetail["actions"] }) {
                   <DateFull date={latestAction.createdAt} />
                 </dd>
               </div>
-              {latestAction.appeal && (
+              {latestAction.appeal && appealsEnabled && (
                 <div className="grid grid-cols-2 gap-4">
                   <dt className="text-stone-500 dark:text-zinc-500">Appeal</dt>
                   <dd>
@@ -82,7 +85,7 @@ export function ActionsTable({ actions }: { actions: UserDetail["actions"] }) {
                 </TableCell>
                 <TableCell className="px-2 py-1">
                   <div className="py-1">
-                    {action.appeal ? (
+                    {action.appeal && appealsEnabled ? (
                       <Button asChild variant="link" className="text-md -mx-4 -my-2 block w-full truncate font-normal">
                         <Link href={`/dashboard/inbox/${action.appeal.id}`}>Appeal</Link>
                       </Button>

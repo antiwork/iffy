@@ -150,7 +150,7 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
           <Section>
             <SectionTitle>Actions</SectionTitle>
             <SectionContent>
-              <ActionsTable actions={user.actions} />
+              <ActionsTable actions={user.actions} clerkOrganizationId={clerkOrganizationId} />
             </SectionContent>
           </Section>
         </>
