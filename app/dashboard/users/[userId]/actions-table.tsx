@@ -7,11 +7,11 @@ import Link from "next/link";
 import { findOrCreateOrganization } from "@/services/organizations";
 
 export async function ActionsTable({
-  actions,
   clerkOrganizationId,
+  actions,
 }: {
-  actions: UserDetail["actions"];
   clerkOrganizationId: string;
+  actions: UserDetail["actions"];
 }) {
   const latestAction = actions[0];
   const organization = await findOrCreateOrganization(clerkOrganizationId);
