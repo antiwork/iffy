@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { findOrCreateOrganization } from "@/services/organizations";
 
-export async function ActionsTable({ actions, clerkOrganizationId }: { actions: UserDetail["actions"]; clerkOrganizationId: string }) {
+export async function ActionsTable({
+  actions,
+  clerkOrganizationId,
+}: {
+  actions: UserDetail["actions"];
+  clerkOrganizationId: string;
+}) {
   const latestAction = actions[0];
   const organization = await findOrCreateOrganization(clerkOrganizationId);
   const appealsEnabled = organization.appealsEnabled;
