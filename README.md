@@ -82,6 +82,7 @@ openssl rand -base64 32
 Set up the database, run migrations, and add seed data:
 
 ```bash
+createuser -s postgres  # Create postgres superuser if needed
 createdb iffy_development
 npm run dev:db:setup
 ```
