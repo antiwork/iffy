@@ -3,6 +3,7 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { Options as BlocklistOptions } from "@/strategies/blocklist";
 import { Options as PromptOptions } from "@/strategies/prompt";
+import { ModelType } from "@/lib/model";
 
 const PRESETS: {
   id: string;
@@ -10,44 +11,47 @@ const PRESETS: {
   description: string;
   strategies: (
     | {
-        type: "Blocklist";
-        options: BlocklistOptions;
-      }
+      type: "Blocklist";
+      options: BlocklistOptions;
+    }
     | {
-        type: "Prompt";
-        options: PromptOptions;
-      }
+      type: "Prompt";
+      options: PromptOptions;
+    }
   )[];
 }[] = [
-  {
-    id: "cm5vg3rah00025vl52pgd2ha4",
-    name: "Adult content",
-    description: "Adult content unacceptable to payment processors and banks",
-    strategies: [
-      {
-        type: "Prompt",
-        options: {
-          topic: "Adult content",
-          prompt: `Allowed:
+    {
+      id: "cm5vg3rah00025vl52pgd2ha4",
+      name: "Adult content",
+      description: "Adult content unacceptable to payment processors and banks",
+      strategies: [
+        {
+          type: "Prompt",
+          options: {
+            modelType: ModelType.Moderation,
+            topic: "Adult content",
+            prompt: `Allowed:
 - Nude images that are artistic or celebrate the human body, for example, nude reference poses for art
 
 Not allowed:
 - Nude images of humans that are clearly sexual or fetish driven
 - Overtly sexual images with exaggerated body parts`,
+          },
         },
-      },
-    ],
-  },
-  {
-    id: "cm5vg3rij00055vl57gdyge06",
-    name: "Spam",
-    description: "Content that is unsolicited, repetitive, or designed to artificially manipulate engagement",
-    strategies: [
-      {
-        type: "Prompt",
-        options: {
-          topic: "Spam",
-          prompt: `Allowed:
+      ],
+    },
+    {
+      id: "cm5vg3rij00055vl57gdyge06",
+      name: "Spam",
+      description: "Content that is unsolicited, repetitive, or designed to artificially manipulate engagement",
+      strategies: [
+        {
+          type: "Prompt",
+          options: {
+            skipImages: true,
+            modelType: ModelType.Moderation,
+            topic: "Spam",
+            prompt: `Allowed:
           - Most content, including solicitations
 
           Not allowed:
@@ -56,12 +60,11 @@ Not allowed:
           - Obvious artificial engagement manipulation
 
           Note: Only flag content that is overwhelmingly spammy. Normal promotional content is acceptable.`,
-          skipImages: true,
+          },
         },
-      },
-    ],
-  },
-];
+      ],
+    },
+  ];
 
 export async function updatePresets() {
   await db.delete(schema.presetStrategies);

@@ -1,3 +1,4 @@
+import { ModelType } from "@/lib/model";
 import * as z from "zod";
 
 const strategySchema = z.discriminatedUnion("type", [
@@ -16,6 +17,7 @@ const strategySchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("Prompt"),
     options: z.object({
+      modelType: z.nativeEnum(ModelType),
       topic: z.string().refine((value) => value !== "", "Topic is required"),
       prompt: z.string().refine((value) => value !== "", "Prompt is required"),
       skipImages: z.boolean().optional().default(false),
