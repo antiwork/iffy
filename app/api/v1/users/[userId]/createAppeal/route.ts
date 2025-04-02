@@ -31,7 +31,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
 
   try {
     const appeal = await createAppeal({ userId: user.id, text: data.text });
-    return NextResponse.json({ data: { ...appeal } });
+    return NextResponse.json({
+      data: {
+        id: appeal.id,
+        actionStatus: appeal.actionStatus,
+        actionStatusCreatedAt: appeal.actionStatusCreatedAt,
+        createdAt: appeal.createdAt,
+        updatedAt: appeal.updatedAt,
+      },
+    });
   } catch (error) {
     if (error instanceof Error) {
       if (
