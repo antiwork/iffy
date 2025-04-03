@@ -36,6 +36,7 @@ const resendOrNoResendSchema = resendEmailSchema.or(resendAudienceSchema).or(res
 
 const envSchema = z
   .object({
+    OPENAI_API_KEY: z.string(),
     FIELD_ENCRYPTION_KEY: z.string(),
     SECRET_KEY: z.string(),
     CLERK_SECRET_KEY: z.string(),
