@@ -105,7 +105,6 @@
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "tlds": "^1.255.0",
-    "ts-deepmerge": "^7.0.2",
     "type-fest": "^4.32.0",
     "user-agents": "^1.1.395",
     "vaul": "^1.0.0",

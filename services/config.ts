@@ -1,20 +1,17 @@
 import { openai } from "@ai-sdk/openai";
-import { createProviderRegistry, LanguageModel } from "ai";
-import { merge } from "ts-deepmerge";
+import merge from "lodash/merge";
+import { Model, ProviderRegistryConfig } from "./ai";
 
-type ProviderRegistryConfig = Parameters<typeof createProviderRegistry>[0];
-type ProviderRegistry = ReturnType<typeof createProviderRegistry>;
-
-type PromptStrategyConfig = {
-  promptModel?: LanguageModel | ((registry: ProviderRegistry) => LanguageModel) | string;
-  judgeModel?: LanguageModel | ((registry: ProviderRegistry) => LanguageModel) | string;
+export type PromptStrategyConfig = {
+  promptModel?: Model;
+  judgeModel?: Model;
 };
 
-type BlocklistStrategyConfig = {};
+export type BlocklistStrategyConfig = {};
 
-type OpenAIStrategyConfig = {};
+export type OpenAIStrategyConfig = {};
 
-type Config = {
+export type Config = {
   registry?: ProviderRegistryConfig;
   strategies?: {
     prompt?: PromptStrategyConfig;
@@ -23,18 +20,29 @@ type Config = {
   };
 };
 
-const defaultConfig: Config = {
+export type ResolvedConfig = {
+  registry: ProviderRegistryConfig;
+  strategies: {
+    prompt: Required<PromptStrategyConfig>;
+    blocklist: BlocklistStrategyConfig;
+    openai: OpenAIStrategyConfig;
+  };
+};
+
+const defaultConfig: ResolvedConfig = {
   registry: {
     openai,
   },
   strategies: {
     prompt: {
-      promptModel: "openai:gpt-4o-mini",
+      promptModel: "openai:gpt-4o",
       judgeModel: "openai:gpt-4o-mini",
     },
+    blocklist: {},
+    openai: {},
   },
 };
 
-export function defineConfig(config: Config) {
+export function defineConfig(config: Config): ResolvedConfig {
   return merge(defaultConfig, config);
 }

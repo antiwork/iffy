@@ -1,10 +1,10 @@
-import { openai } from "@ai-sdk/openai";
 import { generateObject, UserContent } from "ai";
 import { z } from "zod";
 
 import { StrategyInstance } from "./types";
 import { LinkData, Context, StrategyResult } from "@/services/moderations";
 import sampleSize from "lodash/sampleSize";
+import { loadModelFromConfig } from "@/services/ai";
 
 const getMultiModalInput = (context: Context, skipImages?: boolean): UserContent => {
   const images = skipImages ? [] : sampleSize(context.record.imageUrls, 3);
@@ -75,7 +75,7 @@ export class Strategy implements StrategyInstance {
     }
 
     const { object, usage } = await generateObject({
-      model: openai("gpt-4o"),
+      model: await loadModelFromConfig((config) => config.strategies.prompt.promptModel),
       schema: z.object({
         flagged: z.boolean().describe("True if the content is not acceptable, false otherwise"),
         reasoning: z.string().optional().describe("A brief explanation of why the content is not acceptable"),
@@ -103,7 +103,7 @@ export class Strategy implements StrategyInstance {
 
     if (object.flagged) {
       const { object: uncertaintyObject, usage: uncertaintyUsage } = await generateObject({
-        model: openai("gpt-4o-mini"),
+        model: await loadModelFromConfig((config) => config.strategies.prompt.judgeModel),
         schema: z.object({
           uncertain: z.boolean().describe("True if there's uncertainty in the reasoning, false otherwise"),
         }),
