@@ -2,7 +2,7 @@ import * as schema from "@/db/schema";
 import { Context, StrategyResult } from "@/services/moderations";
 import type * as Blocklist from "./blocklist";
 import type * as Prompt from "./prompt";
-import type * as OpenAI from "./openai";
+import type * as Classifier from "./classifier";
 
 export interface StrategyInstance {
   name: string;
@@ -26,6 +26,6 @@ export type Strategy =
       options: Prompt.Options;
     })
   | (RawStrategy & {
-      type: "OpenAI";
-      options: OpenAI.Options;
+      type: "Classifier";
+      options: Classifier.Options;
     });

@@ -10,7 +10,7 @@ The Iffy API is built with Next.js and uses API routes (`app/api`) to handle ext
 - **Services (`services` folder):** Contain the core business logic for moderation, user management, and other API operations. API routes should delegate to these services.
 - **Drizzle ORM (`db` folder):** Used for database interactions. The schema is defined in `db/schema.ts`. Always use Drizzle for database operations instead of raw SQL.
 - **Inngest (`inngest` folder):** Handles asynchronous tasks triggered by events. Use Inngest functions for operations that shouldn't block the API response, such as sending emails or webhooks.
-- **Strategies (`strategies` folder):** Implement different moderation approaches (e.g., blocklist, OpenAI, prompt). If adding new moderation logic, create a new strategy here.
+- **Strategies (`strategies` folder):** Implement different moderation approaches (e.g., blocklist, classifier, prompt). If adding new moderation logic, create a new strategy here.
 - **Type Safety:** The project uses TypeScript. Maintain type safety and add appropriate type annotations.
 - **Testing:** Write comprehensive unit tests using Vitest (in the `tests` folder) and end-to-end tests with Playwright/Shortest (in the `e2e` folder).
 

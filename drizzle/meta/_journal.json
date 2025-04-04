@@ -183,6 +183,20 @@
       "when": 1741699716885,
       "tag": "0025_careless_sandman",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1743126870654,
+      "tag": "0026_petite_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1743788628413,
+      "tag": "0027_first_archangel",
+      "breakpoints": true
     }
   ]
 }

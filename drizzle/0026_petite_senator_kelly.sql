@@ -1,0 +1,1 @@
+ALTER TABLE "presets" ADD COLUMN "default" boolean DEFAULT false NOT NULL;
