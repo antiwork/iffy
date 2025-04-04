@@ -7,6 +7,7 @@ import { IBM_Plex_Mono as FontMono } from "next/font/google";
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "next-themes";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -40,10 +41,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               className={cn("bg-background min-h-screen font-sans antialiased", fontSans.variable, fontMono.variable)}
               suppressHydrationWarning
             >
-              <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                {children}
-                <Toaster />
-              </ThemeProvider>
+              <NuqsAdapter>
+                <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                  {children}
+                  <Toaster />
+                </ThemeProvider>
+              </NuqsAdapter>
             </body>
           </html>
         </ConfirmProvider>
