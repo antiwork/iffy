@@ -18,22 +18,11 @@ Features:
 - **Appeals Management:** Handle user appeals efficiently through email notifications and a user-friendly web form.
 - **Powerful Rules & Presets:** Create rules to automatically moderate content based on your unique business needs.
 
-## Iffy Cloud vs Iffy Community
-
-You may self-host Iffy Community for free, if your business has less than 1 million USD total revenue in the prior tax year, and less than 10 million USD GMV (Gross Merchandise Value). For more details, see the [Iffy Community License 1.0](LICENSE.md).
-
-Here are the differences between the managed, hosted [Iffy Cloud](https://iffy.com) and the free Iffy Community version.
-
-|                    | Iffy Cloud | Iffy Community |
-| ------------------ | ---------- | -------------- |
-| **Infrastructure** | Easy setup. We manage everything. | You set up a server and dependent services. You are responsible for installation, maintenance, upgrades, uptime, security, and service costs. |
-| **Rules/Presets**  | **9 powerful presets**: Adult content, Spam, Harassment, Non-fiat currency, Weapon components, Government services, Gambling, IPTV, and Phishing | 2 basic presets: Adult content and Spam |
-
-## Getting Started
+## Getting started
 
 ### Dependencies
 
-Install postgres with a username `postgres` and password `postgres`
+Install postgres with a username `postgres` and password `postgres`:
 
 ```bash
 brew install postgresql
@@ -64,21 +53,6 @@ Generate a `SECRET_KEY`:
 openssl rand -base64 32
 ```
 
-Optionally enable public sign-ups:
-
-```
-# .env.local
-ENABLE_PUBLIC_SIGNUP=true
-```
-
-Optionally enable subscriptions & billing with Stripe:
-
-```
-# .env.local
-STRIPE_API_KEY=sk_test_...
-ENABLE_BILLING=true
-```
-
 <details>
 <summary>Clerk</summary>
 
@@ -103,8 +77,43 @@ ENABLE_BILLING=true
 
 </details>
 
+### Running locally
+
+Set up the database, run migrations, and add seed data:
+
+```bash
+createuser -s postgres  # Create postgres superuser if needed
+createdb iffy_development
+npm run dev:db:setup
+```
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to access the app.
+
+### Optional features
+
+To enable public sign-ups:
+
+```
+# .env.local
+ENABLE_PUBLIC_SIGNUP=true
+```
+
+To enable subscriptions and billing with Stripe:
+
+```
+# .env.local
+STRIPE_API_KEY=sk_test_...
+ENABLE_BILLING=true
+```
+
 <details>
-<summary>Resend (Optional, for email notifications)</summary>
+<summary>Email notifications (optional, via Resend)</summary>
 
 In order to send email with Iffy, you will additionally need a Resend API key.
 
@@ -116,7 +125,7 @@ In order to send email with Iffy, you will additionally need a Resend API key.
 </details>
 
 <details>
-<summary>Resend Audience (Optional, for customer communication)</summary>
+<summary>Email audiences (optional, via Resend)</summary>
 
 1. Create an account at [resend.com](https://resend.com/).
 1. Create a new audience (or use the default audience) at [Audiences](https://resend.com/audiences).
@@ -129,9 +138,8 @@ In order to send email with Iffy, you will additionally need a Resend API key.
 1. Add the webhook secret to your `.env.local` file as `CLERK_WEBHOOK_SECRET`.
 </details>
 
-
 <details>
-<summary>Shortest (Optional, for testing)</summary>
+<summary>Natural language AI tests (optional, via Shortest)</summary>
 
 In order to write and run natural language AI tests with [Shortest](https://shortest.com), you will additionally need an Anthropic API key and a Mailosaur API key.
 
@@ -147,26 +155,7 @@ In order to write and run natural language AI tests with [Shortest](https://shor
 
 </details>
 
-### Database
-
-Set up the database, run migrations, and seed data:
-
-```bash
-createdb iffy_development
-npm run dev:db:setup
-```
-
-### Development
-
-Run the development server:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) to access the app.
-
-### Jobs (Optional)
+### Jobs
 
 To run asynchronous jobs, you will need to set up a local Inngest server. In a separate terminal, run:
 
@@ -200,3 +189,14 @@ Run app (end-to-end) tests
 npm run shortest
 npm run shortest -- --no-cache # with arguments
 ```
+
+## Iffy Cloud vs Iffy Community
+
+You may self-host Iffy Community for free, if your business has less than 1 million USD total revenue in the prior tax year, and less than 10 million USD GMV (Gross Merchandise Value). For more details, see the [Iffy Community License 1.0](LICENSE.md).
+
+Here are the differences between the managed, hosted [Iffy Cloud](https://iffy.com) and the free Iffy Community version.
+
+|                    | Iffy Cloud | Iffy Community |
+| ------------------ | ---------- | -------------- |
+| **Infrastructure** | Easy setup. We manage everything. | You set up a server and dependent services. You are responsible for installation, maintenance, upgrades, uptime, security, and service costs. |
+| **Rules/Presets**  | **9 powerful presets**: Adult content, Spam, Harassment, Non-fiat currency, Weapon components, Government services, Gambling, IPTV, and Phishing | 2 basic presets: Adult content and Spam |

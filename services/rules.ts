@@ -1,9 +1,7 @@
-import { findOrCreateDefaultRuleset } from "./ruleset";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { transformStrategy } from "@/strategies";
 import { and, eq } from "drizzle-orm";
-import { RuleFormValues } from "@/app/dashboard/rules/schema";
 import { Strategy } from "@/strategies/types";
 
 export type RuleWithStrategies = typeof schema.rules.$inferSelect & {

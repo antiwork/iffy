@@ -51,8 +51,8 @@ export default async function Page() {
   const { count, countAt, ratePerHour } = await getCount();
 
   return (
-    <div className="min-h-screen space-y-12 bg-white pt-6 font-sans text-black sm:space-y-24 sm:pt-12">
-      <main className="container mx-auto space-y-12">
+    <div className="min-h-screen space-y-12 overflow-x-hidden bg-white pt-6 font-sans text-black sm:space-y-24">
+      <main className="container mx-auto space-y-12 px-8">
         <div className="flex items-center justify-between">
           <div>
             <Logo className="dark:text-black" />

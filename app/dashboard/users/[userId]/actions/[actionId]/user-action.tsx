@@ -12,6 +12,7 @@ import { eq, and } from "drizzle-orm";
 import db from "@/db";
 import { formatClerkUser } from "@/lib/clerk";
 import { notFound } from "next/navigation";
+import { findOrCreateOrganization } from "@/services/organizations";
 
 export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const userAction = await db.query.userActions.findFirst({
@@ -25,6 +26,9 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
   if (!userAction) {
     return notFound();
   }
+
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const appealsEnabled = organization.appealsEnabled;
 
   return (
     <div>
@@ -75,7 +79,7 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
                 {userAction.via === "Automation Appeal Approved" && (
                   <div className="grid gap-2">
                     <div>Action triggered by appeal being approved</div>
-                    {userAction.viaAppealId && (
+                    {userAction.viaAppealId && appealsEnabled && (
                       <div>
                         <Button asChild variant="link" className="h-6 p-0 text-sm">
                           <Link href={`/dashboard/inbox/${userAction.viaAppealId}`}>View appeal</Link>
@@ -105,7 +109,7 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
                 <DateFull date={userAction.createdAt} />
               </dd>
             </div>
-            {userAction.appeal && (
+            {userAction.appeal && appealsEnabled && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">Appeal</dt>
                 <dd>

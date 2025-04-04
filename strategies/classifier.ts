@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 
-import * as schema from "@/db/schema";
 import { Context, StrategyResult } from "@/services/moderations";
 import { StrategyInstance } from "./types";
 import { env } from "@/lib/env";
@@ -34,7 +33,7 @@ const reasons = {
   "violence/graphic": "Content depicts death, violence, or physical injury in graphic detail",
 } as const;
 
-export const type = "OpenAI";
+export const type = "Classifier";
 
 export const optionsSchema = z.object({
   thresholds: z.record(z.string(), z.number()),
@@ -43,7 +42,7 @@ export const optionsSchema = z.object({
 export type Options = z.input<typeof optionsSchema>;
 
 export class Strategy implements StrategyInstance {
-  name = "OpenAI Moderation";
+  name = "Classifier (OpenAI Moderation API)";
 
   private readonly options: z.infer<typeof optionsSchema>;
 

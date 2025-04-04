@@ -50,8 +50,8 @@ The system is built with Next.js, uses Drizzle ORM for database interactions (Po
 5. **Strategies (`strategies`):** Defines different moderation strategies, including:
 
    - `blocklist`: Checks content against a list of blocked words and phrases.
-   - `openai`: Uses OpenAI's moderation API to analyze content.
-   - `prompt`: Uses OpenAI's language models to evaluate content based on custom prompts.
+   - `classifier`: Uses OpenAI's Moderation API to classify content.
+   - `prompt`: Uses an LLM to evaluate content based on custom prompts.
 
 6. **Database (`db`):** Defines the database schema, relations, and views using Drizzle ORM. Includes seeding scripts for populating the database with sample data.
 

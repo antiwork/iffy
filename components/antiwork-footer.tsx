@@ -39,7 +39,7 @@ export default function AntiworkFooter() {
 
   return (
     <footer className="transition-colors duration-300" style={{ backgroundColor: footerBgColor }}>
-      <div className="container mx-auto flex h-[15vh] w-full items-center">
+      <div className="container mx-auto flex h-[15vh] w-full items-center px-8">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center">
             <div className="flex flex-col items-start">

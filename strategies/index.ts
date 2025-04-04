@@ -1,9 +1,9 @@
 import * as Blocklist from "./blocklist";
 import * as Prompt from "./prompt";
-import * as OpenAI from "./openai";
+import * as Classifier from "./classifier";
 import { RawStrategy, Strategy } from "./types";
 
-type StrategyDiscriminatedUnion = typeof Blocklist | typeof Prompt | typeof OpenAI;
+type StrategyDiscriminatedUnion = typeof Blocklist | typeof Prompt | typeof Classifier;
 
 type StrategyIndex = {
   [T in StrategyDiscriminatedUnion["type"]]: Extract<StrategyDiscriminatedUnion, { type: T }>;
@@ -12,7 +12,7 @@ type StrategyIndex = {
 const strategies: StrategyIndex = {
   Blocklist,
   Prompt,
-  OpenAI,
+  Classifier,
 };
 
 export const makeStrategyInstance = async (s: RawStrategy) => {

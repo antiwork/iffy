@@ -32,7 +32,7 @@ export const via = pgEnum("Via", [
   "Automation Appeal Approved",
 ]);
 export const webhookEventStatus = pgEnum("WebhookEventStatus", ["Pending", "Sent", "Failed"]);
-export const strategyType = pgEnum("StrategyType", ["Blocklist", "OpenAI", "Prompt"]);
+export const strategyType = pgEnum("StrategyType", ["Blocklist", "Classifier", "Prompt"]);
 
 export const moderations = pgTable(
   "moderations",
@@ -217,6 +217,7 @@ export const presets = pgTable("presets", {
   id: text().primaryKey().notNull().$defaultFn(cuid),
   name: text().notNull(),
   description: text(),
+  default: boolean().default(false).notNull(),
   createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
     .defaultNow()
