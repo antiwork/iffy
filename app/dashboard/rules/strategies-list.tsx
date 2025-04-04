@@ -175,7 +175,7 @@ function PromptStrategy({ control, index }: { control: Control<RuleFormValues>; 
   );
 }
 
-function OpenAIStrategy({ control, index }: { control: Control<RuleFormValues>; index: number }) {
+function ClassifierStrategy({ control, index }: { control: Control<RuleFormValues>; index: number }) {
   return <div className="rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-500">Hidden Thresholds</div>;
 }
 
@@ -244,7 +244,7 @@ export function StrategiesList({ control }: StrategiesListProps) {
                     <div>
                       {field.type === "Blocklist" && <BlocklistStrategy control={control} index={index} />}
                       {field.type === "Prompt" && <PromptStrategy control={control} index={index} />}
-                      {field.type === "OpenAI" && <OpenAIStrategy control={control} index={index} />}
+                      {field.type === "Classifier" && <ClassifierStrategy control={control} index={index} />}
                     </div>
                   </div>
                 ))

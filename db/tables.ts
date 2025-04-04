@@ -32,7 +32,7 @@ export const via = pgEnum("Via", [
   "Automation Appeal Approved",
 ]);
 export const webhookEventStatus = pgEnum("WebhookEventStatus", ["Pending", "Sent", "Failed"]);
-export const strategyType = pgEnum("StrategyType", ["Blocklist", "OpenAI", "Prompt"]);
+export const strategyType = pgEnum("StrategyType", ["Blocklist", "Classifier", "Prompt"]);
 
 export const moderations = pgTable(
   "moderations",

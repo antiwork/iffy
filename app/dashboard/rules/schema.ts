@@ -22,7 +22,7 @@ const strategySchema = z.discriminatedUnion("type", [
     }),
   }),
   z.object({
-    type: z.literal("OpenAI"),
+    type: z.literal("Classifier"),
     options: z.object({
       thresholds: z.record(z.string(), z.number()),
     }),
