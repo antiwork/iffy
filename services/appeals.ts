@@ -45,7 +45,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
 
     const userAction = user.actions[0];
     if (!userAction) {
-      throw new Error("No user action found");
+      throw new Error("User is not suspended");
     }
 
     if (userAction.status === "Banned") {
@@ -53,10 +53,21 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
     }
 
     if (userAction.status !== "Suspended") {
-      throw new Error("User action is not suspended");
+      throw new Error("User is not suspended");
     }
 
     const { clerkOrganizationId } = user;
+
+    const existingAppeal = await tx.query.appeals.findFirst({
+      where: and(
+        eq(schema.appeals.clerkOrganizationId, clerkOrganizationId),
+        eq(schema.appeals.userActionId, userAction.id),
+      ),
+    });
+
+    if (existingAppeal) {
+      throw new Error("Appeal already exists");
+    }
 
     const [appeal] = await tx
       .insert(schema.appeals)
