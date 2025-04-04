@@ -7,14 +7,9 @@ import defaultTheme from "tailwindcss/defaultTheme";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { formatDay, formatDayFull } from "@/lib/date";
+import * as schema from "@/db/schema";
 
-export interface DailyAnalyticsChartProps {
-  stats: {
-    date: Date;
-    moderations: number;
-    flagged: number;
-  }[];
-}
+type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "clerkOrganizationId">;
 
 const chartConfig = {
   moderations: {
@@ -27,7 +22,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function DailyAnalyticsChart({ stats }: DailyAnalyticsChartProps) {
+export function DailyAnalyticsChart({ stats }: { stats: DailyAnalyticsChartData[] }) {
   const { totalModerations, totalFlagged } = React.useMemo(() => {
     const totalModerations = stats.reduce((sum, stat) => sum + stat.moderations, 0);
     const totalFlagged = stats.reduce((sum, stat) => sum + stat.flagged, 0);
@@ -71,7 +66,7 @@ export function DailyAnalyticsChart({ stats }: DailyAnalyticsChartProps) {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="date"
+              dataKey="time"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
@@ -82,9 +77,9 @@ export function DailyAnalyticsChart({ stats }: DailyAnalyticsChartProps) {
               content={
                 <ChartTooltipContent
                   className="w-[150px]"
-                  labelKey="date"
+                  labelKey="time"
                   labelFormatter={(_, payload) => {
-                    const date = payload[0]!.payload.date;
+                    const date = payload[0]!.payload.time;
                     return formatDayFull(date);
                   }}
                 />

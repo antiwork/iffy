@@ -4,8 +4,10 @@ import { DailyAnalyticsChart } from "./daily-analytics-chart";
 import { HourlyAnalyticsChart } from "./hourly-analytics-chart";
 import { TotalsCards } from "./totals-cards";
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
-import { redirect } from "next/navigation";
 import { Metadata } from "next";
+
+type HourlyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsHourly.$inferSelect, "clerkOrganizationId">;
+type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "clerkOrganizationId">;
 
 export const metadata: Metadata = {
   title: "Analytics | Iffy",
@@ -43,6 +45,7 @@ async function HourlySection({ orgId }: { orgId: string }) {
       time: schema.moderationsAnalyticsHourly.time,
       moderations: schema.moderationsAnalyticsHourly.moderations,
       flagged: schema.moderationsAnalyticsHourly.flagged,
+      flaggedByRule: schema.moderationsAnalyticsHourly.flaggedByRule,
     })
     .from(schema.moderationsAnalyticsHourly)
     .where(eq(schema.moderationsAnalyticsHourly.clerkOrganizationId, orgId));
@@ -65,7 +68,13 @@ async function HourlySection({ orgId }: { orgId: string }) {
     if (stat) {
       result.push(stat);
     } else {
-      result.push({ time: hour, moderations: 0, flagged: 0 });
+      const empty: HourlyAnalyticsChartData = {
+        time: hour,
+        moderations: 0,
+        flagged: 0,
+        flaggedByRule: {},
+      };
+      result.push(empty);
     }
   }
 
@@ -75,9 +84,10 @@ async function HourlySection({ orgId }: { orgId: string }) {
 async function DailySection({ orgId }: { orgId: string }) {
   const stats = await db
     .select({
-      date: schema.moderationsAnalyticsDaily.time,
+      time: schema.moderationsAnalyticsDaily.time,
       moderations: schema.moderationsAnalyticsDaily.moderations,
       flagged: schema.moderationsAnalyticsDaily.flagged,
+      flaggedByRule: schema.moderationsAnalyticsDaily.flaggedByRule,
     })
     .from(schema.moderationsAnalyticsDaily)
     .where(eq(schema.moderationsAnalyticsDaily.clerkOrganizationId, orgId));
@@ -90,7 +100,7 @@ async function DailySection({ orgId }: { orgId: string }) {
     day.setDate(now.getDate() - i);
     day.setHours(0, 0, 0, 0);
     const stat = stats.find((s) => {
-      const sDate = new Date(s.date);
+      const sDate = new Date(s.time);
       return (
         sDate.getDate() === day.getDate() &&
         sDate.getMonth() === day.getMonth() &&
@@ -100,7 +110,13 @@ async function DailySection({ orgId }: { orgId: string }) {
     if (stat) {
       result.push(stat);
     } else {
-      result.push({ date: day, moderations: 0, flagged: 0 });
+      const empty: DailyAnalyticsChartData = {
+        time: day,
+        moderations: 0,
+        flagged: 0,
+        flaggedByRule: {},
+      };
+      result.push(empty);
     }
   }
 

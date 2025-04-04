@@ -6,14 +6,9 @@ import defaultTheme from "tailwindcss/defaultTheme";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import * as schema from "@/db/schema";
 
-export interface HourlyAnalyticsChartProps {
-  stats: {
-    time: Date;
-    moderations: number;
-    flagged: number;
-  }[];
-}
+type HourlyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsHourly.$inferSelect, "clerkOrganizationId">;
 
 const chartConfig = {
   moderations: {
@@ -26,7 +21,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function HourlyAnalyticsChart({ stats }: HourlyAnalyticsChartProps) {
+export function HourlyAnalyticsChart({ stats }: {stats: HourlyAnalyticsChartData[]}) {
   const { totalModerations, totalFlagged } = React.useMemo(() => {
     const totalModerations = stats.reduce((sum, stat) => sum + stat.moderations, 0);
     const totalFlagged = stats.reduce((sum, stat) => sum + stat.flagged, 0);

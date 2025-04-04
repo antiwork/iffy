@@ -7,7 +7,9 @@ export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analyt
   clerkOrganizationId: text("clerk_organization_id").notNull(),
   moderations: integer("moderations").notNull(),
   flagged: integer("flagged").notNull(),
-  flaggedByRule: jsonb("flagged_by_rule").notNull(),
+  flaggedByRule: jsonb("flagged_by_rule")
+    .$type<Record<string, { count: number; name: string | null; description: string | null }>>()
+    .notNull(),
 }).as(sql`
   WITH time_filtered_moderations AS (
     SELECT 
@@ -73,7 +75,9 @@ export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analyti
   clerkOrganizationId: text("clerk_organization_id").notNull(),
   moderations: integer("moderations").notNull(),
   flagged: integer("flagged").notNull(),
-  flaggedByRule: jsonb("flagged_by_rule").notNull(),
+  flaggedByRule: jsonb("flagged_by_rule")
+    .$type<Record<string, { count: number; name: string | null; description: string | null }>>()
+    .notNull(),
 }).as(sql`
   WITH time_filtered_moderations AS (
     SELECT 
