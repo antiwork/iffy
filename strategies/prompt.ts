@@ -75,7 +75,7 @@ export class Strategy implements StrategyInstance {
     }
 
     const { object, usage } = await generateObject({
-      model: await loadModelFromConfig((config) => config.strategies.prompt.promptModel),
+      model: await loadModelFromConfig((config) => config.strategies.prompt.defaultModel),
       schema: z.object({
         flagged: z.boolean().describe("True if the content is not acceptable, false otherwise"),
         reasoning: z.string().optional().describe("A brief explanation of why the content is not acceptable"),
