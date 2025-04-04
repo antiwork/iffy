@@ -3,20 +3,20 @@ import merge from "lodash/merge";
 import { Model, ProviderRegistryConfig } from "./ai";
 
 export type PromptStrategyConfig = {
-  promptModel?: Model;
+  defaultModel?: Model;
   judgeModel?: Model;
 };
 
 export type BlocklistStrategyConfig = {};
 
-export type OpenAIStrategyConfig = {};
+export type ClassifierStrategyConfig = {};
 
 export type Config = {
   registry?: ProviderRegistryConfig;
   strategies?: {
     prompt?: PromptStrategyConfig;
     blocklist?: BlocklistStrategyConfig;
-    openai?: OpenAIStrategyConfig;
+    classifier?: ClassifierStrategyConfig;
   };
 };
 
@@ -25,7 +25,7 @@ export type ResolvedConfig = {
   strategies: {
     prompt: Required<PromptStrategyConfig>;
     blocklist: BlocklistStrategyConfig;
-    openai: OpenAIStrategyConfig;
+    classifier: ClassifierStrategyConfig;
   };
 };
 
@@ -35,11 +35,11 @@ const defaultConfig: ResolvedConfig = {
   },
   strategies: {
     prompt: {
-      promptModel: "openai:gpt-4o",
+      defaultModel: "openai:gpt-4o",
       judgeModel: "openai:gpt-4o-mini",
     },
     blocklist: {},
-    openai: {},
+    classifier: {},
   },
 };
 
