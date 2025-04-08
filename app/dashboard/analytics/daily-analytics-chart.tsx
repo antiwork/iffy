@@ -7,6 +7,7 @@ import defaultTheme from "tailwindcss/defaultTheme";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import * as schema from "@/db/schema";
+import { formatDay, formatDayFull } from "@/lib/date";
 
 type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "clerkOrganizationId">;
 
@@ -110,8 +111,8 @@ export function DailyAnalyticsChart({ stats, byRule = false }: { stats: DailyAna
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              minTickGap={48}
-              tickFormatter={(value: Date) => value.toLocaleTimeString("en-US", { hour: "numeric" })}
+              minTickGap={24}
+              tickFormatter={(value: Date) => formatDay(value)}
             />
             <ChartTooltip
               content={
@@ -119,8 +120,8 @@ export function DailyAnalyticsChart({ stats, byRule = false }: { stats: DailyAna
                   className="w-[150px]"
                   labelKey="time"
                   labelFormatter={(_, payload) => {
-                    const time = payload[0]!.payload.time;
-                    return time.toLocaleTimeString("en-US", { hour: "numeric" });
+                    const date = payload[0]!.payload.time;
+                    return formatDayFull(date);
                   }}
                 />
               }
