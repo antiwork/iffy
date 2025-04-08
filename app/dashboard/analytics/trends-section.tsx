@@ -32,7 +32,17 @@ export function TrendsSection({ children }: { children: React.ReactNode }) {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Trends</h2>
         <div className="flex gap-2">
-          <Select value={trendsFilters.timeRange} onValueChange={(value) => setTrendsFilters({ timeRange: value })}>
+          <Select
+            value={trendsFilters.timeRange}
+            onValueChange={(value) =>
+              setTrendsFilters(
+                { timeRange: value },
+                {
+                  shallow: false,
+                },
+              )
+            }
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue />
             </SelectTrigger>
@@ -47,7 +57,14 @@ export function TrendsSection({ children }: { children: React.ReactNode }) {
 
           <Select
             value={trendsFilters.flaggedFilter}
-            onValueChange={(value) => setTrendsFilters({ flaggedFilter: value })}
+            onValueChange={(value) =>
+              setTrendsFilters(
+                { flaggedFilter: value },
+                {
+                  shallow: false,
+                },
+              )
+            }
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue />

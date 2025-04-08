@@ -9,7 +9,7 @@ import db from "@/db";
 import { eq, and, sql } from "drizzle-orm";
 import { HourlySection } from "./hourly-section";
 import { DailySection } from "./daily-section";
-import type { SearchParams } from 'nuqs/server'
+import { createLoader, parseAsString, type SearchParams } from "nuqs/server";
 
 export const metadata: Metadata = {
   title: "Analytics | Iffy",
@@ -37,8 +37,23 @@ async function TotalsSection({ orgId }: { orgId: string }) {
   return <TotalsCards totals={totals} />;
 }
 
+const loadTrendsFilters = createLoader(
+  {
+    timeRange: parseAsString.withDefault("24h"),
+    flaggedFilter: parseAsString.withDefault("all"),
+  },
+  {
+    urlKeys: {
+      timeRange: "range",
+      flaggedFilter: "filter",
+    },
+  },
+);
+
 export default async function Analytics({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const { orgId } = await authWithOrgSubscription();
+
+  const { timeRange, flaggedFilter } = await loadTrendsFilters(searchParams);
 
   return (
     <div className="space-y-6 px-12 py-8">
@@ -48,10 +63,13 @@ export default async function Analytics({ searchParams }: { searchParams: Promis
           <TotalsSection orgId={orgId} />
         </Suspense>
       </div>
-      
-      <TrendsSection 
-      >
-        <HourlySection orgId={orgId} />
+
+      <TrendsSection>
+        {timeRange === "24h" ? (
+          <HourlySection orgId={orgId} byRule={flaggedFilter === "by-rule"} />
+        ) : (
+          <DailySection orgId={orgId} byRule={flaggedFilter === "by-rule"} />
+        )}
       </TrendsSection>
     </div>
   );
