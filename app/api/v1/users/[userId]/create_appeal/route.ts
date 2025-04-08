@@ -3,7 +3,9 @@ import { and, eq } from "drizzle-orm";
 
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { createAppeal } from "@/services/appeals";
+import { createAppeal, generateAppealToken } from "@/services/appeals";
+import { findOrCreateOrganization } from "@/services/organizations";
+import { getAbsoluteUrl } from "@/lib/url";
 import { authenticateRequest } from "@/app/api/auth";
 import { CreateAppealRequestData } from "./schema";
 import { parseRequestBody } from "@/app/api/parse";
@@ -31,6 +33,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
 
   try {
     const appeal = await createAppeal({ userId: user.id, text: data.text });
+
+    const organization = await findOrCreateOrganization(clerkOrganizationId);
+
+    const appealUrl =
+      organization.appealsEnabled && appeal.actionStatus === "Open"
+        ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(user.id)}`)
+        : null;
+
     return NextResponse.json({
       data: {
         id: appeal.id,
@@ -38,6 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
         actionStatusCreatedAt: appeal.actionStatusCreatedAt,
         createdAt: appeal.createdAt,
         updatedAt: appeal.updatedAt,
+        appealUrl,
       },
     });
   } catch (error) {
