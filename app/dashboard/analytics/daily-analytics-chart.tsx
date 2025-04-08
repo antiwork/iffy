@@ -14,8 +14,8 @@ type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inf
 const COLORS = [
   defaultTheme.colors().red[600],
   defaultTheme.colors().blue[600],
-  defaultTheme.colors().yellow[600],
-  defaultTheme.colors().purple[600],
+  defaultTheme.colors().violet[500],
+  defaultTheme.colors().amber[500],
   defaultTheme.colors().green[600],
 ];
 
