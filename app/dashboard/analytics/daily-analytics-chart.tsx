@@ -98,7 +98,10 @@ export function DailyAnalyticsChart({ stats, byRule = false }: { stats: DailyAna
           </div>
           {byRule ? (
             rules.map((rule) => (
-              <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 dark:border-zinc-700">
+              <div
+                key={rule.key}
+                className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 dark:border-zinc-700"
+              >
                 <div className="text-muted-foreground truncate text-xs">{rule.label}</div>
                 <div className="text-lg leading-none font-bold sm:text-3xl" style={{ color: rule.color }}>
                   {totalFlaggedByRule[rule.key]?.toLocaleString() ?? 0}
