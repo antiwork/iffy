@@ -38,7 +38,7 @@ export async function HourlySection({ orgId, byRule = false }: { orgId: string; 
         flaggedByRule: {
           ...flaggedByRule,
           other: {
-            count: rest.flagged - Object.values(flaggedByRule).reduce((acc, curr) => acc + curr.count, 0),
+            count: Math.max(0, rest.flagged - Object.values(flaggedByRule).reduce((acc, curr) => acc + curr.count, 0)),
             name: "Other",
             description: null,
           },
