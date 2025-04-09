@@ -43,7 +43,15 @@ const getRules = (stats: DailyAnalyticsChartData[]): { key: string; label: strin
   }));
 };
 
-export function DailyAnalyticsChart({ stats, byRule = false }: { stats: DailyAnalyticsChartData[]; byRule?: boolean }) {
+export function DailyAnalyticsChart({
+  stats,
+  byRule = false,
+  days = 30,
+}: {
+  stats: DailyAnalyticsChartData[];
+  byRule?: boolean;
+  days?: number;
+}) {
   const totalModerations = stats.reduce((sum, stat) => sum + stat.moderations, 0);
   const totalFlagged = stats.reduce((sum, stat) => sum + stat.flagged, 0);
   const totalFlaggedByRule = stats.reduce(
@@ -84,7 +92,7 @@ export function DailyAnalyticsChart({ stats, byRule = false }: { stats: DailyAna
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row dark:border-zinc-700">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle className="dark:text-stone-100">Moderations</CardTitle>
-          <CardDescription className="dark:text-stone-400">Last 30 days</CardDescription>
+          <CardDescription className="dark:text-stone-400">Last {days} days</CardDescription>
         </div>
         <div className="flex">
           <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 dark:border-zinc-700">

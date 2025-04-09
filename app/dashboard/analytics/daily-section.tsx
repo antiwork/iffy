@@ -1,11 +1,22 @@
 import * as schema from "@/db/schema";
 import db from "@/db";
-import { eq } from "drizzle-orm";
+import { eq, gt, and } from "drizzle-orm";
 import { DailyAnalyticsChart } from "./daily-analytics-chart";
 
 type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "clerkOrganizationId">;
 
-export async function DailySection({ orgId, byRule = false }: { orgId: string; byRule?: boolean }) {
+export async function DailySection({
+  orgId,
+  byRule = false,
+  days = 7,
+}: {
+  orgId: string;
+  byRule?: boolean;
+  days?: number;
+}) {
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
+
   const stats = await db
     .select({
       time: schema.moderationsAnalyticsDaily.time,
@@ -14,12 +25,17 @@ export async function DailySection({ orgId, byRule = false }: { orgId: string; b
       flaggedByRule: schema.moderationsAnalyticsDaily.flaggedByRule,
     })
     .from(schema.moderationsAnalyticsDaily)
-    .where(eq(schema.moderationsAnalyticsDaily.clerkOrganizationId, orgId));
+    .where(
+      and(
+        eq(schema.moderationsAnalyticsDaily.clerkOrganizationId, orgId),
+        gt(schema.moderationsAnalyticsDaily.time, startDate),
+      ),
+    );
 
   // Builds a 30-day timeline of moderation stats, filling gaps with zeros
   const result = [];
   const now = new Date();
-  for (let i = 29; i >= 0; i--) {
+  for (let i = days - 1; i >= 0; i--) {
     const day = new Date(now.getTime());
     day.setDate(now.getDate() - i);
     day.setHours(0, 0, 0, 0);
@@ -55,5 +71,5 @@ export async function DailySection({ orgId, byRule = false }: { orgId: string; b
     }
   }
 
-  return <DailyAnalyticsChart stats={result} byRule={byRule} />;
+  return <DailyAnalyticsChart stats={result} byRule={byRule} days={days} />;
 }
