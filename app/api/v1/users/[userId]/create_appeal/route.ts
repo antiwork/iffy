@@ -16,6 +16,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
+  const { appealsEnabled } = await findOrCreateOrganization(clerkOrganizationId);
+  if (!appealsEnabled) {
+    return NextResponse.json({ error: { message: "Appeals are not enabled" } }, { status: 400 });
+  }
+
   const { userId: id } = await params;
 
   const { data, error } = await parseRequestBody(req, CreateAppealRequestData);
@@ -36,10 +41,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
 
     const organization = await findOrCreateOrganization(clerkOrganizationId);
 
-    const appealUrl =
-      organization.appealsEnabled && appeal.actionStatus === "Open"
-        ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(user.id)}`)
-        : null;
+    const appealUrl = organization.appealsEnabled
+      ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(user.id)}`)
+      : null;
 
     return NextResponse.json({
       data: {
