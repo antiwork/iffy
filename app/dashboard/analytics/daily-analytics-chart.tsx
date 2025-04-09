@@ -12,11 +12,11 @@ import { formatDay, formatDayFull } from "@/lib/date";
 type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "clerkOrganizationId">;
 
 const COLORS = [
-  defaultTheme.colors().red[600],
-  defaultTheme.colors().blue[600],
-  defaultTheme.colors().violet[500],
-  defaultTheme.colors().amber[500],
-  defaultTheme.colors().green[600],
+  defaultTheme.colors().blue[700],
+  defaultTheme.colors().sky[500],
+  defaultTheme.colors().fuchsia[600],
+  defaultTheme.colors().orange[500],
+  defaultTheme.colors().emerald[600],
 ];
 
 const getRules = (stats: DailyAnalyticsChartData[]): { key: string; label: string; color: string }[] => {
@@ -39,7 +39,7 @@ const getRules = (stats: DailyAnalyticsChartData[]): { key: string; label: strin
   return sortedKeys.map((key, i) => ({
     key,
     label: keysToNames[key]!,
-    color: key === "other" ? defaultTheme.colors().gray[400] : COLORS[i % COLORS.length]!,
+    color: key === "other" ? defaultTheme.colors().gray[500] : COLORS[i % COLORS.length]!,
   }));
 };
 
