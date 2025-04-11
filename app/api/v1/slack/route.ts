@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/env";
-import { SlackEventHandler } from "./slack-event-handler";
+import SlackEventHandler from "./slack-event-handler";
 
 // Slack Events API endpoint
 export async function POST(req: NextRequest) {

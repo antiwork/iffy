@@ -8,7 +8,7 @@ import db from "@/db";
 import { eq } from "drizzle-orm";
 import { decrypt } from "@/services/encrypt";
 
-export class SlackEventHandler {
+class SlackEventHandler {
   private readonly signingSecret: string; // Obtained from your Slack app settings
 
   constructor(signingSecret: string) {
@@ -230,3 +230,5 @@ export class SlackEventHandler {
     return NextResponse.json(response, { status: 200 });
   }
 }
+
+export default SlackEventHandler;
