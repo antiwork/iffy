@@ -155,6 +155,37 @@ In order to write and run natural language AI tests with [Shortest](https://shor
 
 </details>
 
+
+<details>
+<summary> Slack Integration </summary>
+
+1. Create a new Slack app at [api.slack.com/apps](https://api.slack.com/apps)
+2. Add the "bot" OAuth scope with the following permissions:
+
+- `app_mentions:read`
+- `channels:read`
+- `chat:write`
+- `incoming-webhook`
+
+3. Install the app to your workspace
+4. Spin up your proxy and update the `Redirect URLs` with your `LOCAL_HOST_PROXY_URL` adding the following paths:
+
+- `/api/v1/oauth/callback`
+- `/dashboard/settings`
+
+5. Enable `Incoming Webhooks` from your Slack app settings.
+6. Configure Event Subscriptions in your Slack app updating the `Request URL` to `LOCAL_HOST_PROXY_URL/api/v1/slack`.
+7. Subscribe to the "app_mention" bot event
+8. Save your changes
+9. From `Basic Information` of your Slack app save to your `.env.local` the following info:
+
+- `Signing Secret` (sensitive)
+- `Client Secret` (sensitive)
+- `Client ID`
+
+</details>
+
+
 ### Jobs
 
 To run asynchronous jobs, you will need to set up a local Inngest server. In a separate terminal, run:

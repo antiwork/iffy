@@ -38,10 +38,11 @@ The Slack integration requires the following environment variable:
 - `/api/v1/oauth/callback`
 - `/dashboard/settings`
 
-5. Configure Event Subscriptions in your Slack app updating the `Request URL` to `LOCAL_HOST_PROXY_URL/api/v1/slack`.
-6. Subscribe to the "app_mention" bot event
-7. Save your changes
-8. From `Basic Information` of your Slack app save to your `.env.local` the following info:
+5. Enable `Incoming Webhooks` from your Slack app settings.
+6. Configure Event Subscriptions in your Slack app updating the `Request URL` to `LOCAL_HOST_PROXY_URL/api/v1/slack`.
+7. Subscribe to the "app_mention" bot event
+8. Save your changes
+9. From `Basic Information` of your Slack app save to your `.env.local` the following info:
 
 - `Signing Secret` (sensitive)
 - `Client Secret` (sensitive)
