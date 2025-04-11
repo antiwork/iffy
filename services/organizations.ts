@@ -35,6 +35,10 @@ export async function updateOrganization(
     stripeApiKey?: string;
     moderationPercentage?: number;
     suspensionThreshold?: number;
+    slackTeamId?: string;
+    slackTeamName?: string;
+    slackEnabled?: boolean;
+    slackAccessToken?: string;
   },
 ) {
   const organization = await findOrCreateOrganization(clerkOrganizationId);
@@ -57,4 +61,27 @@ export async function updateOrganization(
   }
 
   return updated;
+}
+
+// organizationSlackWebhooks
+export async function createSlackWebhook(
+  clerkOrganizationId: string,
+  data: typeof schema.organizationSlackWebhooks.$inferSelect,
+) {
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const [webhook] = await db
+    .insert(schema.organizationSlackWebhooks)
+    .values({
+      ...data,
+      organizationId: organization.id,
+      webhookUrl: encrypt(data.webhookUrl),
+      configurationUrl: data.configurationUrl && encrypt(data.configurationUrl),
+    })
+    .returning();
+
+  if (!webhook) {
+    throw new Error("Failed to create Slack webhook");
+  }
+
+  return webhook;
 }
