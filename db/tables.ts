@@ -637,3 +637,5 @@ export const organizationSlackWebhooks = pgTable(
     };
   },
 );
+
+export type Organization = typeof organizations.$inferSelect;

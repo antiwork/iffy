@@ -2,8 +2,9 @@ import { findOrCreateOrganization } from "@/services/organizations";
 import { Settings } from "./settings";
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { getAbsoluteUrl } from "@/lib/url";
+import { redirect, RedirectType } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export const metadata: Metadata = {
   title: "Settings | Iffy",
@@ -33,8 +34,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       if (!oauthData.success) {
         throw new Error("Failed to authenticate with Slack");
       }
-
-      redirect("/dashboard/settings");
     }
   } catch (e) {
     console.error("Error parsing search params:", e);

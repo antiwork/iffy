@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getAbsoluteUrl } from "@/lib/url";
+import { Organization } from "@/db/tables";
 
 type SlackSettingsProps = {
+  organization: Organization;
   initialSettings: {
     slackEnabled: boolean;
     slackTeamId?: string | null;
@@ -36,10 +38,20 @@ const buildSlackAuthUrl = () => {
   return `https://slack.com/oauth/v2/authorize?scope=${scopes.join(",")}&redirect_uri=${redirectUri}&client_id=${clientId}`;
 };
 
-export const SlackSettings = ({ initialSettings }: SlackSettingsProps) => {
+export const SlackSettings = ({ initialSettings, organization }: SlackSettingsProps) => {
   const [slackEnabled, setSlackEnabled] = useState(initialSettings.slackEnabled);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+
+  // let's clear the search params if it succeeded on the server after the redirect
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("code")) return;
+    url.searchParams.delete("code");
+    url.searchParams.delete("state");
+    window.history.replaceState({}, document.title, url.toString());
+    window.location.reload();
+  }, []);
 
   const handleConnect = async () => {
     setIsConnecting(true);
@@ -48,16 +60,23 @@ export const SlackSettings = ({ initialSettings }: SlackSettingsProps) => {
 
   const handleDisconnect = async () => {
     setIsDisconnecting(true);
-    // todo: implement disconnect logic?
+    try {
+      const response = await fetch("/api/v1/slack/disconnect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ clerkOrganizationId: organization.clerkOrganizationId }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to disconnect from Slack");
+      }
+      setSlackEnabled(false);
+    } catch (error) {
+      console.error("Error disconnecting from Slack:", error);
+    }
+    setIsDisconnecting(false);
   };
-
-  // let's clear the search params if it succeeded on the server after the redirect
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    if (!url.searchParams.has("code")) return;
-    url.searchParams.delete("code");
-    window.history.replaceState({}, document.title, url.toString());
-  }, []);
 
   return (
     <div className="space-y-6">
@@ -107,9 +126,9 @@ export const SlackSettings = ({ initialSettings }: SlackSettingsProps) => {
             </div>
           </div>
 
-          {/* <Button variant="destructive" onClick={handleDisconnect} disabled={isDisconnecting} className="mt-4">
+          <Button variant="destructive" onClick={handleDisconnect} disabled={isDisconnecting} className="mt-4">
             {isDisconnecting ? "Disconnecting..." : "Disconnect Slack"}
-          </Button> */}
+          </Button>
         </div>
       ) : (
         <div className="space-y-4">

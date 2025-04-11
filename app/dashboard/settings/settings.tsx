@@ -6,21 +6,9 @@ import { Input } from "@/components/ui/input";
 import { updateOrganization } from "../developer/actions";
 import { SlackSettings } from "./slack-settings";
 import { Separator } from "@/components/ui/separator";
+import { Organization } from "@/db/tables";
 
-export const Settings = ({
-  organization: initialOrganization,
-}: {
-  organization: {
-    emailsEnabled: boolean;
-    appealsEnabled: boolean;
-    testModeEnabled: boolean;
-    moderationPercentage: number;
-    suspensionThreshold: number;
-    slackEnabled?: boolean;
-    slackTeamId?: string | null;
-    slackTeamName?: string | null;
-  };
-}) => {
+export const Settings = ({ organization: initialOrganization }: { organization: Organization }) => {
   const [emailsEnabled, setEmailsEnabled] = React.useState(initialOrganization.emailsEnabled);
   const [appealsEnabled, setAppealsEnabled] = React.useState(initialOrganization.appealsEnabled);
   const [testModeEnabled, setTestModeEnabled] = React.useState(initialOrganization.testModeEnabled);
@@ -195,6 +183,7 @@ export const Settings = ({
       <Separator className="my-8" />
 
       <SlackSettings
+        organization={initialOrganization}
         initialSettings={{
           slackEnabled: initialOrganization.slackEnabled || false,
           slackTeamId: initialOrganization.slackTeamId,

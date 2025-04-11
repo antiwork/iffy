@@ -167,7 +167,7 @@ In order to write and run natural language AI tests with [Shortest](https://shor
 - `chat:write`
 - `incoming-webhook`
 
-3. Install the app to your workspace
+3. Install the app to your workspace and save the `Bot User OAuth Token` to your `.env.local`.
 4. Spin up your proxy and update the `Redirect URLs` with your `LOCAL_HOST_PROXY_URL` adding the following paths:
 
 - `/api/v1/oauth/callback`

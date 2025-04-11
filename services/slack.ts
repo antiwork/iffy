@@ -19,19 +19,21 @@ export async function parseSlackCommand(text: string): Promise<SlackCommand | nu
   const cleanedText = text.replace(/<@[A-Z0-9]+>/g, "").trim();
 
   // Match suspend command: suspend user_id1, user_id2 because reason
-  const suspendMatch = cleanedText.match(/^suspend\s+([a-zA-Z0-9_,\s]+)(?:\s+because\s+(.+))?$/i);
+  const suspendMatch = cleanedText.match(/^suspend\s+((?:user_[a-zA-Z0-9]+(?:[\s,]+)?)+)(?:\s+because\s+(.+))?$/i);
   if (suspendMatch && suspendMatch[1]) {
     // Split user IDs by comma or whitespace and filter out empty strings
     const userIds = suspendMatch[1].split(/[\s,]+/).filter(Boolean);
+    const reasoning = suspendMatch[2] ? suspendMatch[2].trim() : "Suspended via Slack command";
+    console.log("Parsed suspend command:", { userIds, reasoning });
     return {
       type: "suspend",
       userIds,
-      reasoning: suspendMatch[2] ? suspendMatch[2].trim() : "Suspended via Slack command",
+      reasoning,
     };
   }
 
   // Match unsuspend command: unsuspend user_id1, user_id2
-  const unsuspendMatch = cleanedText.match(/^unsuspend\s+([a-zA-Z0-9_,\s]+)(?:\s+because\s+(.+))?$/i);
+  const unsuspendMatch = cleanedText.match(/^unsuspend\s+((?:user_[a-zA-Z0-9]+(?:[\s,]+)?)+)(?:\s+because\s+(.+))?$/i);
   if (unsuspendMatch && unsuspendMatch[1]) {
     // Split user IDs by comma or whitespace and filter out empty strings
     const userIds = unsuspendMatch[1].split(/[\s,]+/).filter(Boolean);
@@ -43,7 +45,7 @@ export async function parseSlackCommand(text: string): Promise<SlackCommand | nu
   }
 
   // Match info command: info user_id
-  const infoMatch = cleanedText.match(/^info\s+([a-zA-Z0-9_]+)$/i);
+  const infoMatch = cleanedText.match(/^info\s+(user_[a-zA-Z0-9]+)$/i);
   if (infoMatch && infoMatch[1]) {
     return {
       type: "info",

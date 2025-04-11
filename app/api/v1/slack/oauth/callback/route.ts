@@ -4,6 +4,7 @@ import { getAbsoluteUrl } from "@/lib/url";
 import { encrypt } from "@/services/encrypt";
 import { createSlackWebhook, updateOrganization } from "@/services/organizations";
 import { eq } from "drizzle-orm";
+import { redirect, RedirectType } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -245,10 +246,11 @@ class SlackOAuthHandler {
 
 export async function POST(req: NextRequest) {
   const handler = new SlackOAuthHandler();
-  return handler.handlePost(req);
-}
+  const isAuthed = await handler.handlePost(req);
 
-export async function GET(req: NextRequest) {
-  const handler = new SlackOAuthHandler();
-  return handler.handleGet(req);
+  if (!isAuthed) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  return NextResponse.json({ success: true }, { status: 200 });
 }
