@@ -2,15 +2,43 @@ import { findOrCreateOrganization } from "@/services/organizations";
 import { Settings } from "./settings";
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { Metadata } from "next";
-import { hasAdminRole } from "@/services/auth";
+import { redirect } from "next/navigation";
+import { getAbsoluteUrl } from "@/lib/url";
 
 export const metadata: Metadata = {
   title: "Settings | Iffy",
 };
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ code?: string }> }) {
   const { orgId } = await authWithOrgSubscription();
   const organization = await findOrCreateOrganization(orgId);
+
+  try {
+    const { code } = await searchParams;
+    if (code) {
+      const oauthResponse = await fetch(`${getAbsoluteUrl()}/api/v1/slack/oauth/callback`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code, clerkOrganizationId: organization.clerkOrganizationId }),
+      });
+
+      if (!oauthResponse.ok) {
+        throw new Error("Failed to authenticate with Slack", { cause: oauthResponse.statusText });
+      }
+
+      const oauthData = await oauthResponse.json();
+
+      if (!oauthData.success) {
+        throw new Error("Failed to authenticate with Slack");
+      }
+
+      redirect("/dashboard/settings");
+    }
+  } catch (e) {
+    console.error("Error parsing search params:", e);
+  }
 
   return (
     <div className="px-12 py-8">
