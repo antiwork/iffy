@@ -67,8 +67,10 @@ export default async function Analytics({ searchParams }: { searchParams: Promis
       <TrendsSection>
         {timeRange === "24h" ? (
           <HourlySection orgId={orgId} byRule={flaggedFilter === "by-rule"} />
+        ) : timeRange === "7d" ? (
+          <DailySection orgId={orgId} byRule={flaggedFilter === "by-rule"} days={7} />
         ) : (
-          <DailySection orgId={orgId} byRule={flaggedFilter === "by-rule"} />
+          <DailySection orgId={orgId} byRule={flaggedFilter === "by-rule"} days={30} />
         )}
       </TrendsSection>
     </div>
