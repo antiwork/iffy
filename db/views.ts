@@ -49,6 +49,7 @@ export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analyt
   )
   SELECT
 <<<<<<< HEAD
+<<<<<<< HEAD
     date_trunc('hour', m.created_at AT TIME ZONE 'UTC') as time,
     m.organization_id as organization_id,
     COUNT(*)::int AS moderations,
@@ -78,6 +79,28 @@ export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analyt
   WHERE ${schema.moderations.createdAt} AT TIME ZONE 'UTC' >= date_trunc('hour', now() AT TIME ZONE 'UTC') - INTERVAL '23 hours'
   GROUP BY time, ${schema.moderations.organizationId}
 >>>>>>> 4c4e985 (Refactored Database tables and views)
+=======
+    date_trunc('hour', m.created_at AT TIME ZONE 'UTC') as time,
+    m.organization_id as organization_id,
+    COUNT(*)::int AS moderations,
+    COUNT(*) FILTER (WHERE m.status = 'Flagged')::int AS flagged,
+    COALESCE(
+      jsonb_object_agg(
+        rc.rule_id,
+        jsonb_build_object(
+          'count', rc.rule_count,
+          'name', rc.rule_name,
+          'description', rc.rule_description
+        )
+      ) FILTER (WHERE rc.rule_id IS NOT NULL),
+      '{}'::jsonb
+    ) AS flagged_by_rule
+  FROM time_filtered_moderations m
+  LEFT JOIN rule_counts rc ON 
+    date_trunc('hour', m.created_at AT TIME ZONE 'UTC') = rc.time AND 
+    m.organization_id = rc.organization_id
+  GROUP BY date_trunc('hour', m.created_at AT TIME ZONE 'UTC'), m.organization_id
+>>>>>>> 4c9fa5b (Resolved conflict in views.ts)
 `);
 
 export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analytics_daily", {
@@ -127,6 +150,7 @@ export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analyti
   )
   SELECT
 <<<<<<< HEAD
+<<<<<<< HEAD
     date_trunc('day', m.created_at AT TIME ZONE 'UTC') as time,
     m.organization_id as organization_id,
     COUNT(*)::int AS moderations,
@@ -156,4 +180,26 @@ export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analyti
   WHERE ${schema.moderations.createdAt} AT TIME ZONE 'UTC' >= date_trunc('day', now() AT TIME ZONE 'UTC') - INTERVAL '29 days'
   GROUP BY time, ${schema.moderations.organizationId}
 >>>>>>> 4c4e985 (Refactored Database tables and views)
+=======
+    date_trunc('day', m.created_at AT TIME ZONE 'UTC') as time,
+    m.organization_id as organization_id,
+    COUNT(*)::int AS moderations,
+    COUNT(*) FILTER (WHERE m.status = 'Flagged')::int AS flagged,
+    COALESCE(
+      jsonb_object_agg(
+        rc.rule_id,
+        jsonb_build_object(
+          'count', rc.rule_count,
+          'name', rc.rule_name,
+          'description', rc.rule_description
+        )
+      ) FILTER (WHERE rc.rule_id IS NOT NULL),
+      '{}'::jsonb
+    ) AS flagged_by_rule
+  FROM time_filtered_moderations m
+  LEFT JOIN rule_counts rc ON 
+    date_trunc('day', m.created_at AT TIME ZONE 'UTC') = rc.time AND 
+    m.organization_id = rc.organization_id
+  GROUP BY date_trunc('day', m.created_at AT TIME ZONE 'UTC'), m.organization_id
+>>>>>>> 4c9fa5b (Resolved conflict in views.ts)
 `);
