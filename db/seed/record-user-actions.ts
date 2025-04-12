@@ -6,9 +6,9 @@ import * as schema from "../schema";
 import sample from "lodash/sample";
 import { createMessage } from "@/services/messages";
 
-export async function seedUserActions(clerkOrganizationId: string) {
+export async function seedUserActions(organizationId: string) {
   const users = await db.query.users.findMany({
-    where: eq(schema.users.clerkOrganizationId, clerkOrganizationId),
+    where: eq(schema.users.organizationId, organizationId),
     with: {
       records: true,
     },
@@ -21,7 +21,7 @@ export async function seedUserActions(clerkOrganizationId: string) {
         const isFlagged = user.records.some((record) => record.moderationStatus === "Flagged");
         const status = isFlagged && !user.protected ? sample(["Suspended", "Banned"] as const) : "Compliant";
         return {
-          clerkOrganizationId,
+          organizationId,
           userId: user.id,
           status,
           createdAt: user.createdAt,
@@ -31,7 +31,7 @@ export async function seedUserActions(clerkOrganizationId: string) {
     .returning();
 
   const { subject, body } = await renderEmailTemplate({
-    clerkOrganizationId,
+    organizationId,
     type: "Suspended",
   });
 
@@ -46,7 +46,7 @@ export async function seedUserActions(clerkOrganizationId: string) {
 
     if (userAction.status === "Suspended") {
       await createMessage({
-        clerkOrganizationId,
+        organizationId,
         userActionId: userAction.id,
         type: "Outbound",
         toId: userAction.userId,

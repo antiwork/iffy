@@ -3,9 +3,9 @@ import db from "../index";
 import * as schema from "../schema";
 import { eq, desc, and } from "drizzle-orm";
 
-export async function seedAppeals(clerkOrganizationId: string) {
+export async function seedAppeals(organizationId: string) {
   const users = await db.query.users.findMany({
-    where: eq(schema.users.clerkOrganizationId, clerkOrganizationId),
+    where: eq(schema.users.organizationId, organizationId),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],
@@ -22,7 +22,7 @@ export async function seedAppeals(clerkOrganizationId: string) {
     await db
       .insert(schema.appeals)
       .values({
-        clerkOrganizationId,
+        organizationId,
         userActionId: userAction.id,
       })
       .onConflictDoNothing();
@@ -30,12 +30,7 @@ export async function seedAppeals(clerkOrganizationId: string) {
     const [appeal] = await db
       .select()
       .from(schema.appeals)
-      .where(
-        and(
-          eq(schema.appeals.clerkOrganizationId, clerkOrganizationId),
-          eq(schema.appeals.userActionId, userAction.id),
-        ),
-      );
+      .where(and(eq(schema.appeals.organizationId, organizationId), eq(schema.appeals.userActionId, userAction.id)));
 
     if (!appeal) {
       continue;
@@ -44,7 +39,7 @@ export async function seedAppeals(clerkOrganizationId: string) {
     const [appealAction] = await db
       .insert(schema.appealActions)
       .values({
-        clerkOrganizationId,
+        organizationId,
         appealId: appeal.id,
         status: "Open",
         via: "Inbound",
@@ -61,22 +56,17 @@ export async function seedAppeals(clerkOrganizationId: string) {
         actionStatus: appealAction.status,
         actionStatusCreatedAt: appealAction.createdAt,
       })
-      .where(and(eq(schema.appeals.clerkOrganizationId, clerkOrganizationId), eq(schema.appeals.id, appeal.id)));
+      .where(and(eq(schema.appeals.organizationId, organizationId), eq(schema.appeals.id, appeal.id)));
 
     await db
       .update(schema.messages)
       .set({
         appealId: appeal.id,
       })
-      .where(
-        and(
-          eq(schema.messages.clerkOrganizationId, clerkOrganizationId),
-          eq(schema.messages.userActionId, userAction.id),
-        ),
-      );
+      .where(and(eq(schema.messages.organizationId, organizationId), eq(schema.messages.userActionId, userAction.id)));
 
     await db.insert(schema.messages).values({
-      clerkOrganizationId,
+      organizationId,
       userActionId: userAction.id,
       fromId: user.id,
       text: faker.lorem.paragraph(),

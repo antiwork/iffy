@@ -5,7 +5,7 @@ import * as schema from "../schema";
 
 const COUNT = 50;
 
-export async function seedUsers(clerkOrganizationId: string) {
+export async function seedUsers(organizationId: string) {
   const users = await db
     .insert(schema.users)
     .values(
@@ -13,7 +13,7 @@ export async function seedUsers(clerkOrganizationId: string) {
         const firstName = faker.person.firstName();
         const lastName = faker.person.lastName();
         return {
-          clerkOrganizationId,
+          organizationId,
           clientId: `user_${faker.string.nanoid(10)}`,
           email: faker.internet.email({ firstName, lastName }).toLocaleLowerCase(),
           name: faker.person.fullName({ firstName, lastName }),

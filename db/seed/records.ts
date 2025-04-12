@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import sample from "lodash/sample";
 import db from "../index";
 import * as schema from "../schema";
-import { eq, sql, inArray } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 const COUNT = 256;
 
@@ -51,7 +51,7 @@ const PRODUCTS = [
 ];
 
 export async function seedRecords(
-  clerkOrganizationId: string,
+  organizationId: string,
   ruleset: { id: string },
   users: (typeof schema.users.$inferSelect)[],
 ) {
@@ -69,7 +69,7 @@ export async function seedRecords(
     .values(
       products.map((product) => {
         return {
-          clerkOrganizationId,
+          organizationId,
           clientId: `prod_${faker.string.nanoid(10)}`,
           name: product.name,
           entity: "Product",
@@ -98,7 +98,7 @@ export async function seedRecords(
     const [moderation] = await db
       .insert(schema.moderations)
       .values({
-        clerkOrganizationId,
+        organizationId,
         status: isFlagged && !record.protected ? "Flagged" : "Compliant",
         reasoning: faker.lorem.paragraph(2),
         recordId: record.id,

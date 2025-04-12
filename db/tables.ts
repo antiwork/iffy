@@ -38,7 +38,7 @@ export const moderations = pgTable(
   "moderations",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     status: moderationStatus().notNull(),
     pending: boolean().default(false).notNull(),
     via: via().default("AI").notNull(),
@@ -50,7 +50,7 @@ export const moderations = pgTable(
       .defaultNow()
       .notNull()
       .$onUpdate(() => new Date()),
-    clerkUserId: text("clerk_user_id"),
+    userId: text("user_id"),
     testMode: boolean("test_mode").default(false).notNull(),
     tokens: integer().default(0).notNull(),
   },
@@ -73,7 +73,7 @@ export const moderations = pgTable(
         .onDelete("set null"),
       orgStatusIdx: index("moderations_org_status_idx").using(
         "btree",
-        table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
+        table.organizationId.asc().nullsLast().op("text_ops"),
         table.status.asc().nullsLast(),
       ),
     };
@@ -82,7 +82,7 @@ export const moderations = pgTable(
 
 export const rulesets = pgTable("rulesets", {
   id: text().primaryKey().notNull().$defaultFn(cuid),
-  clerkOrganizationId: text("clerk_organization_id").notNull(),
+  organizationId: text("organization_id").notNull(),
   name: text().notNull(),
   createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
@@ -95,12 +95,11 @@ export const userActions = pgTable(
   "user_actions",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     userId: text("user_id").notNull(),
     status: userActionStatus().notNull(),
     via: via().default("Automation").notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
-    clerkUserId: text("clerk_user_id"),
     reasoning: text("reasoning"),
     viaRecordId: text("via_record_id").references((): AnyPgColumn => records.id, {
       onDelete: "set null",
@@ -129,7 +128,7 @@ export const rules = pgTable(
   "rules",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     name: text(),
     description: text(),
     presetId: text("preset_id"),
@@ -164,7 +163,7 @@ export const ruleStrategies = pgTable(
   "rule_strategies",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     type: strategyType().notNull(),
     ruleId: text("rule_id").notNull(),
     options: jsonb().notNull(),
@@ -229,7 +228,7 @@ export const messages = pgTable(
   "messages",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     userActionId: text("user_action_id").notNull(),
     toId: text("to_id"),
     fromId: text("from_id"),
@@ -280,11 +279,13 @@ export const users = pgTable(
   "users",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     clientId: text("client_id").notNull().unique(),
     clientUrl: text("client_url"),
     stripeAccountId: text("stripe_account_id"),
     email: text(),
+    emailVerified: boolean("email_verified").notNull().default(false),
+    image: text("image"),
     name: text(),
     username: text(),
     protected: boolean().default(false).notNull(),
@@ -301,9 +302,9 @@ export const users = pgTable(
   },
   (table) => {
     return {
-      clerkOrganizationIdIdx: index("users_clerk_organization_id_idx").using(
+      organizationIdIdx: index("users_organization_id_idx").using(
         "btree",
-        table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
+        table.organizationId.asc().nullsLast().op("text_ops"),
       ),
       clientIdKey: uniqueIndex("users_client_id_key").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
       sortKey: uniqueIndex("users_sort_key").using("btree", table.sort.asc().nullsLast().op("int4_ops")),
@@ -313,7 +314,7 @@ export const users = pgTable(
 
 export const webhookEndpoints = pgTable("webhook_endpoints", {
   id: text().primaryKey().notNull().$defaultFn(cuid),
-  clerkOrganizationId: text("clerk_organization_id").notNull(),
+  organizationId: text("organization_id").notNull(),
   url: text().notNull(),
   secret: text().notNull(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
   createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
@@ -327,7 +328,7 @@ export const appeals = pgTable(
   "appeals",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     userActionId: text("user_action_id").notNull().unique(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
@@ -340,9 +341,9 @@ export const appeals = pgTable(
   },
   (table) => {
     return {
-      clerkOrganizationIdIdx: index("appeals_clerk_organization_id_idx").using(
+      organizationIdIdx: index("appeals_organization_id_idx").using(
         "btree",
-        table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
+        table.organizationId.asc().nullsLast().op("text_ops"),
       ),
       userActionIdIdx: index("appeals_user_action_id_idx").using(
         "btree",
@@ -368,11 +369,11 @@ export const appealActions = pgTable(
   "appeal_actions",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     appealId: text("appeal_id").notNull(),
     status: appealActionStatus().notNull(),
     via: via().default("Inbound").notNull(),
-    clerkUserId: text("clerk_user_id"),
+    userId: text("user_id"),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
   },
   (table) => {
@@ -392,8 +393,8 @@ export const apiKeys = pgTable(
   "api_keys",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
-    clerkUserId: text("clerk_user_id").notNull(),
+    organizationId: text("organization_id").notNull(),
+    userId: text("user_id").notNull(),
     name: text().notNull(),
     encryptedKey: text("encrypted_key").notNull().unique(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
     encryptedKeyHash: text("encrypted_key_hash").unique(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
@@ -423,7 +424,10 @@ export const organizations = pgTable(
   "organizations",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull().unique(),
+    // TODO: Review Please: Should we keep this so that the database migrations are easy?
+    organizationId: text("clerk_organization_id").notNull().unique(),
+    name: text().notNull().default(""),
+    logoUrl: text().notNull().default(""),
     stripeCustomerId: text("stripe_customer_id").unique(),
     emailsEnabled: boolean("emails_enabled").default(false).notNull(),
     testModeEnabled: boolean("test_mode_enabled").default(true).notNull(),
@@ -439,9 +443,9 @@ export const organizations = pgTable(
   },
   (table) => {
     return {
-      clerkOrganizationIdKey: uniqueIndex("organizations_clerk_organization_id_key").using(
+      organizationIdKey: uniqueIndex("organizations_organization_id_key").using(
         "btree",
-        table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
+        table.id.asc().nullsLast().op("text_ops"),
       ),
     };
   },
@@ -451,7 +455,7 @@ export const subscriptions = pgTable(
   "subscriptions",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     stripeSubscriptionId: text("stripe_subscription_id").notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
@@ -461,9 +465,9 @@ export const subscriptions = pgTable(
   },
   (table) => {
     return {
-      clerkOrganizationIdKey: uniqueIndex("subscriptions_clerk_organization_id_key").using(
+      organizationIdKey: uniqueIndex("subscriptions_organization_id_key").using(
         "btree",
-        table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
+        table.organizationId.asc().nullsLast().op("text_ops"),
       ),
     };
   },
@@ -500,7 +504,7 @@ export const records = pgTable(
   "records",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     clientId: text("client_id").notNull().unique(),
     clientUrl: text("client_url"),
     name: text().notNull(),
@@ -525,9 +529,9 @@ export const records = pgTable(
   },
   (table) => {
     return {
-      clerkOrganizationIdIdx: index("records_clerk_organization_id_idx").using(
+      organizationIdIdx: index("records_organization_id_idx").using(
         "btree",
-        table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
+        table.organizationId.asc().nullsLast().op("text_ops"),
       ),
       clientIdKey: uniqueIndex("records_client_id_key").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
       userIdIdx: index("records_user_id_idx").using("btree", table.userId.asc().nullsLast().op("text_ops")),
@@ -573,7 +577,7 @@ export const webhookEvents = pgTable(
 export const emailTemplates = pgTable(
   "email_templates",
   {
-    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    organizationId: text("organization_id").notNull(),
     type: emailTemplateType().notNull(),
     content: jsonb().notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
@@ -585,9 +589,49 @@ export const emailTemplates = pgTable(
   (table) => {
     return {
       emailTemplatesPkey: primaryKey({
-        columns: [table.clerkOrganizationId, table.type],
+        columns: [table.organizationId, table.type],
         name: "email_templates_pkey",
       }),
     };
   },
 );
+
+export const sessions = pgTable("sessions", {
+  id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at").notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const accounts = pgTable("accounts", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const verifications = pgTable("verifications", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at"),
+  updatedAt: timestamp("updated_at"),
+});
