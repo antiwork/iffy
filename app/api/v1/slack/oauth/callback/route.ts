@@ -2,9 +2,8 @@ import db, { schema } from "@/db";
 import { env } from "@/lib/env";
 import { getAbsoluteUrl } from "@/lib/url";
 import { encrypt } from "@/services/encrypt";
-import { createSlackWebhook, updateOrganization } from "@/services/organizations";
+import { createSlackInbox } from "@/services/organizations";
 import { eq } from "drizzle-orm";
-import { redirect, RedirectType } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -83,30 +82,13 @@ class SlackOAuthHandler {
   /**
    * Update organization with Slack integration details
    */
-  private async storeSlackIntegration(
-    clerkOrganizationId: string,
-    teamId: string,
-    teamName: string,
-    accessToken: string,
-    webhookData: any,
-    organizationId: string,
-  ) {
-    await updateOrganization(clerkOrganizationId, {
-      slackTeamId: teamId,
-      slackTeamName: teamName,
-      slackEnabled: true,
-      slackAccessToken: encrypt(accessToken),
-    });
-
-    // Store the webhook details for the workspace which was selected during Slack OAuth
-    await createSlackWebhook(clerkOrganizationId, {
-      id: webhookData.channel_id,
-      channel: webhookData.channel,
-      channelId: webhookData.channel_id,
-      configurationUrl: webhookData.configuration_url,
-      webhookUrl: webhookData.url,
-      organizationId,
-      clerkOrganizationId,
+  private async storeSlackIntegration({
+    inbox,
+  }: {
+    inbox: Omit<typeof schema.slackInboxes.$inferSelect, "id" | "createdAt" | "updatedAt">;
+  }) {
+    return await createSlackInbox(inbox.clerkOrganizationId, {
+      ...inbox,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -155,16 +137,20 @@ class SlackOAuthHandler {
         return NextResponse.json({ error: "Organization not found" }, { status: 404 });
       }
 
-      // Only update if not already enabled
-      if (!organization.slackEnabled) {
-        await this.storeSlackIntegration(
+      const inbox = await this.storeSlackIntegration({
+        inbox: {
           clerkOrganizationId,
-          team.id,
-          team.name,
-          access_token,
-          incoming_webhook,
-          organization.id,
-        );
+          inboxName: incoming_webhook.channel,
+          channelId: incoming_webhook.channel_id,
+          inboxAccessToken: encrypt(access_token),
+          slackTeamName: team.name,
+          slackTeamId: team.id,
+          botUserId: parsedData.data.bot_user_id,
+        },
+      });
+
+      if (!inbox) {
+        return NextResponse.json({ error: "Failed to store Slack integration" }, { status: 500 });
       }
 
       return NextResponse.json({ success: true }, { status: 200 });
@@ -196,7 +182,6 @@ class SlackOAuthHandler {
         return NextResponse.json({ error: "Slack credentials not configured" }, { status: 500 });
       }
 
-      // Make request to Slack's OAuth access endpoint
       const data = await this.exchangeCodeForToken(code, redirectUri || "");
 
       const parsedData = slackOauthResponse.safeParse(data);
@@ -224,17 +209,18 @@ class SlackOAuthHandler {
         return NextResponse.json({ error: "Organization not found" }, { status: 404 });
       }
 
-      // Only update if not already enabled
-      if (!organization.slackEnabled) {
-        await this.storeSlackIntegration(
+      await this.storeSlackIntegration({
+        inbox: {
           clerkOrganizationId,
-          team.id,
-          team.name,
-          access_token,
-          incoming_webhook,
-          organization.id,
-        );
-      }
+          inboxName: incoming_webhook.channel,
+          channelId: incoming_webhook.channel_id,
+          botUserId: parsedData.data.bot_user_id,
+          slackTeamName: team.name,
+          slackTeamId: team.id,
+          inboxAccessToken: encrypt(access_token),
+        },
+      });
+
       return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
       console.error("Slack OAuth error:", error);
