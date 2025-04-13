@@ -1,5 +1,5 @@
 {
-  "id": "10da9a7b-e403-4623-bca9-5323c6cba0e8",
+  "id": "7d6dbea5-310c-4400-b1b6-c1bae67bbfbf",
   "prevId": "f1aef8aa-a44a-4772-82dd-7fc63ae013aa",
   "version": "7",
   "dialect": "postgresql",
@@ -803,126 +803,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.organization_slack_webhooks": {
-      "name": "organization_slack_webhooks",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "clerk_organization_id": {
-          "name": "clerk_organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "channel": {
-          "name": "channel",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "channel_id": {
-          "name": "channel_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "configuration_url": {
-          "name": "configuration_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "webhook_url": {
-          "name": "webhook_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "org_slack_webhooks_org_channel_id_idx": {
-          "name": "org_slack_webhooks_org_channel_id_idx",
-          "columns": [
-            {
-              "expression": "clerk_organization_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops"
-            },
-            {
-              "expression": "channel_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "organization_slack_webhooks_organization_id_organizations_id_fk": {
-          "name": "organization_slack_webhooks_organization_id_organizations_id_fk",
-          "tableFrom": "organization_slack_webhooks",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "organization_slack_webhooks_org_id_fkey": {
-          "name": "organization_slack_webhooks_org_id_fkey",
-          "tableFrom": "organization_slack_webhooks",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "clerk_organization_id"
-          ],
-          "columnsTo": [
-            "clerk_organization_id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.organizations": {
       "name": "organizations",
       "schema": "",
@@ -986,31 +866,6 @@
           "notNull": true,
           "default": 1
         },
-        "slack_enabled": {
-          "name": "slack_enabled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "slack_team_id": {
-          "name": "slack_team_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "slack_team_name": {
-          "name": "slack_team_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "slack_access_token": {
-          "name": "slack_access_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp (3)",
@@ -1042,22 +897,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "organizations_slack_team_id_key": {
-          "name": "organizations_slack_team_id_key",
-          "columns": [
-            {
-              "expression": "slack_team_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {},
@@ -1075,13 +914,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "stripe_customer_id"
-          ]
-        },
-        "organizations_slack_team_id_unique": {
-          "name": "organizations_slack_team_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "slack_team_id"
           ]
         }
       },
@@ -1643,6 +1475,122 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.slack_inboxes": {
+      "name": "slack_inboxes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "clerk_organization_id": {
+          "name": "clerk_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slack_team_id": {
+          "name": "slack_team_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slack_team_name": {
+          "name": "slack_team_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "channel_id": {
+          "name": "channel_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inbox_name": {
+          "name": "inbox_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bot_user_id": {
+          "name": "bot_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inbox_access_token": {
+          "name": "inbox_access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "slack_inboxes_clerk_organization_id_idx": {
+          "name": "slack_inboxes_clerk_organization_id_idx",
+          "columns": [
+            {
+              "expression": "clerk_organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "slack_inboxes_channel_id_idx": {
+          "name": "slack_inboxes_channel_id_idx",
+          "columns": [
+            {
+              "expression": "channel_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "slack_inboxes_pkey": {
+          "name": "slack_inboxes_pkey",
+          "columns": [
+            "clerk_organization_id",
+            "channel_id"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
