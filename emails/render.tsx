@@ -1,5 +1,5 @@
 import * as React from "react";
-import { clerkClient } from "@clerk/nextjs/server";
+const { clerkClient } = await import("@clerk/nextjs/server");
 import { Liquid } from "liquidjs";
 import { z } from "zod";
 import { render as renderComponent, Text } from "@react-email/components";
