@@ -431,11 +431,6 @@ export const organizations = pgTable(
     stripeApiKey: text("stripe_api_key"), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
     moderationPercentage: doublePrecision("moderation_percentage").default(100).notNull(),
     suspensionThreshold: integer("suspension_threshold").default(1).notNull(),
-    // Slack integration fields
-    slackEnabled: boolean("slack_enabled").default(false).notNull(),
-    slackTeamId: text("slack_team_id").unique(),
-    slackTeamName: text("slack_team_name"),
-    slackAccessToken: text("slack_access_token"), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
       .defaultNow()
@@ -447,10 +442,6 @@ export const organizations = pgTable(
       clerkOrganizationIdKey: uniqueIndex("organizations_clerk_organization_id_key").using(
         "btree",
         table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
-      ),
-      slackTeamIdKey: uniqueIndex("organizations_slack_team_id_key").using(
-        "btree",
-        table.slackTeamId.asc().nullsLast().op("text_ops"),
       ),
     };
   },
@@ -601,19 +592,17 @@ export const emailTemplates = pgTable(
   },
 );
 
-export const organizationSlackWebhooks = pgTable(
-  "organization_slack_webhooks",
+export const slackInboxes = pgTable(
+  "slack_inboxes",
   {
-    id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").references((): AnyPgColumn => organizations.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
+    id: text().notNull().$defaultFn(cuid),
     clerkOrganizationId: text("clerk_organization_id").notNull(),
-    channel: text().notNull(),
+    slackTeamId: text("slack_team_id").notNull(),
+    slackTeamName: text("slack_team_name").notNull(),
     channelId: text("channel_id").notNull(),
-    configurationUrl: text("configuration_url"), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
-    webhookUrl: text("webhook_url").notNull(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
+    inboxName: text("inbox_name").notNull(),
+    botUserId: text("bot_user_id").notNull(),
+    inboxAccessToken: text("inbox_access_token").notNull(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
       .defaultNow()
@@ -622,20 +611,21 @@ export const organizationSlackWebhooks = pgTable(
   },
   (table) => {
     return {
-      clerkOrgChannelIdIdx: uniqueIndex("org_slack_webhooks_org_channel_id_idx").using(
+      slackInboxPkey: primaryKey({
+        columns: [table.clerkOrganizationId, table.channelId],
+        name: "slack_inboxes_pkey",
+      }),
+      slackInboxesClerkOrganizationIdIdx: index("slack_inboxes_clerk_organization_id_idx").using(
         "btree",
         table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
+      ),
+      slackInboxesChannelIdIdx: index("slack_inboxes_channel_id_idx").using(
+        "btree",
         table.channelId.asc().nullsLast().op("text_ops"),
       ),
-      organizationSlackWebhooksOrganizationIdFkey: foreignKey({
-        columns: [table.clerkOrganizationId],
-        foreignColumns: [organizations.clerkOrganizationId],
-        name: "organization_slack_webhooks_org_id_fkey",
-      })
-        .onUpdate("cascade")
-        .onDelete("cascade"),
     };
   },
 );
 
 export type Organization = typeof organizations.$inferSelect;
+export type SlackInbox = typeof slackInboxes.$inferSelect;

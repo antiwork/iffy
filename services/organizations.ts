@@ -35,10 +35,6 @@ export async function updateOrganization(
     stripeApiKey?: string;
     moderationPercentage?: number;
     suspensionThreshold?: number;
-    slackTeamId?: string;
-    slackTeamName?: string;
-    slackEnabled?: boolean;
-    slackAccessToken?: string;
   },
 ) {
   const organization = await findOrCreateOrganization(clerkOrganizationId);
@@ -63,25 +59,32 @@ export async function updateOrganization(
   return updated;
 }
 
-// organizationSlackWebhooks
-export async function createSlackWebhook(
+export async function createSlackInbox(
   clerkOrganizationId: string,
-  data: typeof schema.organizationSlackWebhooks.$inferSelect,
+  data: Omit<typeof schema.slackInboxes.$inferSelect, "id">,
 ) {
   const organization = await findOrCreateOrganization(clerkOrganizationId);
-  const [webhook] = await db
-    .insert(schema.organizationSlackWebhooks)
+  const [inbox] = await db
+    .insert(schema.slackInboxes)
     .values({
       ...data,
-      organizationId: organization.id,
-      webhookUrl: encrypt(data.webhookUrl),
-      configurationUrl: data.configurationUrl && encrypt(data.configurationUrl),
+      clerkOrganizationId: organization.clerkOrganizationId,
     })
     .returning();
 
-  if (!webhook) {
-    throw new Error("Failed to create Slack webhook");
+  if (!inbox) {
+    throw new Error("Failed to create Slack inbox");
   }
 
-  return webhook;
+  return inbox;
+}
+
+export async function findSlackInboxes(clerkOrganizationId: string) {
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const inboxes = await db
+    .select()
+    .from(schema.slackInboxes)
+    .where(eq(schema.slackInboxes.clerkOrganizationId, organization.clerkOrganizationId));
+
+  return inboxes;
 }
