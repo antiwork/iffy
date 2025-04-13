@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getAbsoluteUrl } from "@/lib/url";
-import { Organization } from "@/db/tables";
+import { SlackInbox } from "@/db/tables";
 
 type SlackSettingsProps = {
-  organization: Organization;
   initialSettings: {
-    slackEnabled: boolean;
-    slackTeamId?: string | null;
-    slackTeamName?: string | null;
+    organization: {
+      clerkOrganizationId: string;
+    };
+    inboxes?: SlackInbox[];
   };
 };
 
@@ -38,10 +38,11 @@ const buildSlackAuthUrl = () => {
   return `https://slack.com/oauth/v2/authorize?scope=${scopes.join(",")}&redirect_uri=${redirectUri}&client_id=${clientId}`;
 };
 
-export const SlackSettings = ({ initialSettings, organization }: SlackSettingsProps) => {
-  const [slackEnabled, setSlackEnabled] = useState(initialSettings.slackEnabled);
+export const SlackSettings = ({ initialSettings }: SlackSettingsProps) => {
+  const [slackEnabled, setSlackEnabled] = useState(!!initialSettings.inboxes?.length);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const { organization, inboxes } = initialSettings;
 
   // let's clear the search params if it succeeded on the server after the redirect
   useEffect(() => {
@@ -103,26 +104,21 @@ export const SlackSettings = ({ initialSettings, organization }: SlackSettingsPr
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-green-800 dark:text-green-200">Slack integration is active</h3>
                 <div className="mt-2 text-sm text-green-700 dark:text-green-300">
-                  <p>
-                    Connected to workspace: <strong>{initialSettings.slackTeamName || "Unknown workspace"}</strong>
-                  </p>
+                  <p>Your Slack workspace is connected to Iffy.</p>
+                  <p className="mt-1">You can now manage users directly from Slack.</p>
+                  <p className="mt-1">Slack Connections: {inboxes?.length || 0}</p>
+                  {inboxes?.length ? (
+                    <ul className="mt-2 list-disc pl-5 text-sm text-gray-500 dark:text-gray-400">
+                      {inboxes.map((inbox) => (
+                        <li key={inbox.id} className="mt-1">
+                          <span className="font-medium">{inbox.slackTeamName}</span> - {inbox.inboxName}
+                          <span className="text-gray-400 dark:text-gray-500"> ({inbox.slackTeamId})</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <h3 className="mb-2 font-medium">Available commands:</h3>
-            <div className="rounded-md bg-gray-50 p-4 font-mono text-sm dark:bg-gray-800">
-              <p className="mb-2">
-                <code>@iffy suspend user_id1, user_id2 because reason</code> - Suspend one or more users
-              </p>
-              <p className="mb-2">
-                <code>@iffy unsuspend user_id1, user_id2</code> - Unsuspend users
-              </p>
-              <p className="mb-2">
-                <code>@iffy info user_id</code> - Get user details
-              </p>
             </div>
           </div>
 

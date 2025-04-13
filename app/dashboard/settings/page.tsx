@@ -1,10 +1,8 @@
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrCreateOrganization, findSlackInboxes } from "@/services/organizations";
 import { Settings } from "./settings";
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { Metadata } from "next";
 import { getAbsoluteUrl } from "@/lib/url";
-import { redirect, RedirectType } from "next/navigation";
-import { revalidatePath } from "next/cache";
 
 export const metadata: Metadata = {
   title: "Settings | Iffy",
@@ -13,6 +11,7 @@ export const metadata: Metadata = {
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ code?: string }> }) {
   const { orgId } = await authWithOrgSubscription();
   const organization = await findOrCreateOrganization(orgId);
+  const slackInboxes = await findSlackInboxes(organization.clerkOrganizationId);
 
   try {
     const { code } = await searchParams;
@@ -44,7 +43,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       <div className="text-gray-950 dark:text-stone-50">
         <h2 className="mb-6 text-2xl font-bold">Settings</h2>
         <div className="space-y-8">
-          <Settings organization={organization} />
+          <Settings organization={organization} inboxes={slackInboxes} />
         </div>
       </div>
     </div>
