@@ -27,8 +27,8 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
     return redirect("/");
   }
 
-  const user = await db.query.users.findFirst({
-    where: eq(schema.users.id, userId),
+  const user = await db.query.endUsers.findFirst({
+    where: eq(schema.endUsers.id, userId),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],
@@ -103,8 +103,8 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
 
   const records = await db.query.records.findMany({
     where: and(
-      eq(schema.records.clerkOrganizationId, clerkOrganizationId),
-      eq(schema.records.userId, user.id),
+      eq(schema.records.organizationId, clerkOrganizationId),
+      eq(schema.records.endUserId, user.id),
       isNull(schema.records.deletedAt),
     ),
     with: {

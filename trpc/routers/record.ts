@@ -21,7 +21,7 @@ import {
 } from "drizzle-orm";
 
 const paginationSchema = z.object({
-  clerkOrganizationId: z.string(),
+  organizationId: z.string(),
   cursor: z.object({ sort: z.number().int().optional(), skip: z.number().int().optional() }).default({}),
   limit: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40), z.literal(50)]).default(50),
   sorting: z.array(z.object({ id: z.string(), desc: z.boolean() })).default([{ id: "sort", desc: true }]),
@@ -40,10 +40,10 @@ const getWhereInput = (
   const { search, statuses, entities, userId } = input;
 
   return (records: typeof schema.records) => {
-    const conditions = [eq(records.clerkOrganizationId, clerkOrganizationId), isNull(records.deletedAt)];
+    const conditions = [eq(records.organizationId, clerkOrganizationId), isNull(records.deletedAt)];
 
     if (userId) {
-      conditions.push(eq(records.userId, userId));
+      conditions.push(eq(records.endUserId, userId));
     }
 
     if (statuses?.length) {
@@ -115,7 +115,7 @@ export const recordRouter = router({
     const { sort, skip } = cursor;
     const { clerkOrganizationId } = ctx;
 
-    if (clerkOrganizationId !== input.clerkOrganizationId) {
+    if (clerkOrganizationId !== input.organizationId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 

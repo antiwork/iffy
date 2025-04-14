@@ -14,7 +14,7 @@ export async function HourlySection({ orgId, byRule = false }: { orgId: string; 
       flaggedByRule: schema.moderationsAnalyticsHourly.flaggedByRule,
     })
     .from(schema.moderationsAnalyticsHourly)
-    .where(eq(schema.moderationsAnalyticsHourly.clerkOrganizationId, orgId));
+    .where(eq(schema.moderationsAnalyticsHourly.organizationId, orgId));
 
   // Builds a 24-hour timeline of moderation stats, filling gaps with zeros
   const result = [];

@@ -28,8 +28,8 @@ export function validateAppealToken(token: string): [isValid: false, userId: nul
 
 export async function createAppeal({ userId, text }: { userId: string; text: string }) {
   const [appeal, appealAction] = await db.transaction(async (tx) => {
-    const user = await tx.query.users.findFirst({
-      where: eq(schema.users.id, userId),
+    const endUser = await tx.query.endUsers.findFirst({
+      where: eq(schema.endUsers.id, userId),
       orderBy: desc(schema.userActions.createdAt),
       with: {
         actions: {
@@ -39,11 +39,11 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
       },
     });
 
-    if (!user) {
+    if (!endUser) {
       throw new Error("User not found");
     }
 
-    const userAction = user.actions[0];
+    const userAction = endUser.actions[0];
     if (!userAction) {
       throw new Error("User is not suspended");
     }
@@ -56,11 +56,11 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
       throw new Error("User is not suspended");
     }
 
-    const { clerkOrganizationId } = user;
+    const { organizationId: organizationId } = endUser;
 
     const existingAppeal = await tx.query.appeals.findFirst({
       where: and(
-        eq(schema.appeals.clerkOrganizationId, clerkOrganizationId),
+        eq(schema.appeals.organizationId, organizationId),
         eq(schema.appeals.userActionId, userAction.id),
       ),
     });
@@ -72,7 +72,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
     const [appeal] = await tx
       .insert(schema.appeals)
       .values({
-        clerkOrganizationId,
+        organizationId: organizationId,
         userActionId: userAction.id,
       })
       .returning();
@@ -84,7 +84,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
     const [appealAction] = await tx
       .insert(schema.appealActions)
       .values({
-        clerkOrganizationId,
+        organizationId: organizationId,
         appealId: appeal.id,
         status: "Open",
         via: "Inbound",
@@ -102,7 +102,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
         actionStatus: appealAction.status,
         actionStatusCreatedAt: appealAction.createdAt,
       })
-      .where(and(eq(schema.appeals.clerkOrganizationId, clerkOrganizationId), eq(schema.appeals.id, appeal.id)));
+      .where(and(eq(schema.appeals.organizationId, organizationId), eq(schema.appeals.id, appeal.id)));
 
     await tx
       .update(schema.messages)
@@ -111,13 +111,13 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
       })
       .where(
         and(
-          eq(schema.messages.clerkOrganizationId, clerkOrganizationId),
+          eq(schema.messages.organizationId, organizationId),
           eq(schema.messages.userActionId, userAction.id),
         ),
       );
 
     await tx.insert(schema.messages).values({
-      clerkOrganizationId,
+      organizationId,
       userActionId: userAction.id,
       fromId: userId,
       text,
@@ -133,7 +133,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
     await inngest.send({
       name: "appeal-action/status-changed",
       data: {
-        clerkOrganizationId: appeal.clerkOrganizationId,
+        clerkOrganizationId: appeal.organizationId,
         id: appealAction.id,
         appealId: appeal.id,
         status: "Open",
@@ -151,7 +151,7 @@ export async function getInboxCount(orgId: string) {
   const [result] = await db
     .select({ count: count() })
     .from(schema.appeals)
-    .where(and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.actionStatus, "Open")))
+    .where(and(eq(schema.appeals.organizationId, orgId), eq(schema.appeals.actionStatus, "Open")))
     .execute();
 
   if (!result) {

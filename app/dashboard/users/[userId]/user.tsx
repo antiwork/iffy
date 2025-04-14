@@ -22,8 +22,8 @@ import { parseMetadata } from "@/services/metadata";
 import { formatLink } from "@/lib/url";
 
 export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
-  const user = await db.query.users.findFirst({
-    where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, id)),
+  const user = await db.query.endUsers.findFirst({
+    where: and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, id)),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],

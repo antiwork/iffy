@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 
 export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analytics_hourly", {
   time: timestamp("time").notNull(),
-  clerkOrganizationId: text("clerk_organization_id").notNull(),
+  organizationId: text("organization_id").notNull(),
   moderations: integer("moderations").notNull(),
   flagged: integer("flagged").notNull(),
   flaggedByRule: jsonb("flagged_by_rule")
@@ -14,7 +14,7 @@ export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analyt
   WITH time_filtered_moderations AS (
     SELECT 
       ${schema.moderations.id} as moderation_id,
-      ${schema.moderations.clerkOrganizationId} as clerk_organization_id,
+      ${schema.moderations.organizationId} as organization_id,
       ${schema.moderations.createdAt} as created_at,
       ${schema.moderations.status} as status
     FROM ${schema.moderations}
@@ -23,7 +23,7 @@ export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analyt
   flagged_moderations AS (
     SELECT 
       m.moderation_id,
-      m.clerk_organization_id,
+      m.organization_id,
       m.created_at,
       m.status,
       ${schema.moderationsToRules.ruleId} as rule_id,
@@ -38,18 +38,18 @@ export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analyt
   rule_counts AS (
     SELECT
       date_trunc('hour', m.created_at AT TIME ZONE 'UTC') AS time,
-      m.clerk_organization_id,
+      m.organization_id,
       rule_id,
       COUNT(*) as rule_count,
       MAX(rule_name) as rule_name,
       MAX(rule_description) as rule_description
     FROM flagged_moderations m
     WHERE rule_id IS NOT NULL
-    GROUP BY time, m.clerk_organization_id, rule_id
+    GROUP BY time, m.organization_id, rule_id
   )
   SELECT
     date_trunc('hour', m.created_at AT TIME ZONE 'UTC') as time,
-    m.clerk_organization_id as clerk_organization_id,
+    m.organization_id as organization_id,
     COUNT(*)::int AS moderations,
     COUNT(*) FILTER (WHERE m.status = 'Flagged')::int AS flagged,
     COALESCE(
@@ -66,13 +66,13 @@ export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analyt
   FROM time_filtered_moderations m
   LEFT JOIN rule_counts rc ON 
     date_trunc('hour', m.created_at AT TIME ZONE 'UTC') = rc.time AND 
-    m.clerk_organization_id = rc.clerk_organization_id
-  GROUP BY date_trunc('hour', m.created_at AT TIME ZONE 'UTC'), m.clerk_organization_id
+    m.organization_id = rc.organization_id
+  GROUP BY date_trunc('hour', m.created_at AT TIME ZONE 'UTC'), m.organization_id
 `);
 
 export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analytics_daily", {
   time: timestamp("time").notNull(),
-  clerkOrganizationId: text("clerk_organization_id").notNull(),
+  organizationId: text("organization_id").notNull(),
   moderations: integer("moderations").notNull(),
   flagged: integer("flagged").notNull(),
   flaggedByRule: jsonb("flagged_by_rule")
@@ -82,7 +82,7 @@ export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analyti
   WITH time_filtered_moderations AS (
     SELECT 
       ${schema.moderations.id} as moderation_id,
-      ${schema.moderations.clerkOrganizationId} as clerk_organization_id,
+      ${schema.moderations.organizationId} as organization_id,
       ${schema.moderations.createdAt} as created_at,
       ${schema.moderations.status} as status
     FROM ${schema.moderations}
@@ -91,7 +91,7 @@ export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analyti
   flagged_moderations AS (
     SELECT 
       m.moderation_id,
-      m.clerk_organization_id,
+      m.organization_id,
       m.created_at,
       m.status,
       ${schema.moderationsToRules.ruleId} as rule_id,
@@ -106,18 +106,18 @@ export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analyti
   rule_counts AS (
     SELECT
       date_trunc('day', m.created_at AT TIME ZONE 'UTC') AS time,
-      m.clerk_organization_id,
+      m.organization_id,
       rule_id,
       COUNT(*) as rule_count,
       MAX(rule_name) as rule_name,
       MAX(rule_description) as rule_description
     FROM flagged_moderations m
     WHERE rule_id IS NOT NULL
-    GROUP BY time, m.clerk_organization_id, rule_id
+    GROUP BY time, m.organization_id, rule_id
   )
   SELECT
     date_trunc('day', m.created_at AT TIME ZONE 'UTC') as time,
-    m.clerk_organization_id as clerk_organization_id,
+    m.organization_id as organization_id,
     COUNT(*)::int AS moderations,
     COUNT(*) FILTER (WHERE m.status = 'Flagged')::int AS flagged,
     COALESCE(
@@ -134,6 +134,6 @@ export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analyti
   FROM time_filtered_moderations m
   LEFT JOIN rule_counts rc ON 
     date_trunc('day', m.created_at AT TIME ZONE 'UTC') = rc.time AND 
-    m.clerk_organization_id = rc.clerk_organization_id
-  GROUP BY date_trunc('day', m.created_at AT TIME ZONE 'UTC'), m.clerk_organization_id
+    m.organization_id = rc.organization_id
+  GROUP BY date_trunc('day', m.created_at AT TIME ZONE 'UTC'), m.organization_id
 `);

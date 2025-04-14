@@ -7,7 +7,7 @@ import { eq, inArray, ilike, asc, desc, and, or, lt, gt, sql, exists, count } fr
 import * as schema from "@/db/schema";
 
 const paginationSchema = z.object({
-  clerkOrganizationId: z.string(),
+  organizationId: z.string(),
   cursor: z.number().int().optional(),
   limit: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40), z.literal(50)]).default(50),
   sort: z.enum(["asc", "desc"]).default("desc"),
@@ -20,14 +20,14 @@ export const appealRouter = router({
     const { cursor, limit, sort, search, statuses } = input;
     const { clerkOrganizationId } = ctx;
 
-    if (clerkOrganizationId !== input.clerkOrganizationId) {
+    if (clerkOrganizationId !== input.organizationId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
     const sortingOrder = sort === "desc";
     const orderBy = sortingOrder ? desc(schema.appeals.sort) : asc(schema.appeals.sort);
 
-    const conditions = [eq(schema.appeals.clerkOrganizationId, clerkOrganizationId)];
+    const conditions = [eq(schema.appeals.organizationId, clerkOrganizationId)];
 
     if (statuses?.length) {
       conditions.push(inArray(schema.appeals.actionStatus, statuses));
@@ -61,16 +61,16 @@ export const appealRouter = router({
           exists(
             db
               .select({ 1: sql`1` })
-              .from(schema.users)
-              .innerJoin(schema.userActions, eq(schema.userActions.userId, schema.users.id))
+              .from(schema.endUsers)
+              .innerJoin(schema.userActions, eq(schema.userActions.endUserId, schema.endUsers.id))
               .where(
                 and(
                   eq(schema.userActions.id, schema.appeals.userActionId),
                   or(
-                    ilike(schema.users.username, searchPattern),
-                    ilike(schema.users.email, searchPattern),
-                    ilike(schema.users.name, searchPattern),
-                    ilike(schema.users.clientId, searchPattern),
+                    ilike(schema.endUsers.username, searchPattern),
+                    ilike(schema.endUsers.email, searchPattern),
+                    ilike(schema.endUsers.name, searchPattern),
+                    ilike(schema.endUsers.clientId, searchPattern),
                   ),
                 ),
               ),
@@ -109,7 +109,7 @@ export const appealRouter = router({
       db
         .select({ count: count() })
         .from(schema.appeals)
-        .where(eq(schema.appeals.clerkOrganizationId, clerkOrganizationId)),
+        .where(eq(schema.appeals.organizationId, clerkOrganizationId)),
       db
         .select({ count: count() })
         .from(schema.appeals)

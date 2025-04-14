@@ -39,7 +39,7 @@ const updateUserAfterModeration = inngest.createFunction(
 
     const record = await step.run("fetch-record", async () => {
       const result = await db.query.records.findFirst({
-        where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
+        where: and(eq(schema.records.organizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
         with: {
           user: true,
         },
@@ -112,7 +112,7 @@ const sendModerationWebhook = inngest.createFunction(
 
     const moderation = await step.run("fetch-moderation", async () => {
       const result = await db.query.moderations.findFirst({
-        where: and(eq(schema.moderations.clerkOrganizationId, clerkOrganizationId), eq(schema.moderations.id, id)),
+        where: and(eq(schema.moderations.organizationId, clerkOrganizationId), eq(schema.moderations.id, id)),
       });
       if (!result) {
         throw new Error(`Moderation not found: ${id}`);
@@ -122,7 +122,7 @@ const sendModerationWebhook = inngest.createFunction(
 
     const record = await step.run("fetch-record", async () => {
       const result = await db.query.records.findFirst({
-        where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
+        where: and(eq(schema.records.organizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
         with: {
           user: true,
         },
@@ -138,7 +138,7 @@ const sendModerationWebhook = inngest.createFunction(
 
     await step.run("send-webhook", async () => {
       const webhook = await db.query.webhookEndpoints.findFirst({
-        where: eq(schema.webhookEndpoints.clerkOrganizationId, clerkOrganizationId),
+        where: eq(schema.webhookEndpoints.organizationId, clerkOrganizationId),
       });
       if (!webhook) throw new Error("No webhook found");
 
@@ -161,16 +161,16 @@ const sendModerationWebhook = inngest.createFunction(
             statusUpdatedVia: moderation.via,
             user: user
               ? {
-                  id: user.id,
-                  clientId: user.clientId,
-                  clientUrl: user.clientUrl ?? undefined,
-                  protected: user.protected,
-                  metadata: user.metadata ? parseMetadata(user.metadata) : undefined,
-                  status: user.actionStatus ?? undefined,
-                  statusUpdatedAt: user.actionStatusCreatedAt
-                    ? new Date(user.actionStatusCreatedAt).getTime().toString()
-                    : undefined,
-                }
+                id: user.id,
+                clientId: user.clientId,
+                clientUrl: user.clientUrl ?? undefined,
+                protected: user.protected,
+                metadata: user.metadata ? parseMetadata(user.metadata) : undefined,
+                status: user.actionStatus ?? undefined,
+                statusUpdatedAt: user.actionStatusCreatedAt
+                  ? new Date(user.actionStatusCreatedAt).getTime().toString()
+                  : undefined,
+              }
               : undefined,
           },
         },

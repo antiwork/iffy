@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let user: typeof schema.users.$inferSelect | undefined;
+  let user: typeof schema.endUsers.$inferSelect | undefined;
   if (data.user) {
     user = await createOrUpdateUser({
       clerkOrganizationId,

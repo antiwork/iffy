@@ -34,7 +34,7 @@ export async function createOrUpdateRecord({
 }) {
   const record = await db.transaction(async (tx) => {
     const lastRecord = await tx.query.records.findFirst({
-      where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.clientId, clientId)),
+      where: and(eq(schema.records.organizationId, clerkOrganizationId), eq(schema.records.clientId, clientId)),
       columns: {
         userId: true,
         metadata: true,
@@ -87,22 +87,22 @@ export async function createOrUpdateRecord({
 
       if (userRemoved || userChanged) {
         await tx
-          .update(schema.users)
+          .update(schema.endUsers)
           .set({
-            flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
+            flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} - 1`,
           })
           .where(
-            and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, lastRecord.userId!)),
+            and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, lastRecord.userId!)),
           );
       }
 
       if (userAdded || userChanged) {
         await tx
-          .update(schema.users)
+          .update(schema.endUsers)
           .set({
-            flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} + 1`,
+            flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} + 1`,
           })
-          .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId!)));
+          .where(and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, record.userId!)));
       }
     }
 
@@ -119,20 +119,20 @@ export async function deleteRecord(clerkOrganizationId: string, recordId: string
       .set({
         deletedAt: new Date(),
       })
-      .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)))
+      .where(and(eq(schema.records.organizationId, clerkOrganizationId), eq(schema.records.id, recordId)))
       .returning();
 
     if (!record) {
       throw new Error("Failed to delete record");
     }
 
-    if (record.userId && record.moderationStatus === "Flagged") {
+    if (record.endUserId && record.moderationStatus === "Flagged") {
       await tx
-        .update(schema.users)
+        .update(schema.endUsers)
         .set({
-          flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
+          flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} - 1`,
         })
-        .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+        .where(and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, record.endUserId)));
     }
 
     try {

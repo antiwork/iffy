@@ -17,7 +17,7 @@ export function RecordsTable({ clerkOrganizationId, userId }: { clerkOrganizatio
 
   const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = trpc.record.infinite.useInfiniteQuery(
     {
-      clerkOrganizationId,
+      organizationId: clerkOrganizationId,
       userId,
       sorting: [
         { id: "moderationStatus", desc: true },

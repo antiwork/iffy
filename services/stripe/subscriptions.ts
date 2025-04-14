@@ -23,7 +23,7 @@ export async function findSubscription(clerkOrganizationId: string) {
   }
 
   const subscriptions = await db.query.subscriptions.findMany({
-    where: eq(schema.subscriptions.clerkOrganizationId, clerkOrganizationId),
+    where: eq(schema.subscriptions.organizationId, clerkOrganizationId),
     orderBy: desc(schema.subscriptions.createdAt),
   });
 
@@ -59,7 +59,7 @@ export async function findOrCreateSubscription(clerkOrganizationId: string, stri
 
   const existingSubscription = await db.query.subscriptions.findFirst({
     where: and(
-      eq(schema.subscriptions.clerkOrganizationId, clerkOrganizationId),
+      eq(schema.subscriptions.organizationId, clerkOrganizationId),
       eq(schema.subscriptions.stripeSubscriptionId, stripeSubscriptionId),
     ),
   });

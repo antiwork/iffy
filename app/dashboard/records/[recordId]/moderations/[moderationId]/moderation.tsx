@@ -14,7 +14,7 @@ import { notFound } from "next/navigation";
 
 export async function ModerationDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const moderation = await db.query.moderations.findFirst({
-    where: and(eq(schema.moderations.clerkOrganizationId, clerkOrganizationId), eq(schema.moderations.id, id)),
+    where: and(eq(schema.moderations.organizationId, clerkOrganizationId), eq(schema.moderations.id, id)),
     with: {
       moderationsToRules: {
         with: {

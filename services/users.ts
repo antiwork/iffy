@@ -27,8 +27,8 @@ export async function createOrUpdateUser({
   metadata?: Record<string, unknown>;
 }) {
   const user = await db.transaction(async (tx) => {
-    const lastUser = await tx.query.users.findFirst({
-      where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.clientId, clientId)),
+    const lastUser = await tx.query.endUsers.findFirst({
+      where: and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.clientId, clientId)),
       columns: {
         metadata: true,
       },
@@ -39,7 +39,7 @@ export async function createOrUpdateUser({
     }
 
     const [user] = await db
-      .insert(schema.users)
+      .insert(schema.endUsers)
       .values({
         clerkOrganizationId,
         clientId,
@@ -52,7 +52,7 @@ export async function createOrUpdateUser({
         metadata,
       })
       .onConflictDoUpdate({
-        target: schema.users.clientId,
+        target: schema.endUsers.clientId,
         set: {
           clientUrl,
           email,
@@ -83,8 +83,8 @@ export async function getFlaggedRecordsFromUser({
 }) {
   const records = await db.query.records.findMany({
     where: and(
-      eq(schema.records.clerkOrganizationId, clerkOrganizationId),
-      eq(schema.records.userId, id),
+      eq(schema.records.organizationId, clerkOrganizationId),
+      eq(schema.records.endUserId, id),
       isNull(schema.records.deletedAt),
     ),
     with: {

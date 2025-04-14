@@ -14,7 +14,7 @@ const updateUserAfterDeletion = inngest.createFunction(
 
     const record = await step.run("fetch-record", async () => {
       const record = await db.query.records.findFirst({
-        where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, id)),
+        where: and(eq(schema.records.organizationId, clerkOrganizationId), eq(schema.records.id, id)),
         with: {
           user: true,
         },

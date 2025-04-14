@@ -72,7 +72,7 @@ export async function StripeAccount({
   stripeAccountId: string;
 }) {
   const result = await db.query.organizations.findFirst({
-    where: eq(schema.organizations.clerkOrganizationId, clerkOrganizationId),
+    where: eq(schema.organizations.organizationId, clerkOrganizationId),
   });
 
   const stripeApiKey = result?.stripeApiKey ? decrypt(result.stripeApiKey) : null;

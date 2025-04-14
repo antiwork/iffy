@@ -17,7 +17,7 @@ const updateUserAfterAppealAction = inngest.createFunction(
 
     const appeal = await step.run("fetch-appeal", async () => {
       const appeal = await db.query.appeals.findFirst({
-        where: and(eq(schema.appeals.clerkOrganizationId, clerkOrganizationId), eq(schema.appeals.id, appealId)),
+        where: and(eq(schema.appeals.organizationId, clerkOrganizationId), eq(schema.appeals.id, appealId)),
         with: {
           userAction: {
             with: {

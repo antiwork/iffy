@@ -27,7 +27,7 @@ export async function DailySection({
     .from(schema.moderationsAnalyticsDaily)
     .where(
       and(
-        eq(schema.moderationsAnalyticsDaily.clerkOrganizationId, orgId),
+        eq(schema.moderationsAnalyticsDaily.organizationId, orgId),
         gt(schema.moderationsAnalyticsDaily.time, startDate),
       ),
     );

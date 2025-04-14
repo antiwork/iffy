@@ -50,7 +50,7 @@ export async function renderEmailTemplate<T extends EmailTemplateType>({
 }) {
   const template = await db.query.emailTemplates.findFirst({
     where: (templates, { and, eq }) =>
-      and(eq(templates.clerkOrganizationId, clerkOrganizationId), eq(templates.type, type)),
+      and(eq(templates.organizationId, clerkOrganizationId), eq(templates.type, type)),
   });
 
   const content = parseContent(template?.content, type);
@@ -79,8 +79,8 @@ export async function sendEmail({
 
   const resend = new Resend(env.RESEND_API_KEY);
 
-  const user = await db.query.users.findFirst({
-    where: (users, { and, eq }) => and(eq(users.clerkOrganizationId, clerkOrganizationId), eq(users.id, userId)),
+  const user = await db.query.endUsers.findFirst({
+    where: (users, { and, eq }) => and(eq(users.organizationId, clerkOrganizationId), eq(users.id, userId)),
   });
 
   if (!user) {

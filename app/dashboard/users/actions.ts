@@ -49,11 +49,11 @@ export const setUserProtectedMany = actionClient
   .bindArgsSchemas<[userIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
   .action(async ({ parsedInput, bindArgsParsedInputs: [userIds], ctx: { clerkOrganizationId } }) => {
     const userRecords = await db
-      .update(schema.users)
+      .update(schema.endUsers)
       .set({
         protected: parsedInput,
       })
-      .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), inArray(schema.users.id, userIds)))
+      .where(and(eq(schema.endUsers.organizationId, clerkOrganizationId), inArray(schema.endUsers.id, userIds)))
       .returning();
 
     for (const userId of userIds) {

@@ -33,19 +33,19 @@ export async function GET(req: NextRequest) {
   const { limit, starting_after, ending_before, user, entity, clientId, status } = data;
 
   let conditions: SQL<unknown>[] = [
-    eq(schema.records.clerkOrganizationId, clerkOrganizationId),
+    eq(schema.records.organizationId, clerkOrganizationId),
     isNull(schema.records.deletedAt),
   ];
 
   if (user) {
-    const userExists = await db.query.users.findFirst({
-      where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, user)),
+    const userExists = await db.query.endUsers.findFirst({
+      where: and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, user)),
       columns: { id: true },
     });
     if (!userExists) {
       return NextResponse.json({ error: { message: "Invalid user ID" } }, { status: 400 });
     }
-    conditions.push(eq(schema.records.userId, user));
+    conditions.push(eq(schema.records.endUserId, user));
   }
 
   if (entity) {
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
       moderationStatusCreatedAt: schema.records.moderationStatusCreatedAt,
       moderationPending: schema.records.moderationPending,
       moderationPendingCreatedAt: schema.records.moderationPendingCreatedAt,
-      userId: schema.records.userId,
+      userId: schema.records.endUserId,
     })
     .from(schema.records)
     .where(and(...conditions))

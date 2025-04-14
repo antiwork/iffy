@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let user: typeof schema.users.$inferSelect | undefined;
+  let user: typeof schema.endUsers.$inferSelect | undefined;
   if (data.user) {
     user = await createOrUpdateUser({
       clerkOrganizationId,
@@ -133,7 +133,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   const record = await db.query.records.findFirst({
-    where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.clientId, data.clientId)),
+    where: and(eq(schema.records.organizationId, clerkOrganizationId), eq(schema.records.clientId, data.clientId)),
   });
   if (!record) {
     return NextResponse.json({ error: { message: "Record not found" } }, { status: 404 });

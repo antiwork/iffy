@@ -7,7 +7,7 @@ export async function findOrCreateOrganization(clerkOrganizationId: string) {
   let [organization] = await db
     .select()
     .from(schema.organizations)
-    .where(eq(schema.organizations.clerkOrganizationId, clerkOrganizationId));
+    .where(eq(schema.organizations.organizationId, clerkOrganizationId));
 
   if (organization) return organization;
 
@@ -46,7 +46,7 @@ export async function updateOrganization(
     })
     .where(
       and(
-        eq(schema.organizations.clerkOrganizationId, clerkOrganizationId),
+        eq(schema.organizations.organizationId, clerkOrganizationId),
         eq(schema.organizations.id, organization.id),
       ),
     )

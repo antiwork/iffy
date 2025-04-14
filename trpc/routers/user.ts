@@ -7,7 +7,7 @@ import { eq, inArray, ilike, asc, desc, and, or, lt, gt, sql } from "drizzle-orm
 import * as schema from "@/db/schema";
 
 const paginationSchema = z.object({
-  clerkOrganizationId: z.string(),
+  organizationId: z.string(),
   cursor: z.object({ sort: z.number().int().optional(), skip: z.number().int().optional() }).default({}),
   limit: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40), z.literal(50)]).default(20),
   sorting: z.array(z.object({ id: z.string(), desc: z.boolean() })).default([{ id: "sort", desc: true }]),
@@ -23,8 +23,8 @@ const getWhereInput = (
 ) => {
   const { search, statuses } = input;
 
-  return (users: typeof schema.users) => {
-    const conditions = [eq(users.clerkOrganizationId, clerkOrganizationId)];
+  return (users: typeof schema.endUsers) => {
+    const conditions = [eq(users.organizationId, clerkOrganizationId)];
 
     if (statuses?.length) {
       conditions.push(inArray(users.actionStatus, statuses));
@@ -59,7 +59,7 @@ export const userRouter = router({
     const { cursor, limit, sorting } = input;
     const { clerkOrganizationId } = ctx;
 
-    if (clerkOrganizationId !== input.clerkOrganizationId) {
+    if (clerkOrganizationId !== input.organizationId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
@@ -71,11 +71,11 @@ export const userRouter = router({
     if (supportsCursorPagination) {
       const { sort } = cursor;
       const sortingOrder = sorting[0]?.desc;
-      const orderBy = sortingOrder ? desc(schema.users.sort) : asc(schema.users.sort);
+      const orderBy = sortingOrder ? desc(schema.endUsers.sort) : asc(schema.endUsers.sort);
       const where = getWhereInput(input, clerkOrganizationId, sort, sortingOrder);
 
-      users = await db.query.users.findMany({
-        where: where(schema.users),
+      users = await db.query.endUsers.findMany({
+        where: where(schema.endUsers),
         limit: limit + 1,
         orderBy: [orderBy],
         with: {
@@ -101,8 +101,8 @@ export const userRouter = router({
     const offsetValue = skip ?? 0;
     const where = getWhereInput(input, clerkOrganizationId);
 
-    users = await db.query.users.findMany({
-      where: where(schema.users),
+    users = await db.query.endUsers.findMany({
+      where: where(schema.endUsers),
       limit: limit + 1,
       offset: offsetValue,
       orderBy: (usersTable, { asc, desc }) =>

@@ -28,8 +28,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const user = await db.query.users.findFirst({
-    where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, id)),
+  const user = await db.query.endUsers.findFirst({
+    where: and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, id)),
   });
 
   if (!user) {

@@ -81,7 +81,7 @@ export async function updateWebhookUrl({
       url,
     })
     .where(
-      and(eq(schema.webhookEndpoints.id, id), eq(schema.webhookEndpoints.clerkOrganizationId, clerkOrganizationId)),
+      and(eq(schema.webhookEndpoints.id, id), eq(schema.webhookEndpoints.organizationId, clerkOrganizationId)),
     )
     .returning();
 

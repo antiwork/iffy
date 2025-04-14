@@ -23,7 +23,7 @@ import { parseMetadata } from "@/services/metadata";
 
 export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const record = await db.query.records.findFirst({
-    where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, id)),
+    where: and(eq(schema.records.organizationId, clerkOrganizationId), eq(schema.records.id, id)),
     with: {
       moderations: {
         orderBy: [desc(schema.moderations.createdAt)],

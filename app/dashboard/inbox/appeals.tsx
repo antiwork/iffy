@@ -24,7 +24,7 @@ export function Appeals({ clerkOrganizationId, defaultLayout = [20, 32, 48], chi
 
   const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = trpc.appeal.infinite.useInfiniteQuery(
     {
-      clerkOrganizationId,
+      organizationId: clerkOrganizationId,
       statuses: tab === "inbox" ? ["Open"] : undefined,
       search,
     },

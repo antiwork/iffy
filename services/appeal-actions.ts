@@ -21,7 +21,7 @@ export async function createAppealAction({
   const [appealAction, lastAppealAction] = await db.transaction(async (tx) => {
     const lastAppealAction = await tx.query.appealActions.findFirst({
       where: and(
-        eq(schema.appealActions.clerkOrganizationId, clerkOrganizationId),
+        eq(schema.appealActions.organizationId, clerkOrganizationId),
         eq(schema.appealActions.appealId, appealId),
       ),
       orderBy: desc(schema.appealActions.createdAt),
@@ -57,7 +57,7 @@ export async function createAppealAction({
         actionStatus: status,
         actionStatusCreatedAt: appealAction.createdAt,
       })
-      .where(and(eq(schema.appeals.clerkOrganizationId, clerkOrganizationId), eq(schema.appeals.id, appealId)));
+      .where(and(eq(schema.appeals.organizationId, clerkOrganizationId), eq(schema.appeals.id, appealId)));
 
     return [appealAction, lastAppealAction];
   });
