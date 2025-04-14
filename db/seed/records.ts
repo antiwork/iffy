@@ -53,7 +53,7 @@ const PRODUCTS = [
 export async function seedRecords(
   organizationId: string,
   ruleset: { id: string },
-  users: (typeof schema.users.$inferSelect)[],
+  users: (typeof schema.endUsers.$inferSelect)[],
 ) {
   const rules = await db.query.rules.findMany({
     where: eq(schema.rules.rulesetId, ruleset.id),
@@ -129,13 +129,13 @@ export async function seedRecords(
       })
       .where(eq(schema.records.id, record.id));
 
-    if (record.userId && isFlagged) {
+    if (record.endUserId && isFlagged) {
       await db
-        .update(schema.users)
+        .update(schema.endUsers)
         .set({
           flaggedRecordsCount: sql`flagged_records_count + 1`,
         })
-        .where(eq(schema.users.id, record.userId));
+        .where(eq(schema.endUsers.id, record.endUserId));
     }
   }
 

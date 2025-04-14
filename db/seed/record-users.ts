@@ -7,7 +7,7 @@ const COUNT = 50;
 
 export async function seedUsers(organizationId: string) {
   const users = await db
-    .insert(schema.users)
+    .insert(schema.endUsers)
     .values(
       [...Array(COUNT)].map(() => {
         const firstName = faker.person.firstName();

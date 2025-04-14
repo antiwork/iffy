@@ -7,8 +7,8 @@ import sample from "lodash/sample";
 import { createMessage } from "@/services/messages";
 
 export async function seedUserActions(organizationId: string) {
-  const users = await db.query.users.findMany({
-    where: eq(schema.users.organizationId, organizationId),
+  const users = await db.query.endUsers.findMany({
+    where: eq(schema.endUsers.organizationId, organizationId),
     with: {
       records: true,
     },
@@ -22,7 +22,7 @@ export async function seedUserActions(organizationId: string) {
         const status = isFlagged && !user.protected ? sample(["Suspended", "Banned"] as const) : "Compliant";
         return {
           organizationId,
-          userId: user.id,
+          endUserId: user.id,
           status,
           createdAt: user.createdAt,
         } as const;
@@ -31,25 +31,25 @@ export async function seedUserActions(organizationId: string) {
     .returning();
 
   const { subject, body } = await renderEmailTemplate({
-    organizationId,
+    clerkOrganizationId: organizationId,
     type: "Suspended",
   });
 
   for (const userAction of userActions) {
     await db
-      .update(schema.users)
+      .update(schema.endUsers)
       .set({
         actionStatus: userAction.status,
         actionStatusCreatedAt: userAction.createdAt,
       })
-      .where(eq(schema.users.id, userAction.userId));
+      .where(eq(schema.endUsers.id, userAction.endUserId));
 
     if (userAction.status === "Suspended") {
       await createMessage({
-        organizationId,
+        clerkOrganizationId: organizationId,
         userActionId: userAction.id,
         type: "Outbound",
-        toId: userAction.userId,
+        toId: userAction.endUserId,
         subject,
         text: body,
       });
