@@ -32,10 +32,7 @@ const noResendSchema = z.object({
   CLERK_WEBHOOK_SECRET: z.undefined(),
 });
 
-const resendOrNoResendSchema = resendEmailSchema
-  .or(resendAudienceSchema)
-  .or(resendFullSchema)
-  .or(noResendSchema);
+const resendOrNoResendSchema = resendEmailSchema.or(resendAudienceSchema).or(resendFullSchema).or(noResendSchema);
 
 const envSchema = z
   .object({
@@ -48,7 +45,7 @@ const envSchema = z
     NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.literal("/sign-up"),
     NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
     NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
-    SEED_ORGANIZATION_ID: z.string().optional(),
+    SEED_CLERK_ORGANIZATION_ID: z.string().optional(),
     STRIPE_API_KEY: z.string().optional(),
     POSTGRES_URL: z.string(),
     POSTGRES_URL_NON_POOLING: z.string(),
