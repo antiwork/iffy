@@ -17,14 +17,14 @@ const paginationSchema = z.object({
 
 const getWhereInput = (
   input: z.infer<typeof paginationSchema>,
-  clerkOrganizationId: string,
+  organizationId: string,
   cursorValue?: number,
   sortingOrder?: boolean,
 ) => {
   const { search, statuses } = input;
 
   return (users: typeof schema.endUsers) => {
-    const conditions = [eq(users.organizationId, clerkOrganizationId)];
+    const conditions = [eq(users.organizationId, organizationId)];
 
     if (statuses?.length) {
       conditions.push(inArray(users.actionStatus, statuses));
@@ -57,9 +57,9 @@ const getWhereInput = (
 export const userRouter = router({
   infinite: protectedProcedure.input(paginationSchema).query(async ({ input, ctx }) => {
     const { cursor, limit, sorting } = input;
-    const { clerkOrganizationId } = ctx;
+    const { organizationId } = ctx;
 
-    if (clerkOrganizationId !== input.organizationId) {
+    if (organizationId !== input.organizationId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
@@ -72,7 +72,7 @@ export const userRouter = router({
       const { sort } = cursor;
       const sortingOrder = sorting[0]?.desc;
       const orderBy = sortingOrder ? desc(schema.endUsers.sort) : asc(schema.endUsers.sort);
-      const where = getWhereInput(input, clerkOrganizationId, sort, sortingOrder);
+      const where = getWhereInput(input, organizationId, sort, sortingOrder);
 
       users = await db.query.endUsers.findMany({
         where: where(schema.endUsers),
@@ -99,7 +99,7 @@ export const userRouter = router({
     // Offset pagination is more flexible, but less performant
     const { skip } = cursor;
     const offsetValue = skip ?? 0;
-    const where = getWhereInput(input, clerkOrganizationId);
+    const where = getWhereInput(input, organizationId);
 
     users = await db.query.endUsers.findMany({
       where: where(schema.endUsers),

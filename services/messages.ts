@@ -16,7 +16,7 @@ type FromId = {
 type ToOrFromId = ToId | FromId;
 
 export async function createMessage({
-  clerkOrganizationId,
+  organizationId,
   userActionId,
   toId,
   fromId,
@@ -26,7 +26,7 @@ export async function createMessage({
   status = "Pending",
   appealId,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   userActionId: string;
   subject?: string;
   text: string;
@@ -36,7 +36,7 @@ export async function createMessage({
   const [message] = await db
     .insert(schema.messages)
     .values({
-      clerkOrganizationId,
+      organizationId,
       userActionId,
       toId,
       fromId,
@@ -52,18 +52,18 @@ export async function createMessage({
 }
 
 export async function updateMessage({
-  clerkOrganizationId,
+  organizationId,
   id,
   status = "Pending",
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   id: string;
   status?: (typeof schema.messageStatus.enumValues)[number];
 }) {
   const [message] = await db
     .update(schema.messages)
     .set({ status })
-    .where(and(eq(schema.messages.organizationId, clerkOrganizationId), eq(schema.messages.id, id)))
+    .where(and(eq(schema.messages.organizationId, organizationId), eq(schema.messages.id, id)))
     .returning();
 
   return message;

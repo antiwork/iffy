@@ -14,9 +14,9 @@ import { formatClerkUser } from "@/lib/clerk";
 import { notFound } from "next/navigation";
 import { findOrCreateOrganization } from "@/services/organizations";
 
-export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
+export async function UserActionDetail({ organizationId, id }: { organizationId: string; id: string }) {
   const userAction = await db.query.userActions.findFirst({
-    where: and(eq(schema.userActions.organizationId, clerkOrganizationId), eq(schema.userActions.id, id)),
+    where: and(eq(schema.userActions.organizationId, organizationId), eq(schema.userActions.id, id)),
     with: {
       user: true,
       appeal: true,
@@ -27,7 +27,7 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
     return notFound();
   }
 
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization(organizationId);
   const appealsEnabled = organization.appealsEnabled;
 
   return (

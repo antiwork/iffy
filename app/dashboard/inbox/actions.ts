@@ -16,8 +16,8 @@ export const createAppealAction = actionClient
     async ({
       parsedInput: { status },
       bindArgsParsedInputs: [appealId],
-      ctx: { clerkOrganizationId, clerkUserId },
+      ctx: { organizationId, clerkUserId },
     }) => {
-      await services.createAppealAction({ clerkOrganizationId, appealId, status, via: "Manual", clerkUserId });
+      await services.createAppealAction({ organizationId, appealId, status, via: "Manual", clerkUserId });
     },
   );

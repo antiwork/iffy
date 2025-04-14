@@ -36,7 +36,7 @@ export default async function Page({ params }: { params: Promise<{ actionId: str
 
   return (
     <RouterSheet title="User action">
-      <UserActionDetail clerkOrganizationId={orgId} id={id} />
+      <UserActionDetail organizationId={orgId} id={id} />
     </RouterSheet>
   );
 }

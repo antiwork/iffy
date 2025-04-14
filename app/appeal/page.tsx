@@ -47,8 +47,8 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
   const latestAction = user.actions[0];
   const latestAppeal = latestAction?.appeal;
 
-  const { clerkOrganizationId } = user;
-  const { appealsEnabled } = await findOrCreateOrganization(clerkOrganizationId);
+  const { organizationId } = user;
+  const { appealsEnabled } = await findOrCreateOrganization(organizationId);
   if (!appealsEnabled) {
     return redirect("/");
   }
@@ -103,7 +103,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
 
   const records = await db.query.records.findMany({
     where: and(
-      eq(schema.records.organizationId, clerkOrganizationId),
+      eq(schema.records.organizationId, organizationId),
       eq(schema.records.endUserId, user.id),
       isNull(schema.records.deletedAt),
     ),

@@ -11,7 +11,7 @@ const InboxLayout = async ({ children }: { children: React.ReactNode }) => {
     return notFound();
   }
 
-  return <Appeals clerkOrganizationId={orgId}>{children}</Appeals>;
+  return <Appeals organizationId={orgId}>{children}</Appeals>;
 };
 
 export default InboxLayout;

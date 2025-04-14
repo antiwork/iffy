@@ -3,7 +3,7 @@ import db from "@/db";
 import { eq } from "drizzle-orm";
 import { HourlyAnalyticsChart } from "./hourly-analytics-chart";
 
-type HourlyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsHourly.$inferSelect, "clerkOrganizationId">;
+type HourlyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsHourly.$inferSelect, "organizationId">;
 
 export async function HourlySection({ orgId, byRule = false }: { orgId: string; byRule?: boolean }) {
   const stats = await db

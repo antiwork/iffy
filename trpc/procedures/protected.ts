@@ -3,14 +3,14 @@ import { middleware, procedure } from "../trpc";
 
 const protectedProcedure = procedure.use(
   middleware(async ({ ctx, next }) => {
-    const { clerkOrganizationId, clerkUserId } = ctx;
-    if (!clerkOrganizationId || !clerkUserId) {
+    const { organizationId, clerkUserId } = ctx;
+    if (!organizationId || !clerkUserId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
     return next({
       ctx: {
-        clerkOrganizationId,
+        organizationId,
         clerkUserId,
       },
     });

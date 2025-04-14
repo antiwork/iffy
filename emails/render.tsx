@@ -56,21 +56,21 @@ const templates = {
 } as const;
 
 export async function render<T extends EmailTemplateType>({
-  clerkOrganizationId,
+  organizationId,
   content,
   type,
   appealUrl,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   content: DefaultTemplateContent;
   type: T;
   appealUrl?: string;
 }): Promise<RenderedTemplate> {
-  const settings = await findOrCreateOrganization(clerkOrganizationId);
+  const settings = await findOrCreateOrganization(organizationId);
 
   const { name: clerkOrganizationName, imageUrl: clerkOrganizationImageUrl } = await (
     await clerkClient()
-  ).organizations.getOrganization({ organizationId: clerkOrganizationId });
+  ).organizations.getOrganization({ organizationId: organizationId });
 
   const { subject, heading, body } = await replacePlaceholders(content, {
     ORGANIZATION_NAME: clerkOrganizationName,

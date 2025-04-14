@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import * as schema from "@/db/schema";
 type ModerationStatus = (typeof schema.moderations.$inferSelect)["status"];
 
-const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => {
+const DataTable = ({ organizationId }: { organizationId: string }) => {
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const [rowSelection, setRowSelection] = useState({});
@@ -30,7 +30,7 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
   const [sorting, setSorting] = useState<SortingState>([{ id: "sort", desc: true }]);
 
   const query = {
-    clerkOrganizationId: clerkOrganizationId,
+    organizationId: organizationId,
     sorting,
     statuses: (columnFilters.find((filter) => filter.id === "status")?.value as ModerationStatus[]) || [],
     entities: (columnFilters.find((filter) => filter.id === "entity")?.value as string[]) || [],

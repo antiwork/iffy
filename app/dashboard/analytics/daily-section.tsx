@@ -3,7 +3,7 @@ import db from "@/db";
 import { eq, gt, and } from "drizzle-orm";
 import { DailyAnalyticsChart } from "./daily-analytics-chart";
 
-type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "clerkOrganizationId">;
+type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "organizationId">;
 
 export async function DailySection({
   orgId,

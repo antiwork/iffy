@@ -17,9 +17,9 @@ function createVisualKey(key: string) {
   return prefix + masked + suffix;
 }
 
-export async function getApiKeys({ clerkOrganizationId }: { clerkOrganizationId: string }) {
+export async function getApiKeys({ organizationId }: { organizationId: string }) {
   const keys = await db.query.apiKeys.findMany({
-    where: and(eq(schema.apiKeys.organizationId, clerkOrganizationId), isNull(schema.apiKeys.deletedAt)),
+    where: and(eq(schema.apiKeys.organizationId, organizationId), isNull(schema.apiKeys.deletedAt)),
     orderBy: (apiKeys, { desc }) => [desc(apiKeys.createdAt)],
   });
 
@@ -35,11 +35,11 @@ export async function getApiKeys({ clerkOrganizationId }: { clerkOrganizationId:
 }
 
 export async function createApiKey({
-  clerkOrganizationId,
+  organizationId,
   clerkUserId,
   name,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   clerkUserId: string;
   name: string;
 }) {
@@ -47,7 +47,7 @@ export async function createApiKey({
   const [newKey] = await db
     .insert(schema.apiKeys)
     .values({
-      clerkOrganizationId,
+      organizationId,
       clerkUserId,
       name,
       encryptedKey: encrypt(generatedKey),
@@ -69,11 +69,11 @@ export async function createApiKey({
   };
 }
 
-export async function deleteApiKey({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
+export async function deleteApiKey({ organizationId, id }: { organizationId: string; id: string }) {
   await db
     .update(schema.apiKeys)
     .set({ deletedAt: new Date() })
-    .where(and(eq(schema.apiKeys.organizationId, clerkOrganizationId), eq(schema.apiKeys.id, id)));
+    .where(and(eq(schema.apiKeys.organizationId, organizationId), eq(schema.apiKeys.id, id)));
 }
 
 export async function validateApiKey(apiKey?: string) {
@@ -83,7 +83,7 @@ export async function validateApiKey(apiKey?: string) {
     .update(schema.apiKeys)
     .set({ lastUsedAt: new Date() })
     .where(and(eq(schema.apiKeys.encryptedKeyHash, generateHash(apiKey)), isNull(schema.apiKeys.deletedAt)))
-    .returning({ clerkOrganizationId: schema.apiKeys.organizationId });
+    .returning({ organizationId: schema.apiKeys.organizationId });
 
-  return key?.clerkOrganizationId ?? null;
+  return key?.organizationId ?? null;
 }

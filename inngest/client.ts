@@ -5,17 +5,17 @@ import { env } from "@/lib/env";
 
 const eventsMap = {
   "record/deleted": {
-    data: z.object({ clerkOrganizationId: z.string(), id: z.string() }),
+    data: z.object({ organizationId: z.string(), id: z.string() }),
   },
   "moderation/moderated": {
-    data: z.object({ clerkOrganizationId: z.string(), moderationId: z.string(), recordId: z.string() }),
+    data: z.object({ organizationId: z.string(), moderationId: z.string(), recordId: z.string() }),
   },
   "moderation/usage": {
-    data: z.object({ clerkOrganizationId: z.string(), id: z.string(), recordId: z.string() }),
+    data: z.object({ organizationId: z.string(), id: z.string(), recordId: z.string() }),
   },
   "moderation/status-changed": {
     data: z.object({
-      clerkOrganizationId: z.string(),
+      organizationId: z.string(),
       id: z.string(),
       recordId: z.string(),
       status: z.enum(schema.moderationStatus.enumValues),
@@ -24,7 +24,7 @@ const eventsMap = {
   },
   "user-action/status-changed": {
     data: z.object({
-      clerkOrganizationId: z.string(),
+      organizationId: z.string(),
       id: z.string(),
       userId: z.string(),
       status: z.enum(schema.userActionStatus.enumValues),
@@ -33,7 +33,7 @@ const eventsMap = {
   },
   "appeal-action/status-changed": {
     data: z.object({
-      clerkOrganizationId: z.string(),
+      organizationId: z.string(),
       id: z.string(),
       appealId: z.string(),
       status: z.enum(schema.appealActionStatus.enumValues),

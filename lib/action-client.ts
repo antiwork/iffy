@@ -15,5 +15,5 @@ export const actionClient = createSafeActionClient({
     throw new Error("Unauthorized: Organization not found.");
   }
 
-  return next({ ctx: { clerkOrganizationId: orgId, clerkUserId: userId } });
+  return next({ ctx: { organizationId: orgId, clerkUserId: userId } });
 });

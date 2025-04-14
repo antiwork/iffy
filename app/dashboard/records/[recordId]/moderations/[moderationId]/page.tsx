@@ -32,5 +32,5 @@ export default async function ModerationPage({ params }: { params: Promise<{ mod
 
   const id = (await params).moderationId;
 
-  return <ModerationDetail clerkOrganizationId={orgId} id={id} />;
+  return <ModerationDetail organizationId={orgId} id={id} />;
 }

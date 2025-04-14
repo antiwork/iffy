@@ -51,7 +51,7 @@ const PRODUCTS = [
 ];
 
 export async function seedRecords(
-  clerkOrganizationId: string,
+  organizationId: string,
   ruleset: { id: string },
   users: (typeof schema.endUsers.$inferSelect)[],
 ) {

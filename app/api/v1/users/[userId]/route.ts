@@ -9,7 +9,7 @@ import { getAbsoluteUrl } from "@/lib/url";
 import { authenticateRequest } from "@/app/api/auth";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
-  const [isValid, clerkOrganizationId] = await authenticateRequest(req);
+  const [isValid, organizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
   const { userId: id } = await params;
 
   const user = await db.query.endUsers.findFirst({
-    where: and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, id)),
+    where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, id)),
     columns: {
       id: true,
       clientId: true,
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
     return NextResponse.json({ error: { message: "User not found" } }, { status: 404 });
   }
 
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization(organizationId);
 
   const appealUrl =
     organization.appealsEnabled && user.actionStatus === "Suspended"

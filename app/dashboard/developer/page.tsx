@@ -17,7 +17,7 @@ import { decrypt } from "@/services/encrypt";
 export default async function DeveloperPage() {
   const { orgId } = await authWithOrgSubscription();
 
-  const keys = await getApiKeys({ clerkOrganizationId: orgId });
+  const keys = await getApiKeys({ organizationId: orgId });
   const webhookEndpoint = await db.query.webhookEndpoints.findFirst({
     where: eq(schema.webhookEndpoints.organizationId, orgId),
   });

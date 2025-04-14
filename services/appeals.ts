@@ -133,7 +133,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
     await inngest.send({
       name: "appeal-action/status-changed",
       data: {
-        clerkOrganizationId: appeal.organizationId,
+        organizationId: appeal.organizationId,
         id: appealAction.id,
         appealId: appeal.id,
         status: "Open",

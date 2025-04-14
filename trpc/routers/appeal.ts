@@ -18,16 +18,16 @@ const paginationSchema = z.object({
 export const appealRouter = router({
   infinite: protectedProcedure.input(paginationSchema).query(async ({ input, ctx }) => {
     const { cursor, limit, sort, search, statuses } = input;
-    const { clerkOrganizationId } = ctx;
+    const { organizationId } = ctx;
 
-    if (clerkOrganizationId !== input.organizationId) {
+    if (organizationId !== input.organizationId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
     const sortingOrder = sort === "desc";
     const orderBy = sortingOrder ? desc(schema.appeals.sort) : asc(schema.appeals.sort);
 
-    const conditions = [eq(schema.appeals.organizationId, clerkOrganizationId)];
+    const conditions = [eq(schema.appeals.organizationId, organizationId)];
 
     if (statuses?.length) {
       conditions.push(inArray(schema.appeals.actionStatus, statuses));
@@ -109,7 +109,7 @@ export const appealRouter = router({
       db
         .select({ count: count() })
         .from(schema.appeals)
-        .where(eq(schema.appeals.organizationId, clerkOrganizationId)),
+        .where(eq(schema.appeals.organizationId, organizationId)),
       db
         .select({ count: count() })
         .from(schema.appeals)

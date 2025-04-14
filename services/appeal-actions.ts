@@ -8,20 +8,20 @@ type ActionStatus = (typeof schema.appealActionStatus.enumValues)[number];
 type Via = (typeof schema.via.enumValues)[number];
 
 export async function createAppealAction({
-  clerkOrganizationId,
+  organizationId,
   appealId,
   status,
   via,
   clerkUserId,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   appealId: string;
   status: ActionStatus;
 } & ViaWithRelations) {
   const [appealAction, lastAppealAction] = await db.transaction(async (tx) => {
     const lastAppealAction = await tx.query.appealActions.findFirst({
       where: and(
-        eq(schema.appealActions.organizationId, clerkOrganizationId),
+        eq(schema.appealActions.organizationId, organizationId),
         eq(schema.appealActions.appealId, appealId),
       ),
       orderBy: desc(schema.appealActions.createdAt),
@@ -38,7 +38,7 @@ export async function createAppealAction({
     const [appealAction] = await tx
       .insert(schema.appealActions)
       .values({
-        clerkOrganizationId,
+        organizationId,
         status,
         appealId,
         via,
@@ -57,7 +57,7 @@ export async function createAppealAction({
         actionStatus: status,
         actionStatusCreatedAt: appealAction.createdAt,
       })
-      .where(and(eq(schema.appeals.organizationId, clerkOrganizationId), eq(schema.appeals.id, appealId)));
+      .where(and(eq(schema.appeals.organizationId, organizationId), eq(schema.appeals.id, appealId)));
 
     return [appealAction, lastAppealAction];
   });
@@ -67,7 +67,7 @@ export async function createAppealAction({
       await inngest.send({
         name: "appeal-action/status-changed",
         data: {
-          clerkOrganizationId,
+          organizationId,
           id: appealAction.id,
           appealId,
           status,

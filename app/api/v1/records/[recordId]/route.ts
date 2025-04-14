@@ -7,7 +7,7 @@ import { parseMetadata } from "@/services/metadata";
 import { authenticateRequest } from "@/app/api/auth";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
-  const [isValid, clerkOrganizationId] = await authenticateRequest(req);
+  const [isValid, organizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ reco
 
   const record = await db.query.records.findFirst({
     where: and(
-      eq(schema.records.organizationId, clerkOrganizationId),
+      eq(schema.records.organizationId, organizationId),
       eq(schema.records.id, id),
       isNull(schema.records.deletedAt),
     ),

@@ -6,7 +6,7 @@ import { findUrlsInText } from "@/services/url-moderation";
 import { mergeMetadata } from "./metadata";
 
 export async function createOrUpdateRecord({
-  clerkOrganizationId,
+  organizationId,
   clientId,
   name,
   entity,
@@ -19,7 +19,7 @@ export async function createOrUpdateRecord({
   initialProtected,
   metadata,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   clientId: string;
   clientUrl?: string;
   name: string;
@@ -34,7 +34,7 @@ export async function createOrUpdateRecord({
 }) {
   const record = await db.transaction(async (tx) => {
     const lastRecord = await tx.query.records.findFirst({
-      where: and(eq(schema.records.organizationId, clerkOrganizationId), eq(schema.records.clientId, clientId)),
+      where: and(eq(schema.records.organizationId, organizationId), eq(schema.records.clientId, clientId)),
       columns: {
         userId: true,
         metadata: true,
@@ -48,7 +48,7 @@ export async function createOrUpdateRecord({
     const [record] = await tx
       .insert(schema.records)
       .values({
-        clerkOrganizationId,
+        organizationId,
         clientId,
         clientUrl,
         name,
@@ -92,7 +92,7 @@ export async function createOrUpdateRecord({
             flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} - 1`,
           })
           .where(
-            and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, lastRecord.userId!)),
+            and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, lastRecord.userId!)),
           );
       }
 
@@ -102,7 +102,7 @@ export async function createOrUpdateRecord({
           .set({
             flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} + 1`,
           })
-          .where(and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, record.userId!)));
+          .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, record.userId!)));
       }
     }
 
@@ -112,14 +112,14 @@ export async function createOrUpdateRecord({
   return record;
 }
 
-export async function deleteRecord(clerkOrganizationId: string, recordId: string) {
+export async function deleteRecord(organizationId: string, recordId: string) {
   return await db.transaction(async (tx) => {
     const [record] = await tx
       .update(schema.records)
       .set({
         deletedAt: new Date(),
       })
-      .where(and(eq(schema.records.organizationId, clerkOrganizationId), eq(schema.records.id, recordId)))
+      .where(and(eq(schema.records.organizationId, organizationId), eq(schema.records.id, recordId)))
       .returning();
 
     if (!record) {
@@ -132,13 +132,13 @@ export async function deleteRecord(clerkOrganizationId: string, recordId: string
         .set({
           flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} - 1`,
         })
-        .where(and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, record.endUserId)));
+        .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, record.endUserId)));
     }
 
     try {
       await inngest.send({
         name: "record/deleted",
-        data: { clerkOrganizationId, id: record.id },
+        data: { organizationId, id: record.id },
       });
     } catch (error) {
       console.error(error);

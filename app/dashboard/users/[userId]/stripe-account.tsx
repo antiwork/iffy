@@ -65,14 +65,14 @@ const StripeAccountPaymentsAndPayoutsSkeleton = () => {
 };
 
 export async function StripeAccount({
-  clerkOrganizationId,
+  organizationId,
   stripeAccountId,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   stripeAccountId: string;
 }) {
   const result = await db.query.organizations.findFirst({
-    where: eq(schema.organizations.organizationId, clerkOrganizationId),
+    where: eq(schema.organizations.organizationId, organizationId),
   });
 
   const stripeApiKey = result?.stripeApiKey ? decrypt(result.stripeApiKey) : null;

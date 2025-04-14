@@ -28,5 +28,5 @@ export async function generateMetadata({ params }: { params: Promise<{ userId: s
 export default async function Page({ params }: { params: Promise<{ userId: string }> }) {
   const { orgId } = await authWithOrgSubscription();
   const id = (await params).userId;
-  return <UserDetail clerkOrganizationId={orgId} id={id} />;
+  return <UserDetail organizationId={orgId} id={id} />;
 }

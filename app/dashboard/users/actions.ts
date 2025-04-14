@@ -21,12 +21,12 @@ export const createUserActions = actionClient
     async ({
       parsedInput: { status, reasoning },
       bindArgsParsedInputs: [userIds],
-      ctx: { clerkOrganizationId, clerkUserId },
+      ctx: { organizationId, clerkUserId },
     }) => {
       const userActions = await Promise.all(
         userIds.map((userId) =>
           service.createUserAction({
-            clerkOrganizationId,
+            organizationId,
             userId,
             status,
             via: "Manual",
@@ -47,13 +47,13 @@ const setUserProtectedSchema = z.boolean();
 export const setUserProtectedMany = actionClient
   .schema(setUserProtectedSchema)
   .bindArgsSchemas<[userIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
-  .action(async ({ parsedInput, bindArgsParsedInputs: [userIds], ctx: { clerkOrganizationId } }) => {
+  .action(async ({ parsedInput, bindArgsParsedInputs: [userIds], ctx: { organizationId } }) => {
     const userRecords = await db
       .update(schema.endUsers)
       .set({
         protected: parsedInput,
       })
-      .where(and(eq(schema.endUsers.organizationId, clerkOrganizationId), inArray(schema.endUsers.id, userIds)))
+      .where(and(eq(schema.endUsers.organizationId, organizationId), inArray(schema.endUsers.id, userIds)))
       .returning();
 
     for (const userId of userIds) {

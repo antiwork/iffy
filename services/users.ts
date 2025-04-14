@@ -6,7 +6,7 @@ import * as schema from "@/db/schema";
 import { mergeMetadata } from "./metadata";
 
 export async function createOrUpdateUser({
-  clerkOrganizationId,
+  organizationId,
   clientId,
   clientUrl,
   email,
@@ -16,7 +16,7 @@ export async function createOrUpdateUser({
   stripeAccountId,
   metadata,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   clientId: string;
   clientUrl?: string;
   email?: string;
@@ -28,7 +28,7 @@ export async function createOrUpdateUser({
 }) {
   const user = await db.transaction(async (tx) => {
     const lastUser = await tx.query.endUsers.findFirst({
-      where: and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.clientId, clientId)),
+      where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.clientId, clientId)),
       columns: {
         metadata: true,
       },
@@ -41,7 +41,7 @@ export async function createOrUpdateUser({
     const [user] = await db
       .insert(schema.endUsers)
       .values({
-        clerkOrganizationId,
+        organizationId,
         clientId,
         clientUrl,
         email,
@@ -75,15 +75,15 @@ export async function createOrUpdateUser({
 }
 
 export async function getFlaggedRecordsFromUser({
-  clerkOrganizationId,
+  organizationId,
   id,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   id: string;
 }) {
   const records = await db.query.records.findMany({
     where: and(
-      eq(schema.records.organizationId, clerkOrganizationId),
+      eq(schema.records.organizationId, organizationId),
       eq(schema.records.endUserId, id),
       isNull(schema.records.deletedAt),
     ),

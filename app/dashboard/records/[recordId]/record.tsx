@@ -21,9 +21,9 @@ import { eq, desc, and } from "drizzle-orm";
 import db from "@/db";
 import { parseMetadata } from "@/services/metadata";
 
-export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
+export async function RecordDetail({ organizationId, id }: { organizationId: string; id: string }) {
   const record = await db.query.records.findFirst({
-    where: and(eq(schema.records.organizationId, clerkOrganizationId), eq(schema.records.id, id)),
+    where: and(eq(schema.records.organizationId, organizationId), eq(schema.records.id, id)),
     with: {
       moderations: {
         orderBy: [desc(schema.moderations.createdAt)],

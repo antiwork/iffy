@@ -8,7 +8,7 @@ const updateUserAfterAppealAction = inngest.createFunction(
   { id: "update-user-after-appeal-action" },
   { event: "appeal-action/status-changed" },
   async ({ event, step }) => {
-    const { clerkOrganizationId, appealId, status, lastStatus } = event.data;
+    const { organizationId, appealId, status, lastStatus } = event.data;
 
     // We only care about an appeal that has been marked as approved, having previously been open
     if (lastStatus !== "Open" || status !== "Approved") {
@@ -17,7 +17,7 @@ const updateUserAfterAppealAction = inngest.createFunction(
 
     const appeal = await step.run("fetch-appeal", async () => {
       const appeal = await db.query.appeals.findFirst({
-        where: and(eq(schema.appeals.organizationId, clerkOrganizationId), eq(schema.appeals.id, appealId)),
+        where: and(eq(schema.appeals.organizationId, organizationId), eq(schema.appeals.id, appealId)),
         with: {
           userAction: {
             with: {
@@ -36,7 +36,7 @@ const updateUserAfterAppealAction = inngest.createFunction(
 
     await step.run("create-user-action", async () => {
       return await createUserAction({
-        clerkOrganizationId,
+        organizationId,
         userId: appeal.userAction.user.id,
         status: "Compliant",
         via: "Automation Appeal Approved",

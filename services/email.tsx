@@ -40,22 +40,22 @@ type CreateEmailOptions = RequireAtLeastOne<EmailRenderOptions> & CreateEmailBas
 type EmailTemplateType = (typeof schema.emailTemplateType.enumValues)[number];
 
 export async function renderEmailTemplate<T extends EmailTemplateType>({
-  clerkOrganizationId,
+  organizationId,
   type,
   appealUrl,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   type: T;
   appealUrl?: string;
 }) {
   const template = await db.query.emailTemplates.findFirst({
     where: (templates, { and, eq }) =>
-      and(eq(templates.organizationId, clerkOrganizationId), eq(templates.type, type)),
+      and(eq(templates.organizationId, organizationId), eq(templates.type, type)),
   });
 
   const content = parseContent(template?.content, type);
   return await render<T>({
-    clerkOrganizationId,
+    organizationId,
     content,
     type,
     appealUrl,
@@ -63,14 +63,14 @@ export async function renderEmailTemplate<T extends EmailTemplateType>({
 }
 
 export async function sendEmail({
-  clerkOrganizationId,
+  organizationId,
   userId,
   ...payload
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   userId: string;
 } & CreateEmailOptions) {
-  const { emailsEnabled } = await findOrCreateOrganization(clerkOrganizationId);
+  const { emailsEnabled } = await findOrCreateOrganization(organizationId);
 
   if (!emailsEnabled || !env.RESEND_API_KEY) {
     console.log(userId, payload.subject, payload.text, payload.html);
@@ -80,7 +80,7 @@ export async function sendEmail({
   const resend = new Resend(env.RESEND_API_KEY);
 
   const user = await db.query.endUsers.findFirst({
-    where: (users, { and, eq }) => and(eq(users.organizationId, clerkOrganizationId), eq(users.id, userId)),
+    where: (users, { and, eq }) => and(eq(users.organizationId, organizationId), eq(users.id, userId)),
   });
 
   if (!user) {

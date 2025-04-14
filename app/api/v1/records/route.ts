@@ -20,7 +20,7 @@ const ListRecordsRequestData = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const [isValid, clerkOrganizationId] = await authenticateRequest(req);
+  const [isValid, organizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
@@ -33,13 +33,13 @@ export async function GET(req: NextRequest) {
   const { limit, starting_after, ending_before, user, entity, clientId, status } = data;
 
   let conditions: SQL<unknown>[] = [
-    eq(schema.records.organizationId, clerkOrganizationId),
+    eq(schema.records.organizationId, organizationId),
     isNull(schema.records.deletedAt),
   ];
 
   if (user) {
     const userExists = await db.query.endUsers.findFirst({
-      where: and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, user)),
+      where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, user)),
       columns: { id: true },
     });
     if (!userExists) {

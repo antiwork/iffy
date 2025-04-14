@@ -7,7 +7,7 @@ import { ViaWithRelations } from "@/lib/types";
 type ActionStatus = (typeof schema.userActionStatus.enumValues)[number];
 
 export async function createUserAction({
-  clerkOrganizationId,
+  organizationId,
   userId,
   status,
   via,
@@ -16,14 +16,14 @@ export async function createUserAction({
   viaRecordId,
   viaAppealId,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   userId: string;
   status: ActionStatus;
   reasoning?: string;
 } & ViaWithRelations) {
   const [userAction, lastUserAction] = await db.transaction(async (tx) => {
     const user = await tx.query.endUsers.findFirst({
-      where: and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, userId)),
+      where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, userId)),
       columns: {
         protected: true,
       },
@@ -39,7 +39,7 @@ export async function createUserAction({
 
     const lastUserAction = await tx.query.userActions.findFirst({
       where: and(
-        eq(schema.userActions.organizationId, clerkOrganizationId),
+        eq(schema.userActions.organizationId, organizationId),
         eq(schema.userActions.endUserId, userId),
       ),
       orderBy: desc(schema.userActions.createdAt),
@@ -56,7 +56,7 @@ export async function createUserAction({
     const [userAction] = await tx
       .insert(schema.userActions)
       .values({
-        clerkOrganizationId,
+        organizationId,
         status,
         userId,
         via,
@@ -78,7 +78,7 @@ export async function createUserAction({
         actionStatus: status,
         actionStatusCreatedAt: userAction.createdAt,
       })
-      .where(and(eq(schema.endUsers.organizationId, clerkOrganizationId), eq(schema.endUsers.id, userId)));
+      .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, userId)));
 
     return [userAction, lastUserAction];
   });
@@ -88,7 +88,7 @@ export async function createUserAction({
       await inngest.send({
         name: "user-action/status-changed",
         data: {
-          clerkOrganizationId,
+          organizationId,
           id: userAction.id,
           userId,
           status,

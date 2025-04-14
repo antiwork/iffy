@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: Promise<{ userId: strin
   const id = (await params).userId;
   return (
     <RouterSheet title="User">
-      <UserDetail clerkOrganizationId={orgId} id={id} />
+      <UserDetail organizationId={orgId} id={id} />
     </RouterSheet>
   );
 }
