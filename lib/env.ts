@@ -32,7 +32,10 @@ const noResendSchema = z.object({
   CLERK_WEBHOOK_SECRET: z.undefined(),
 });
 
-const resendOrNoResendSchema = resendEmailSchema.or(resendAudienceSchema).or(resendFullSchema).or(noResendSchema);
+const resendOrNoResendSchema = resendEmailSchema
+  .or(resendAudienceSchema)
+  .or(resendFullSchema)
+  .or(noResendSchema);
 
 const envSchema = z
   .object({
@@ -45,7 +48,7 @@ const envSchema = z
     NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.literal("/sign-up"),
     NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
     NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
-    SEED_CLERK_ORGANIZATION_ID: z.string().optional(),
+    SEED_ORGANIZATION_ID: z.string().optional(),
     STRIPE_API_KEY: z.string().optional(),
     POSTGRES_URL: z.string(),
     POSTGRES_URL_NON_POOLING: z.string(),
@@ -64,4 +67,13 @@ const envSchema = z
   })
   .and(resendOrNoResendSchema);
 
-export const env = Object.freeze(envSchema.parse(process.env));
+let parsedEnv: z.infer<typeof envSchema> | null = null;
+
+export const env = new Proxy({} as z.infer<typeof envSchema>, {
+  get: (_, prop) => {
+    if (!parsedEnv) {
+      parsedEnv = Object.freeze(envSchema.parse(process.env));
+    }
+    return parsedEnv[prop as keyof typeof parsedEnv];
+  }
+});
