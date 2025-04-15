@@ -13,7 +13,14 @@ const emailAuthConfig = emailOTP({
   }
 })
 
-const organizationAuthConfig = organization()
+const organizationAuthConfig = organization({
+  schema: {
+    organization: {
+      modelName: "organizations",  //map the organization table to organizations table
+    }
+  }
+})
+
 const nextCookiesAuthConfig = nextCookies()
 
 const authOptions = {
