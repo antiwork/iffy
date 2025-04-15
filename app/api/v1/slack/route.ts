@@ -3,9 +3,8 @@
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/env";
-import SlackContext from "./agent/context";
-import SlackEventHandler from "./agent/slack-event-handler";
 import { SlackEventPayload, SupportedSlackEvents } from "./agent/types";
+import { inngest } from "@/inngest/client";
 
 // Slack Events API endpoint
 export async function POST(req: NextRequest) {
@@ -17,7 +16,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.text();
-  const payload = JSON.parse(body) as SlackEventPayload<SupportedSlackEvents>;
+  const payload = JSON.parse(body) as SlackEventPayload<SupportedSlackEvents> & {
+    event_id?: string;
+  };
 
   if (!verifyRequest(req, body, env.SLACK_SIGNING_SECRET)) {
     console.error("Invalid request signature");
@@ -26,10 +27,20 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const ctx = new SlackContext(payload, req);
-  await ctx.initialize();
-  const handler = new SlackEventHandler(ctx);
-  return await handler.handleEvents();
+  if (!payload.event_id) {
+    console.error("Missing event_id in payload");
+    return new NextResponse(JSON.stringify({ error: "Missing event_id" }), {
+      status: 400,
+    });
+  }
+
+  await inngest.send({
+    name: "slack/event",
+    id: payload.event_id,
+    data: payload,
+  });
+
+  return NextResponse.json({ success: true }, { status: 200 });
 }
 
 /**
@@ -51,6 +62,10 @@ function verifyRequest(req: Request, body: string, secret: string): boolean {
 
   // Prepend the version to the digest to create the full signature
   const computedSignature = `${version}=${digest}`;
+
+  if (signature.length !== computedSignature.length) {
+    return false;
+  }
 
   // Use a secure comparison function to prevent timing attacks
   return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(computedSignature));
