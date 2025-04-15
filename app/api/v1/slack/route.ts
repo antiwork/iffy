@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/env";
 import { SlackEventPayload, SupportedSlackEvents } from "./agent/types";
 import { inngest } from "@/inngest/client";
+import { handleUrlVerification } from "./events/url-verification";
+import SlackContext from "./agent/context";
 
 // Slack Events API endpoint
 export async function POST(req: NextRequest) {
@@ -25,6 +27,12 @@ export async function POST(req: NextRequest) {
     return new NextResponse(JSON.stringify({ error: "Invalid request signature" }), {
       status: 400,
     });
+  }
+
+  if (payload.type === "url_verification") {
+    return handleUrlVerification(
+      new SlackContext<"url_verification">(payload as SlackEventPayload<"url_verification">),
+    );
   }
 
   if (!payload.event_id) {
