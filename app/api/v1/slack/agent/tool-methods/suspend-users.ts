@@ -1,6 +1,4 @@
 import SlackContext from "@/app/api/v1/slack/agent/context";
-import db, { schema } from "@/db";
-import { and, eq } from "drizzle-orm";
 import { createUserAction } from "@/services/user-actions";
 
 /**
@@ -15,56 +13,39 @@ async function suspendUsers({
   reasoning: string;
   ctx: SlackContext<"app_mention">;
 }) {
-  const { payload } = ctx;
-  const { team } = payload.event;
-  if (!team) {
-    throw new Error("No team ID found in the payload");
-  }
-
-  const orgDetails = await ctx.getOrganizationDetails(team);
-  if (!orgDetails) {
-    throw new Error("No organization found");
-  }
-  const {
-    organization: { clerkOrganizationId },
-  } = orgDetails;
-
   const results = await Promise.allSettled(
-    userIds.map(async (clientId) => {
-      // Find the user by clientId
-      const user = await db.query.users.findFirst({
-        where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.clientId, clientId)),
-      });
+    userIds.map(async (userId) => {
+      const user = await ctx.findUserById(userId);
 
       if (!user) {
-        throw new Error(`User with ID ${clientId} not found`);
+        throw new Error(`User with ID ${userId} not found`);
       }
 
       // Check if user is already suspended or banned
       if (user.actionStatus === "Suspended") {
-        return { id: clientId, status: "already suspended" };
+        return { id: userId, status: "already suspended" };
       }
 
       if (user.actionStatus === "Banned") {
-        return { id: clientId, status: "banned (cannot suspend)" };
+        return { id: userId, status: "banned (cannot suspend)" };
       }
 
       // Check if user is protected
       if (user.protected) {
-        return { id: clientId, status: "protected (cannot suspend)" };
+        return { id: userId, status: "protected (cannot suspend)" };
       }
 
       // Suspend the user
       await createUserAction({
-        clerkOrganizationId,
-        clerkUserId: clientId,
+        clerkOrganizationId: user.clerkOrganizationId,
+        clerkUserId: user.clientId,
         userId: user.id,
         status: "Suspended",
         via: "Manual",
         reasoning,
       });
 
-      return { id: clientId, status: "suspended" };
+      return { id: userId, status: "suspended" };
     }),
   );
 

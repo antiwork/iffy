@@ -74,7 +74,7 @@ async function iffyAgent({
   const { payload } = ctx;
   const { text, username, channel } = payload.event;
 
-  const iffyBotId = /^(<@U[0-9A-Z]+>)$/.test(text) ? text : null;
+  const iffyBotId = /^(<@U[0-9A-Z]+>)$/.test(text) ? text.match(/<@U[0-9A-Z]+>/)?.[0] : null;
   if (iffyBotId) {
     payload.event.bot_id = iffyBotId;
     payload.event.text = text.replace(iffyBotId, "@Iffy").trim();
@@ -94,7 +94,6 @@ async function iffyAgent({
   await ctx.deliverSlackMessage({
     channelId: channel,
     message: response,
-    teamId: payload.teamId,
     thread_ts: payload.event.thread_ts || payload.event.ts,
   });
 
@@ -178,7 +177,7 @@ async function handleToolCallResponse(
     return null;
   }
 
-  const buildToolCallRespone = (
+  const buildToolCallResponse = (
     toolId: string,
     content: string,
   ): OpenAI.Chat.Completions.ChatCompletionMessageParam => {
@@ -220,7 +219,7 @@ async function handleToolCallResponse(
           ctx,
         });
 
-        return buildToolCallRespone(toolCall.id, result);
+        return buildToolCallResponse(toolCall.id, result);
       }),
     );
 

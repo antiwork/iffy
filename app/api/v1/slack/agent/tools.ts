@@ -29,26 +29,28 @@ export const SLACK_AGENT_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "getUserInfo",
-      description: "Get information about a user",
+      description: "Get information about a user using their email address, client ID, or user ID",
+      strict: true,
       parameters: {
         type: "object",
         properties: {
           userId: {
             type: "string",
-            description: "The ID of the user to retrieve information for",
+            description:
+              "The identifier of the user to get information about. This can be an email address, client ID, or user ID",
           },
         },
         required: ["userId"],
         additionalProperties: false,
       },
-      strict: true,
     },
   },
   {
     type: "function",
     function: {
       name: "suspendUsers",
-      description: "Suspend one or more users",
+      description: "Suspend one or more users using their email address, client ID, or user ID",
+      strict: true,
       parameters: {
         type: "object",
         properties: {
@@ -60,21 +62,21 @@ export const SLACK_AGENT_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
             type: "array",
             items: {
               type: "string",
-              description: "The ID of the user to suspend",
+              description: "The identifier of the user to suspend. This can be an email address, client ID, or user ID",
             },
           },
         },
         additionalProperties: false,
-        required: ["userIds", "reason"],
+        required: ["reason", "userIds"],
       },
-      strict: true,
     },
   },
   {
     type: "function",
     function: {
       name: "unsuspendUsers",
-      description: "Unsuspend one or more users",
+      description: "Unsuspend one or more users using their email address, client ID, or user ID",
+      strict: true,
       parameters: {
         type: "object",
         properties: {
@@ -86,14 +88,14 @@ export const SLACK_AGENT_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
             type: "array",
             items: {
               type: "string",
-              description: "The ID of the user to unsuspend",
+              description:
+                "The identifier of the user to unsuspend. This can be an email address, client ID, or user ID",
             },
           },
         },
         additionalProperties: false,
-        required: ["userIds", "reason"],
+        required: ["reason", "userIds"],
       },
-      strict: true,
     },
   },
   {
@@ -101,12 +103,12 @@ export const SLACK_AGENT_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
     function: {
       name: "getCurrentSlackChannelUsers",
       description: "Get the list of users in the current Slack channel",
+      strict: true,
       parameters: {
         type: "object",
         properties: {},
         additionalProperties: false,
       },
-      strict: true,
     },
   },
 ];
