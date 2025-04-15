@@ -46,13 +46,7 @@ export async function handleAppMention(ctx: SlackContext<"app_mention">): Promis
   if (!orgDetails) {
     return NextResponse.json({ error: "No organization found" }, { status: 400 });
   }
-
-  const { organization, inbox } = orgDetails;
-  if (!organization) {
-    return NextResponse.json({ error: "No organization found" }, { status: 400 });
-  }
-
-  return iffyAgent({ ctx, organization, inbox });
+  return iffyAgent({ ctx, ...orgDetails });
 }
 
 async function iffyAgent({
@@ -68,6 +62,7 @@ async function iffyAgent({
 
   const iffyBotIdRegex = /<@([A-Z0-9]+)>/;
   const iffyBotId = text.match(iffyBotIdRegex)?.[1];
+
   payload.event.bot_id = iffyBotId;
   payload.event.text = text.replace(iffyBotIdRegex, "").trim();
 
@@ -142,7 +137,6 @@ async function createLlmResponse({
 
   if (toolResults?.length) {
     messages.push(...response.messages);
-    console.log("ADDING TOOL CALL RESULTS", { toolResults });
     return createLlmResponse({
       ctx,
       inbox,
@@ -150,8 +144,6 @@ async function createLlmResponse({
       chatHistory: messages,
       username,
     });
-  } else {
-    console.log("NO TOOL CALL RESULTS", { toolCalls });
   }
 
   return text || "No response generated";
