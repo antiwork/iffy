@@ -10,11 +10,9 @@ class BaseSlackContext<T extends SupportedSlackEvents> {
   eventName: T;
   protected _client: WebClient | null = null;
   payload: SlackEventPayload<T>;
-  request: Request;
 
-  constructor(event: SlackEventPayload<T>, request: Request) {
+  constructor(event: SlackEventPayload<T>) {
     this.payload = this._transformToSlackEvent(event);
-    this.request = request;
     this.eventName = this.payload.type as T;
   }
 
@@ -61,30 +59,15 @@ class BaseSlackContext<T extends SupportedSlackEvents> {
 class SlackContext<T extends SupportedSlackEvents> extends BaseSlackContext<T> {
   async initialize() {
     const { payload } = this;
-    if (!payload.teamId) {
-      throw new Error("Missing team ID in payload");
-    }
-    if (!payload.appId) {
-      throw new Error("Missing app ID in payload");
-    }
-
     const orgDetails = await this.getOrganizationDetails(payload.teamId);
-    if (!orgDetails) {
-      throw new Error("No organization found for this team ID");
-    }
-    const { organization, inbox } = orgDetails;
-    if (!organization) {
-      throw new Error("No organization found for this inbox");
-    }
-    if (!inbox) {
-      throw new Error("No inbox found for this organization");
-    }
-    this.payload.inbox = inbox;
-    this.payload.organization = organization;
 
-    this._client = new WebClient(decrypt(inbox.inboxAccessToken), {
-      logLevel: LogLevel.ERROR,
-    });
+    if (orgDetails) {
+      this.payload.inbox = orgDetails.inbox;
+      this.payload.organization = orgDetails.organization;
+      this._client = new WebClient(decrypt(this.payload.inbox.inboxAccessToken), {
+        logLevel: LogLevel.ERROR,
+      });
+    }
   }
 
   get inbox() {
