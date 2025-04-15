@@ -1,10 +1,10 @@
-import SlackContext from "@/app/api/v1/slack/agent/context";
+import findUserById from "./utils";
 
 /**
  * Get information about a user
  */
-async function getUserInfo({ userId, ctx }: { userId: string; ctx: SlackContext<"app_mention"> }) {
-  const user = await ctx.findUserById(userId);
+async function getUserInfo({ userId }: { userId: string }) {
+  const user = await findUserById(userId);
   if (!user) {
     return { result: `User with ID ${userId} not found` };
   }

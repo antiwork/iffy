@@ -1,21 +1,13 @@
-import SlackContext from "@/app/api/v1/slack/agent/context";
 import { createUserAction } from "@/services/user-actions";
+import findUserById from "./utils";
 
 /**
  * Unsuspend one or more users
  */
-async function unsuspendUsers({
-  reasoning,
-  userIds,
-  ctx,
-}: {
-  userIds: string[];
-  reasoning: string;
-  ctx: SlackContext<"app_mention">;
-}) {
+async function unsuspendUsers({ reasoning, userIds }: { userIds: string[]; reasoning: string }) {
   const results = await Promise.allSettled(
     userIds.map(async (userId) => {
-      const user = await ctx.findUserById(userId);
+      const user = await findUserById(userId);
 
       if (!user) {
         throw new Error(`User ${userId} not found`);
