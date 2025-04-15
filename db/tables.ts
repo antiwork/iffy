@@ -64,6 +64,18 @@ export const moderations = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
+      //TODO: table org foreign key decide 
+      moderationsOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "moderations_organization_id_fkey",
+      }),
+      //TODO: table user foreign key decide 
+      moderationsUserIdFkey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [user.id],
+        name: "moderations_user_id_fkey",
+      }),
       moderationsRulesetIdFkey: foreignKey({
         columns: [table.rulesetId],
         foreignColumns: [rulesets.id],
@@ -80,16 +92,31 @@ export const moderations = pgTable(
   },
 );
 
-export const rulesets = pgTable("rulesets", {
-  id: text().primaryKey().notNull().$defaultFn(cuid),
-  organizationId: text("organization_id").notNull(),
-  name: text().notNull(),
-  createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-});
+export const rulesets = pgTable(
+  "rulesets",
+  {
+    id: text().primaryKey().notNull().$defaultFn(cuid),
+    organizationId: text("organization_id").notNull(),
+    name: text().notNull(),
+    createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => {
+    return {
+      //TODO: table org foreign key descide 
+      rulesetsOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "rulesets_organization_id_fkey",
+      })
+      //.onUpdate("cascade") 
+      //.onDelete("restrict"),
+    };
+  },
+);
 
 export const userActions = pgTable(
   "user_actions",
@@ -114,13 +141,25 @@ export const userActions = pgTable(
   (table) => {
     return {
       userIdIdx: index("user_actions_end_user_id_idx").using("btree", table.endUserId.asc().nullsLast().op("text_ops")),
-      userActionsUserIdFkey: foreignKey({
+      userActionsEndUserIdFkey: foreignKey({
         columns: [table.endUserId],
         foreignColumns: [endUsers.id],
         name: "user_actions_end_user_id_fkey",
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
+      //TODO: table org foreign key  (do we need foreign key)
+      userActionsOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "user_actions_organization_id_fkey",
+      }),
+      //TODO: table user foreign key decide 
+      userActionsUserIdFkey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [user.id],
+        name: "user_actions_user_id_fkey",
+      }),
     };
   },
 );
@@ -156,6 +195,13 @@ export const rules = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
+
+      //TODO: table org foreign key 
+      rulesOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "rules_organization_id_fkey",
+      })
     };
   },
 );
@@ -183,6 +229,12 @@ export const ruleStrategies = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
+      //TODO: table org foreign key 
+      ruleStrategiesOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "rule_strategies_organization_id_fkey",
+      })
     };
   },
 );
@@ -272,6 +324,12 @@ export const messages = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("set null"),
+      //TODO: table org foreign key 
+      messagesOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "messages_organization_id_fkey",
+      })
     };
   },
 );
@@ -307,21 +365,39 @@ export const endUsers = pgTable(
       ),
       clientIdKey: uniqueIndex("end_users_client_id_key").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
       sortKey: uniqueIndex("end_users_sort_key").using("btree", table.sort.asc().nullsLast().op("int4_ops")),
+      //TODO: table org foreign key 
+      endUserOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "end_users_organization_id_fkey",
+      })
     };
   },
 );
 
-export const webhookEndpoints = pgTable("webhook_endpoints", {
-  id: text().primaryKey().notNull().$defaultFn(cuid),
-  organizationId: text("organization_id").notNull(),
-  url: text().notNull(),
-  secret: text().notNull(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
-  createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-});
+export const webhookEndpoints = pgTable(
+  "webhook_endpoints",
+  {
+    id: text().primaryKey().notNull().$defaultFn(cuid),
+    organizationId: text("organization_id").notNull(),
+    url: text().notNull(),
+    secret: text().notNull(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
+    createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => {
+    return {
+      webhookEndpointsOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "webhook_endpoints_organization_id_fkey",
+      })
+    };
+  },
+);
 
 export const appeals = pgTable(
   "appeals",
@@ -360,6 +436,12 @@ export const appeals = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
+      //TODO: table org foreign key 
+      appealsOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "appeals_organization_id_fkey",
+      })
     };
   },
 );
@@ -384,6 +466,18 @@ export const appealActions = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
+      //TODO: table org foreign key 
+      appealActionsOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "appeal_actions_organization_id_fkey",
+      }),
+      //TODO: table user foreign key decide 
+      appealActionsUserIdFkey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [user.id],
+        name: "appeal_actions_user_id_fkey",
+      }),
     };
   },
 );
@@ -415,6 +509,19 @@ export const apiKeys = pgTable(
         "btree",
         table.encryptedKey.asc().nullsLast().op("text_ops"),
       ),
+
+      //TODO: table org foreign key 
+      apiKeysOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "api_keys_organization_id_fkey",
+      }),
+      //TODO: table user foreign key decide 
+      apiKeysUserIdFkey: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [user.id],
+        name: "api_keys_user_id_fkey",
+      }),
     };
   },
 );
@@ -468,6 +575,12 @@ export const subscriptions = pgTable(
         "btree",
         table.organizationId.asc().nullsLast().op("text_ops"),
       ),
+      //TODO: table org foreign key 
+      subscriptionsOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "subscriptions_organization_id_fkey",
+      })
     };
   },
 );
@@ -535,13 +648,19 @@ export const records = pgTable(
       clientIdKey: uniqueIndex("records_client_id_key").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
       endUserIdIdx: index("records_end_user_id_idx").using("btree", table.endUserId.asc().nullsLast().op("text_ops")),
       sortKey: uniqueIndex("records_sort_key").using("btree", table.sort.asc().nullsLast().op("int4_ops")),
-      recordsUserIdFkey: foreignKey({
+      recordsEndUserIdFkey: foreignKey({
         columns: [table.endUserId],
         foreignColumns: [endUsers.id],
         name: "records_end_user_id_fkey",
       })
         .onUpdate("cascade")
         .onDelete("set null"),
+      //TODO: table org foreign key 
+      recordsOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "records_organization_id_fkey",
+      })
     };
   },
 );
@@ -562,6 +681,7 @@ export const webhookEvents = pgTable(
   },
   (table) => {
     return {
+
       webhookEventsWebhookEndpointIdFkey: foreignKey({
         columns: [table.webhookEndpointId],
         foreignColumns: [webhookEndpoints.id],
@@ -591,6 +711,12 @@ export const emailTemplates = pgTable(
         columns: [table.organizationId, table.type],
         name: "email_templates_pkey",
       }),
+
+      emailTemplatesOrganizationIdFkey: foreignKey({
+        columns: [table.organizationId],
+        foreignColumns: [organizations.id],
+        name: "email_templates_organization_id_fkey",
+      })
     };
   },
 );
