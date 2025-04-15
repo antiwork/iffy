@@ -7,7 +7,9 @@ export const actionClient = createSafeActionClient({
     throw e;
   },
 }).use(async ({ next }) => {
-  const { orgId, userId } = await auth();
+  const { userId } = await auth();
+  const orgId = "default";
+
   if (!userId) {
     throw new Error("Unauthorized: User not found.");
   }
@@ -15,5 +17,5 @@ export const actionClient = createSafeActionClient({
     throw new Error("Unauthorized: Organization not found.");
   }
 
-  return next({ ctx: { clerkOrganizationId: orgId, clerkUserId: userId } });
+  return next({ ctx: { organizationId: orgId, userId: userId } });
 });

@@ -1,8 +1,8 @@
 import DynamicLayout from "./dynamic-layout";
-import { OrganizationList } from "@clerk/nextjs";
+import OrganizationList from "./orgnizations";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { getInboxCount } from "@/services/appeals";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/services/auth";
 import { hasAdminRole } from "@/services/auth";
 import { env } from "@/lib/env";
 
@@ -12,12 +12,7 @@ export default async function Layout({ children, sheet }: { children: React.Reac
   if (!orgId)
     return (
       <div className="flex h-screen items-center justify-center">
-        <OrganizationList
-          hidePersonal={true}
-          skipInvitationScreen={true}
-          afterCreateOrganizationUrl="/dashboard/subscription"
-          afterSelectOrganizationUrl="/dashboard/subscription"
-        />
+        <OrganizationList />
       </div>
     );
 

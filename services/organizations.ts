@@ -3,18 +3,16 @@ import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { encrypt } from "@/services/encrypt";
 
-export async function findOrCreateOrganization(clerkOrganizationId: string) {
-  let [organization] = await db
-    .select()
-    .from(schema.organizations)
-    .where(eq(schema.organizations.clerkOrganizationId, clerkOrganizationId));
+export async function findOrCreateOrganization(organizationId: string) {
+  let [organization] = await db.select().from(schema.organizations).where(eq(schema.organizations.id, organizationId));
 
   if (organization) return organization;
 
   [organization] = await db
     .insert(schema.organizations)
     .values({
-      clerkOrganizationId,
+      id: organizationId,
+      name: "",
     })
     .returning();
 
@@ -26,7 +24,7 @@ export async function findOrCreateOrganization(clerkOrganizationId: string) {
 }
 
 export async function updateOrganization(
-  clerkOrganizationId: string,
+  organizationId: string,
   data: {
     stripeCustomerId?: string;
     emailsEnabled?: boolean;
@@ -37,19 +35,14 @@ export async function updateOrganization(
     suspensionThreshold?: number;
   },
 ) {
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization(organizationId);
   const [updated] = await db
     .update(schema.organizations)
     .set({
       ...data,
       stripeApiKey: data.stripeApiKey ? encrypt(data.stripeApiKey) : undefined,
     })
-    .where(
-      and(
-        eq(schema.organizations.clerkOrganizationId, clerkOrganizationId),
-        eq(schema.organizations.id, organization.id),
-      ),
-    )
+    .where(and(eq(schema.organizations.id, organizationId), eq(schema.organizations.id, organization.id)))
     .returning();
 
   if (!updated) {

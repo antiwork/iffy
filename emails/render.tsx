@@ -12,6 +12,10 @@ import { DefaultTemplateContent, RenderedTemplate } from "./types";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { AppealButton } from "./components/appeal-button";
 import * as schema from "@/db/schema";
+import { env } from "@/lib/env";
+import db from "@/db";
+import { eq } from "drizzle-orm";
+import { Gumroad } from "@/components/logos/gumroad";
 
 type EmailTemplateType = (typeof schema.emailTemplateType.enumValues)[number];
 
@@ -55,34 +59,46 @@ const templates = {
   ["Banned"]: BannedTemplate,
 } as const;
 
+interface OrganizationMetadata {
+  organizationName: string;
+  organizationLogo: string;
+}
+
+async function getOrganizationMetadata(organizationId: string): Promise<OrganizationMetadata> {
+  const { name: organizationName, logo: organizationLogo } = await findOrCreateOrganization(organizationId);
+
+  return {
+    organizationName,
+    organizationLogo: organizationLogo || "",
+  };
+}
+
 export async function render<T extends EmailTemplateType>({
-  clerkOrganizationId,
+  organizationId,
   content,
   type,
   appealUrl,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   content: DefaultTemplateContent;
   type: T;
   appealUrl?: string;
 }): Promise<RenderedTemplate> {
-  const settings = await findOrCreateOrganization(clerkOrganizationId);
+  const settings = await findOrCreateOrganization(organizationId);
 
-  const { name: clerkOrganizationName, imageUrl: clerkOrganizationImageUrl } = await (
-    await clerkClient()
-  ).organizations.getOrganization({ organizationId: clerkOrganizationId });
+  const { organizationName, organizationLogo: organizationImageUrl } = await getOrganizationMetadata(organizationId);
 
   const { subject, heading, body } = await replacePlaceholders(content, {
-    ORGANIZATION_NAME: clerkOrganizationName,
-    ORGANIZATION_IMAGE_URL: clerkOrganizationImageUrl,
+    organizationName,
+    organizationImageUrl,
   });
 
   const paragraphs = body.split("\n\n");
 
   const email = (
     <DefaultEmail
-      organizationName={clerkOrganizationName}
-      organizationImageUrl={clerkOrganizationImageUrl}
+      organizationName={organizationName}
+      organizationImageUrl={organizationImageUrl}
       subject={subject}
       heading={heading}
     >

@@ -19,30 +19,26 @@ const createCheckoutSessionSchema = z.object({
 
 export const createCheckoutSession = actionClient
   .schema(createCheckoutSessionSchema)
-  .action(async ({ parsedInput: { tier, term }, ctx: { clerkOrganizationId, clerkUserId } }) => {
+  .action(async ({ parsedInput: { tier, term }, ctx: { organizationId, userId } }) => {
     if (!env.ENABLE_BILLING || !stripe) {
       throw new Error("Billing is not enabled");
     }
 
-    const organization = await findOrCreateOrganization(clerkOrganizationId);
+    const organization = await findOrCreateOrganization(organizationId);
 
     const product = PRODUCTS[tier];
 
     let stripeCustomerId = organization.stripeCustomerId;
     if (!stripeCustomerId) {
-      const clerkUser = await (await clerkClient()).users.getUser(clerkUserId);
-      const clerkOrganization = await (
-        await clerkClient()
-      ).organizations.getOrganization({
-        organizationId: clerkOrganizationId,
-      });
+      const clerkUser = await (await clerkClient()).users.getUser(userId);
+      const clerkOrganization = await (await clerkClient()).organizations.getOrganization({ organizationId });
 
       const customer = await stripe.customers.create({
         name: clerkOrganization.name,
         email: clerkUser.emailAddresses[0]?.emailAddress ?? undefined,
       });
 
-      await updateOrganization(clerkOrganizationId, {
+      await updateOrganization(organizationId, {
         stripeCustomerId: customer.id,
       });
 
@@ -106,12 +102,12 @@ export const createCheckoutSession = actionClient
     return session.url;
   });
 
-export const createPortalSession = actionClient.action(async ({ ctx: { clerkOrganizationId } }) => {
+export const createPortalSession = actionClient.action(async ({ ctx: { organizationId } }) => {
   if (!env.ENABLE_BILLING || !stripe) {
     throw new Error("Billing is not enabled");
   }
 
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization(organizationId);
   if (!organization.stripeCustomerId) {
     return null;
   }

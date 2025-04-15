@@ -15,6 +15,8 @@ import {
   presets,
   ruleStrategies,
   presetStrategies,
+  members,
+  organizations,
 } from "./tables";
 
 export const moderationsRelations = relations(moderations, ({ one, many }) => ({
@@ -155,5 +157,12 @@ export const presetStrategiesRelations = relations(presetStrategies, ({ one }) =
   preset: one(presets, {
     fields: [presetStrategies.presetId],
     references: [presets.id],
+  }),
+}));
+
+export const memberOrganizationRelations = relations(members, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [members.organizationId],
+    references: [organizations.id],
   }),
 }));

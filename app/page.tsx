@@ -15,7 +15,7 @@ import { IffyImage } from "./iffy-image";
 import { CountLazy } from "./count-lazy";
 import AntiworkFooter from "@/components/antiwork-footer";
 import { DashboardTabs } from "@/components/dashboard-tabs";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@/lib/signed";
 import { env } from "@/lib/env";
 
 const getCount = cache(

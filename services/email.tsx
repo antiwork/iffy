@@ -40,22 +40,21 @@ type CreateEmailOptions = RequireAtLeastOne<EmailRenderOptions> & CreateEmailBas
 type EmailTemplateType = (typeof schema.emailTemplateType.enumValues)[number];
 
 export async function renderEmailTemplate<T extends EmailTemplateType>({
-  clerkOrganizationId,
+  organizationId,
   type,
   appealUrl,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   type: T;
   appealUrl?: string;
 }) {
   const template = await db.query.emailTemplates.findFirst({
-    where: (templates, { and, eq }) =>
-      and(eq(templates.clerkOrganizationId, clerkOrganizationId), eq(templates.type, type)),
+    where: (templates, { and, eq }) => and(eq(templates.organizationId, organizationId), eq(templates.type, type)),
   });
 
   const content = parseContent(template?.content, type);
   return await render<T>({
-    clerkOrganizationId,
+    organizationId,
     content,
     type,
     appealUrl,
@@ -63,24 +62,24 @@ export async function renderEmailTemplate<T extends EmailTemplateType>({
 }
 
 export async function sendEmail({
-  clerkOrganizationId,
-  userId,
+  organizationId,
+  endUserId,
   ...payload
 }: {
-  clerkOrganizationId: string;
-  userId: string;
+  organizationId: string;
+  endUserId: string;
 } & CreateEmailOptions) {
-  const { emailsEnabled } = await findOrCreateOrganization(clerkOrganizationId);
+  const { emailsEnabled } = await findOrCreateOrganization(organizationId);
 
   if (!emailsEnabled || !env.RESEND_API_KEY) {
-    console.log(userId, payload.subject, payload.text, payload.html);
+    console.log(endUserId, payload.subject, payload.text, payload.html);
     return;
   }
 
   const resend = new Resend(env.RESEND_API_KEY);
 
-  const user = await db.query.users.findFirst({
-    where: (users, { and, eq }) => and(eq(users.clerkOrganizationId, clerkOrganizationId), eq(users.id, userId)),
+  const user = await db.query.endUsers.findFirst({
+    where: (endUsers, { and, eq }) => and(eq(endUsers.organizationId, organizationId), eq(endUsers.id, endUserId)),
   });
 
   if (!user) {
@@ -93,7 +92,7 @@ export async function sendEmail({
   }
 
   if (env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
-    console.log(userId, payload.subject, payload.text, payload.html);
+    console.log(endUserId, payload.subject, payload.text, payload.html);
     return;
   }
 
