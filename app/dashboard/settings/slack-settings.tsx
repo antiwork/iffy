@@ -1,0 +1,140 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { getAbsoluteUrl } from "@/lib/url";
+import { SlackInbox } from "@/db/tables";
+
+type SlackSettingsProps = {
+  initialSettings: {
+    organization: {
+      clerkOrganizationId: string;
+    };
+    inboxes?: SlackInbox[];
+  };
+};
+
+const buildSlackAuthUrl = () => {
+  const clientId = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID;
+  if (!clientId) {
+    throw new Error("NEXT_PUBLIC_SLACK_CLIENT_ID is not defined in next.config.mjs environment variables.");
+  }
+
+  let baseUrl = getAbsoluteUrl();
+
+  // if we're running in a local dev environment, use the proxy URL instead
+  // this is useful for testing the Slack integration locally
+  if (baseUrl.includes("localhost") && process.env.NEXT_PUBLIC_LOCAL_HOST_PROXY_URL) {
+    // `env` is not available on the client but we expose this via next.config.mjs so use process.env
+    baseUrl = process.env.NEXT_PUBLIC_LOCAL_HOST_PROXY_URL;
+  }
+
+  // redirect back to the dashboard settings page after auth which handles code exchange
+  const redirectUri = `${baseUrl}/dashboard/settings`;
+  // these are the base permissions we need for v1
+  const scopes = ["incoming-webhook", "channels:read", "chat:write", "app_mentions:read"];
+
+  return `https://slack.com/oauth/v2/authorize?scope=${scopes.join(",")}&redirect_uri=${redirectUri}&client_id=${clientId}`;
+};
+
+export const SlackSettings = ({ initialSettings }: SlackSettingsProps) => {
+  const [slackEnabled, setSlackEnabled] = useState(!!initialSettings.inboxes?.length);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const { organization, inboxes } = initialSettings;
+
+  // let's clear the search params if it succeeded on the server after the redirect
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("code")) return;
+    url.searchParams.delete("code");
+    url.searchParams.delete("state");
+    window.history.replaceState({}, document.title, url.toString());
+    window.location.reload();
+  }, []);
+
+  const handleConnect = async () => {
+    setIsConnecting(true);
+    // the callback will handle resetting the state
+  };
+
+  const handleDisconnect = async () => {
+    setIsDisconnecting(true);
+    try {
+      const response = await fetch("/api/v1/slack/disconnect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ clerkOrganizationId: organization.clerkOrganizationId }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to disconnect from Slack");
+      }
+      setSlackEnabled(false);
+    } catch (error) {
+      console.error("Error disconnecting from Slack:", error);
+    }
+    setIsDisconnecting(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-bold">Slack Integration</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Connect Iffy to your Slack workspace to manage users directly from Slack.
+        </p>
+      </div>
+
+      {slackEnabled ? (
+        <div className="space-y-4">
+          <div className="rounded-md bg-green-50 p-4 dark:bg-green-900/20">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800 dark:text-green-200">Slack integration is active</h3>
+                <div className="mt-2 text-sm text-green-700 dark:text-green-300">
+                  <p>Your Slack workspace is connected to Iffy.</p>
+                  <p className="mt-1">You can now manage users directly from Slack.</p>
+                  <p className="mt-1">Slack Connections: {inboxes?.length || 0}</p>
+                  {inboxes?.length ? (
+                    <ul className="mt-2 list-disc pl-5 text-sm text-gray-500 dark:text-gray-400">
+                      {inboxes.map((inbox) => (
+                        <li key={inbox.id} className="mt-1">
+                          <span className="font-medium">{inbox.slackTeamName}</span> - {inbox.inboxName}
+                          <span className="text-gray-400 dark:text-gray-500"> ({inbox.slackTeamId})</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Button variant="destructive" onClick={handleDisconnect} disabled={isDisconnecting} className="mt-4">
+            {isDisconnecting ? "Disconnecting..." : "Disconnect Slack"}
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <Link href={buildSlackAuthUrl()} rel="noopener noreferrer" target="_blank">
+            <Button onClick={handleConnect} disabled={isConnecting} className="mt-2">
+              {isConnecting ? "Connecting..." : "Connect Slack Workspace"}
+            </Button>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+};

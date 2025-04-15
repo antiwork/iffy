@@ -58,3 +58,33 @@ export async function updateOrganization(
 
   return updated;
 }
+
+export async function createSlackInbox(
+  clerkOrganizationId: string,
+  data: Omit<typeof schema.slackInboxes.$inferSelect, "id">,
+) {
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const [inbox] = await db
+    .insert(schema.slackInboxes)
+    .values({
+      ...data,
+      clerkOrganizationId: organization.clerkOrganizationId,
+    })
+    .returning();
+
+  if (!inbox) {
+    throw new Error("Failed to create Slack inbox");
+  }
+
+  return inbox;
+}
+
+export async function findSlackInboxes(clerkOrganizationId: string) {
+  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const inboxes = await db
+    .select()
+    .from(schema.slackInboxes)
+    .where(eq(schema.slackInboxes.clerkOrganizationId, organization.clerkOrganizationId));
+
+  return inboxes;
+}

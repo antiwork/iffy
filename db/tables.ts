@@ -591,3 +591,41 @@ export const emailTemplates = pgTable(
     };
   },
 );
+
+export const slackInboxes = pgTable(
+  "slack_inboxes",
+  {
+    id: text().notNull().$defaultFn(cuid),
+    clerkOrganizationId: text("clerk_organization_id").notNull(),
+    slackTeamId: text("slack_team_id").notNull(),
+    slackTeamName: text("slack_team_name").notNull(),
+    channelId: text("channel_id").notNull(),
+    inboxName: text("inbox_name").notNull(),
+    botUserId: text("bot_user_id").notNull(),
+    inboxAccessToken: text("inbox_access_token").notNull(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
+    createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => {
+    return {
+      slackInboxPkey: primaryKey({
+        columns: [table.clerkOrganizationId, table.channelId],
+        name: "slack_inboxes_pkey",
+      }),
+      slackInboxesClerkOrganizationIdIdx: index("slack_inboxes_clerk_organization_id_idx").using(
+        "btree",
+        table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
+      ),
+      slackInboxesChannelIdIdx: index("slack_inboxes_channel_id_idx").using(
+        "btree",
+        table.channelId.asc().nullsLast().op("text_ops"),
+      ),
+    };
+  },
+);
+
+export type Organization = typeof organizations.$inferSelect;
+export type SlackInbox = typeof slackInboxes.$inferSelect;
