@@ -111,3 +111,87 @@ export async function sendEmail({
 
   return data;
 }
+
+
+
+export async function sendVerificationOTP({ email, otp, type }) {
+  const subject = type === 'signup'
+    ? 'Verify your account'
+    : 'Login verification';
+
+  //TODO: make template for signup and login
+  const text = `Your ${type === 'signup' ? 'verification' : 'login'} otp is: ${otp}`;
+  const html = `<p>${text}</p>`;
+
+  if (type === 'signup') {
+
+    // Send direct email for signup verification
+    if (!env.RESEND_API_KEY) {
+      console.log('Signup verification', email, subject, text);
+      return;
+    }
+
+    const resend = new Resend(env.RESEND_API_KEY);
+    const fromEmail = `${env.RESEND_FROM_NAME} <${env.RESEND_FROM_EMAIL}>`;
+
+    if (env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
+      console.log('Signup verification', email, subject, text);
+      return;
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: [email],
+      subject,
+      text,
+      html
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+  // For login verification
+  else if (type === 'login') {
+    // WARN: I have test this functionality
+    // We only need to verify the email exists in our system
+    // const user = await db.query.endUsers.findFirst({
+    //   where: (users, { eq }) => eq(users.email, email),
+    // });
+    // if (!user) {
+    //   console.error(`User with email ${email} not found for login verification`);
+    //   throw new Error("User not found");
+    // }
+
+    // Send direct email for login verification
+    if (!env.RESEND_API_KEY) {
+      console.log('Login verification', email, subject, text);
+      return;
+    }
+
+    const resend = new Resend(env.RESEND_API_KEY);
+    const fromEmail = `${env.RESEND_FROM_NAME} <${env.RESEND_FROM_EMAIL}>`;
+
+    if (env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
+      console.log('Login verification', email, subject, text);
+      return;
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: [email],
+      subject,
+      text,
+      html
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+}
+
