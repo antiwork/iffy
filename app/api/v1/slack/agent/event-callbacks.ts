@@ -1,8 +1,8 @@
-import { handleAppMention } from "../events/app-mention";
 import { SlackEventCallbacks, SupportedSlackEvents } from "./types";
+import handleMessage from "../events/message";
 
 const slackCallbacks: SlackEventCallbacks<SupportedSlackEvents> = {
-  app_mention: [handleAppMention],
+  message: [handleMessage],
 } as SlackEventCallbacks<SupportedSlackEvents>;
 
 export { slackCallbacks };
