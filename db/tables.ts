@@ -423,7 +423,10 @@ export const organizations = pgTable(
   "organizations",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull().unique(),
+    name: text('name').notNull(),
+    slug: text('slug').unique(),
+    logo: text('logo'),
+    metadata: text('metadata'),
     stripeCustomerId: text("stripe_customer_id").unique(),
     emailsEnabled: boolean("emails_enabled").default(false).notNull(),
     testModeEnabled: boolean("test_mode_enabled").default(true).notNull(),
@@ -439,9 +442,9 @@ export const organizations = pgTable(
   },
   (table) => {
     return {
-      organizationIdKey: uniqueIndex("organizations_organization_id_key").using(
+      organizationIdKey: uniqueIndex("organizations_id_key").using(
         "btree",
-        table.organizationId.asc().nullsLast().op("text_ops"),
+        table.id.asc().nullsLast().op("text_ops"),
       ),
     };
   },
@@ -591,3 +594,4 @@ export const emailTemplates = pgTable(
     };
   },
 );
+
