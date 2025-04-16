@@ -123,8 +123,8 @@ const globalStyles = `
 `;
 
 export const DefaultEmail = ({
-  organizationImageUrl: clerkOrganizationImageUrl,
-  organizationName: clerkOrganizationName,
+  organizationImageUrl: organizationImageUrl,
+  organizationName: organizationName,
   heading,
   subject,
   children,
@@ -143,12 +143,12 @@ export const DefaultEmail = ({
           <Section className="email-footer">
             <Row>
               <Column align="center">
-                <Img alt="Instagram" height="36" src={clerkOrganizationImageUrl} width="36" />
+                <Img alt="Instagram" height="36" src={organizationImageUrl} width="36" />
               </Column>
             </Row>
             <Row className="email-footer-text">
               <Column align="center">
-                <Text>from {clerkOrganizationName}</Text>
+                <Text>from {organizationName}</Text>
                 <Text>
                   powered by <Link href="https://iffy.com">iffy.com</Link>
                 </Text>

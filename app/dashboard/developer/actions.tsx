@@ -63,6 +63,7 @@ export const deleteApiKey = actionClient
 export const updateOrganization = actionClient
   .schema(updateOrganizationSchema)
   .action(async ({ parsedInput, ctx: { organizationId } }) => {
+    console.log({ organizationId });
     const settings = await organizationService.updateOrganization(organizationId, parsedInput);
     revalidatePath("/dashboard/developer");
     revalidatePath("/dashboard/settings");

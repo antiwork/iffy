@@ -64,7 +64,7 @@ export async function createAppealAction({
       await inngest.send({
         name: "appeal-action/status-changed",
         data: {
-          clerkOrganizationId: organizationId,
+          organizationId,
           id: appealAction.id,
           appealId,
           status,

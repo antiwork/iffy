@@ -3,7 +3,7 @@
 import crypto from "crypto";
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { formatClerkUser } from "@/lib/clerk";
+import { formatUserWithUserId } from "@/lib/user-action";
 import { eq, and, isNull } from "drizzle-orm";
 import { decrypt, encrypt, generateHash } from "@/services/encrypt";
 
@@ -27,7 +27,7 @@ export async function getApiKeys({ organizationId }: { organizationId: string })
     keys.map(async ({ encryptedKey, ...key }) => ({
       ...key,
       previewKey: createVisualKey(decrypt(encryptedKey)),
-      createdBy: await formatClerkUser(key.userId),
+      createdBy: await formatUserWithUserId(key.userId),
     })),
   );
 
@@ -63,7 +63,7 @@ export async function createApiKey({
     key: {
       ...newKey,
       previewKey: createVisualKey(generatedKey),
-      createdBy: await formatClerkUser(userId),
+      createdBy: await formatUserWithUserId(userId),
     },
     decryptedKey: generatedKey,
   };

@@ -1,5 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
 import { createSafeActionClient } from "next-safe-action";
+import { auth } from "@/services/auth";
 
 export const actionClient = createSafeActionClient({
   handleServerError(e) {
@@ -7,8 +7,7 @@ export const actionClient = createSafeActionClient({
     throw e;
   },
 }).use(async ({ next }) => {
-  const { userId } = await auth();
-  const orgId = "default";
+  const { userId, orgId } = await auth();
 
   if (!userId) {
     throw new Error("Unauthorized: User not found.");

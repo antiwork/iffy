@@ -1,5 +1,4 @@
 import * as React from "react";
-import { clerkClient } from "@clerk/nextjs/server";
 import { Liquid } from "liquidjs";
 import { z } from "zod";
 import { render as renderComponent, Text } from "@react-email/components";
@@ -12,10 +11,6 @@ import { DefaultTemplateContent, RenderedTemplate } from "./types";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { AppealButton } from "./components/appeal-button";
 import * as schema from "@/db/schema";
-import { env } from "@/lib/env";
-import db from "@/db";
-import { eq } from "drizzle-orm";
-import { Gumroad } from "@/components/logos/gumroad";
 
 type EmailTemplateType = (typeof schema.emailTemplateType.enumValues)[number];
 
@@ -65,7 +60,7 @@ interface OrganizationMetadata {
 }
 
 async function getOrganizationMetadata(organizationId: string): Promise<OrganizationMetadata> {
-  const { name: organizationName, logo: organizationLogo } = await findOrCreateOrganization(organizationId);
+  const { name: organizationName, logo: organizationLogo } = await findOrCreateOrganization({ id: organizationId });
 
   return {
     organizationName,
@@ -84,7 +79,7 @@ export async function render<T extends EmailTemplateType>({
   type: T;
   appealUrl?: string;
 }): Promise<RenderedTemplate> {
-  const settings = await findOrCreateOrganization(organizationId);
+  const settings = await findOrCreateOrganization({ id: organizationId });
 
   const { organizationName, organizationLogo: organizationImageUrl } = await getOrganizationMetadata(organizationId);
 

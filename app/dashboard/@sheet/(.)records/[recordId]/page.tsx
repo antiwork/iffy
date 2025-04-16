@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ recordId:
   const id = (await params).recordId;
 
   const record = await db.query.records.findFirst({
-    where: and(eq(schema.records.clerkOrganizationId, orgId), eq(schema.records.id, id)),
+    where: and(eq(schema.records.organizationId, orgId), eq(schema.records.id, id)),
   });
 
   if (!record) {
@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: Promise<{ recordId: str
   const id = (await params).recordId;
   return (
     <RouterSheet title="Record">
-      <RecordDetail clerkOrganizationId={orgId} id={id} />
+      <RecordDetail organizationId={orgId} id={id} />
     </RouterSheet>
   );
 }

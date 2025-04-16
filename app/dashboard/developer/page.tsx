@@ -25,7 +25,7 @@ export default async function DeveloperPage() {
     webhookEndpoint.secret = decrypt(webhookEndpoint.secret);
   }
 
-  const organization = await findOrCreateOrganization(orgId);
+  const organization = await findOrCreateOrganization({ id: orgId });
 
   return (
     <div className="px-12 py-8">

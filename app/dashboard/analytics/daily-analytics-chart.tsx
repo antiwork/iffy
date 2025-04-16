@@ -9,7 +9,7 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 import * as schema from "@/db/schema";
 import { formatDay, formatDayFull } from "@/lib/date";
 
-type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "clerkOrganizationId">;
+type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "organizationId">;
 
 const COLORS = [
   defaultTheme.colors().blue[700],

@@ -1,5 +1,5 @@
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { UserActionDetail } from "./user-action";
 import db from "@/db";
@@ -13,13 +13,13 @@ export async function generateMetadata({ params }: { params: Promise<{ actionId:
   const id = (await params).actionId;
 
   const userAction = await db.query.userActions.findFirst({
-    where: and(eq(schema.userActions.clerkOrganizationId, orgId), eq(schema.userActions.id, id)),
+    where: and(eq(schema.userActions.organizationId, orgId), eq(schema.userActions.id, id)),
     with: {
       user: true,
     },
   });
 
-  if (!userAction) {
+  if (!userAction || !userAction.user) {
     return notFound();
   }
 
@@ -33,5 +33,5 @@ export default async function UserActionPage({ params }: { params: Promise<{ act
 
   const id = (await params).actionId;
 
-  return <UserActionDetail clerkOrganizationId={orgId} id={id} />;
+  return <UserActionDetail organizationId={orgId} id={id} />;
 }

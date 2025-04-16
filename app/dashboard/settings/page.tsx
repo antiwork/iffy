@@ -2,7 +2,6 @@ import { findOrCreateOrganization } from "@/services/organizations";
 import { Settings } from "./settings";
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { Metadata } from "next";
-import { hasAdminRole } from "@/services/auth";
 
 export const metadata: Metadata = {
   title: "Settings | Iffy",
@@ -10,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function SettingsPage() {
   const { orgId } = await authWithOrgSubscription();
-  const organization = await findOrCreateOrganization(orgId);
+  const organization = await findOrCreateOrganization({ id: orgId });
 
   return (
     <div className="px-12 py-8">

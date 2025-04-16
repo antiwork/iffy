@@ -15,7 +15,7 @@ import { hasActiveSubscription } from "@/services/stripe/subscriptions";
 import { env } from "@/lib/env";
 
 export async function POST(req: NextRequest) {
-  const [isValid, clerkOrganizationId] = await authenticateRequest(req);
+  const [isValid, organizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
@@ -25,17 +25,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  if (env.ENABLE_BILLING && !(await hasActiveSubscription(clerkOrganizationId))) {
+  if (env.ENABLE_BILLING && !(await hasActiveSubscription(organizationId))) {
     return NextResponse.json(
       { error: { message: "No active subscription. Please sign up for a subscription." } },
       { status: 403 },
     );
   }
 
-  let user: typeof schema.users.$inferSelect | undefined;
+  let user: typeof schema.endUsers.$inferSelect | undefined;
   if (data.user) {
     user = await createOrUpdateUser({
-      clerkOrganizationId,
+      organizationId,
       clientId: data.user.clientId,
       clientUrl: data.user.clientUrl,
       email: data.user.email,
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   const content = typeof data.content === "string" ? { text: data.content } : data.content;
 
   const record = await createOrUpdateRecord({
-    clerkOrganizationId,
+    organizationId,
     clientId: data.clientId,
     name: data.name,
     entity: data.entity,
@@ -58,11 +58,11 @@ export async function POST(req: NextRequest) {
     imageUrls: content.imageUrls,
     externalUrls: content.externalUrls,
     clientUrl: data.clientUrl,
-    userId: user?.id,
+    endUserId: user?.id,
     metadata: data.metadata,
   });
 
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization({ id: organizationId });
 
   let moderationThreshold = false;
 
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
   let pendingModeration: typeof schema.moderations.$inferSelect | undefined;
   if (moderationThreshold && !record.protected) {
     pendingModeration = await createPendingModeration({
-      clerkOrganizationId,
+      organizationId,
       recordId: record.id,
       via: "AI",
     });
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
       await inngest.send({
         name: "moderation/moderated",
         data: {
-          clerkOrganizationId,
+          organizationId,
           moderationId: pendingModeration.id,
           recordId: record.id,
         },
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
       await inngest.send({
         name: "moderation/usage",
         data: {
-          clerkOrganizationId,
+          organizationId,
           id: pendingModeration.id,
           recordId: record.id,
         },
@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const [isValid, clerkOrganizationId] = await authenticateRequest(req);
+  const [isValid, organizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
@@ -133,12 +133,12 @@ export async function DELETE(req: NextRequest) {
   }
 
   const record = await db.query.records.findFirst({
-    where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.clientId, data.clientId)),
+    where: and(eq(schema.records.organizationId, organizationId), eq(schema.records.clientId, data.clientId)),
   });
   if (!record) {
     return NextResponse.json({ error: { message: "Record not found" } }, { status: 404 });
   }
 
-  await deleteRecord(clerkOrganizationId, record.id);
+  await deleteRecord(organizationId, record.id);
   return NextResponse.json({ message: "Success" }, { status: 200 });
 }

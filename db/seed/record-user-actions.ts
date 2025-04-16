@@ -31,7 +31,7 @@ export async function seedUserActions(organizationId: string) {
     .returning();
 
   const { subject, body } = await renderEmailTemplate({
-    clerkOrganizationId: organizationId,
+    organizationId,
     type: "Suspended",
   });
 
@@ -46,7 +46,7 @@ export async function seedUserActions(organizationId: string) {
 
     if (userAction.status === "Suspended") {
       await createMessage({
-        clerkOrganizationId: organizationId,
+        organizationId,
         userActionId: userAction.id,
         type: "Outbound",
         toId: userAction.endUserId,

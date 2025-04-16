@@ -46,7 +46,7 @@ export const rulesetsRelations = relations(rulesets, ({ many }) => ({
 
 export const userActionsRelations = relations(userActions, ({ one, many }) => ({
   user: one(endUsers, {
-    fields: [userActions.userId],
+    fields: [userActions.endUserId],
     references: [endUsers.id],
   }),
   messages: many(messages),

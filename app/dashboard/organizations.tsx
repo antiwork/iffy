@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { useListOrganizations, organization } from "@/lib/auth-client";
-import CreateOrganization from "./create-organization";
+import { CreateOrganization } from "@/components/create-organization";
 
 export default function OrganizationList() {
   const [showCreate, setShowCreate] = useState(false);
@@ -15,7 +15,7 @@ export default function OrganizationList() {
   const handleSelect = async (orgId: string) => {
     const { error } = await organization.setActive({ organizationId: orgId });
     if (!error) {
-      router.push("/dashboard");
+      router.refresh();
     }
   };
 
@@ -25,27 +25,22 @@ export default function OrganizationList() {
         <CardTitle>Select an organization</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {showCreate ? (
-          <CreateOrganization />
-        ) : (
-          <>
-            <div className="space-y-2">
-              {organizations?.map((org) => (
-                <Button
-                  key={org.id}
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => handleSelect(org.id)}
-                >
-                  {org.name}
-                </Button>
-              ))}
-            </div>
-            <Button className="w-full" onClick={() => setShowCreate(true)}>
-              Create organization
+        <div className="space-y-2">
+          {organizations?.map((org) => (
+            <Button
+              key={org.id}
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => handleSelect(org.id)}
+            >
+              {org.name}
             </Button>
-          </>
-        )}
+          ))}
+        </div>
+        <Button className="w-full" onClick={() => setShowCreate(true)}>
+          Create organization
+        </Button>
+        <CreateOrganization open={showCreate} onOpenChange={setShowCreate} />
       </CardContent>
     </Card>
   );

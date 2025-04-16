@@ -27,8 +27,8 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
     return redirect("/");
   }
 
-  const user = await db.query.users.findFirst({
-    where: eq(schema.users.id, userId),
+  const user = await db.query.endUsers.findFirst({
+    where: eq(schema.endUsers.id, userId),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],
@@ -47,8 +47,8 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
   const latestAction = user.actions[0];
   const latestAppeal = latestAction?.appeal;
 
-  const { clerkOrganizationId } = user;
-  const { appealsEnabled } = await findOrCreateOrganization(clerkOrganizationId);
+  const { organizationId } = user;
+  const { appealsEnabled } = await findOrCreateOrganization({ id: organizationId });
   if (!appealsEnabled) {
     return redirect("/");
   }
@@ -103,8 +103,8 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
 
   const records = await db.query.records.findMany({
     where: and(
-      eq(schema.records.clerkOrganizationId, clerkOrganizationId),
-      eq(schema.records.userId, user.id),
+      eq(schema.records.organizationId, organizationId),
+      eq(schema.records.endUserId, user.id),
       isNull(schema.records.deletedAt),
     ),
     with: {

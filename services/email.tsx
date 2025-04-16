@@ -69,7 +69,7 @@ export async function sendEmail({
   organizationId: string;
   endUserId: string;
 } & CreateEmailOptions) {
-  const { emailsEnabled } = await findOrCreateOrganization(organizationId);
+  const { emailsEnabled } = await findOrCreateOrganization({ id: organizationId });
 
   if (!emailsEnabled || !env.RESEND_API_KEY) {
     console.log(endUserId, payload.subject, payload.text, payload.html);

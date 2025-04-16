@@ -12,18 +12,18 @@ export const updateEmailTemplate = actionClient
   .schema(updateEmailTemplateSchema)
   .bindArgsSchemas([z.enum(schema.emailTemplateType.enumValues)])
   .action(
-    async ({ parsedInput: { subject, heading, body }, bindArgsParsedInputs: [type], ctx: { clerkOrganizationId } }) => {
+    async ({ parsedInput: { subject, heading, body }, bindArgsParsedInputs: [type], ctx: { organizationId } }) => {
       validateContent({ subject, heading, body });
 
       const [emailTemplate] = await db
         .insert(schema.emailTemplates)
         .values({
-          clerkOrganizationId,
+          organizationId,
           type,
           content: { subject, heading, body },
         })
         .onConflictDoUpdate({
-          target: [schema.emailTemplates.clerkOrganizationId, schema.emailTemplates.type],
+          target: [schema.emailTemplates.organizationId, schema.emailTemplates.type],
           set: {
             content: { subject, heading, body },
           },

@@ -11,12 +11,12 @@ import { CreateAppealRequestData } from "./schema";
 import { parseRequestBody } from "@/app/api/parse";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
-  const [isValid, clerkOrganizationId] = await authenticateRequest(req);
+  const [isValid, organizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { appealsEnabled } = await findOrCreateOrganization(clerkOrganizationId);
+  const { appealsEnabled } = await findOrCreateOrganization({ id: organizationId });
   if (!appealsEnabled) {
     return NextResponse.json({ error: { message: "Appeals are not enabled" } }, { status: 400 });
   }
@@ -28,8 +28,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const user = await db.query.users.findFirst({
-    where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, id)),
+  const user = await db.query.endUsers.findFirst({
+    where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, id)),
   });
 
   if (!user) {
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
   try {
     const appeal = await createAppeal({ userId: user.id, text: data.text });
 
-    const organization = await findOrCreateOrganization(clerkOrganizationId);
+    const organization = await findOrCreateOrganization({ id: organizationId });
 
     const appealUrl = organization.appealsEnabled
       ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(user.id)}`)

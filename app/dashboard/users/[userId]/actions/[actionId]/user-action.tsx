@@ -10,24 +10,24 @@ import { Button } from "@/components/ui/button";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import db from "@/db";
-import { formatClerkUser } from "@/lib/clerk";
+import { formatUserWithUserId } from "@/lib/user-action";
 import { notFound } from "next/navigation";
 import { findOrCreateOrganization } from "@/services/organizations";
 
-export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
+export async function UserActionDetail({ organizationId, id }: { organizationId: string; id: string }) {
   const userAction = await db.query.userActions.findFirst({
-    where: and(eq(schema.userActions.clerkOrganizationId, clerkOrganizationId), eq(schema.userActions.id, id)),
+    where: and(eq(schema.userActions.organizationId, organizationId), eq(schema.userActions.id, id)),
     with: {
       user: true,
       appeal: true,
     },
   });
 
-  if (!userAction) {
+  if (!userAction || !userAction.user) {
     return notFound();
   }
 
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization({ id: organizationId });
   const appealsEnabled = organization.appealsEnabled;
 
   return (
@@ -91,7 +91,7 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
                 {userAction.via === "Manual" && (
                   <div className="grid gap-2">
                     <div>Action created manually</div>
-                    {userAction.clerkUserId && <div>{await formatClerkUser(userAction.clerkUserId)}</div>}
+                    {userAction.userId && <div>{await formatUserWithUserId(userAction.userId)}</div>}
                   </div>
                 )}
               </dd>

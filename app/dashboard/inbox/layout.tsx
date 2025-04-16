@@ -6,12 +6,12 @@ import { findOrCreateOrganization } from "@/services/organizations";
 const InboxLayout = async ({ children }: { children: React.ReactNode }) => {
   const { orgId } = await authWithOrgSubscription();
 
-  const organization = await findOrCreateOrganization(orgId);
+  const organization = await findOrCreateOrganization({ id: orgId });
   if (!organization.appealsEnabled) {
     return notFound();
   }
 
-  return <Appeals clerkOrganizationId={orgId}>{children}</Appeals>;
+  return <Appeals organizationId={orgId}>{children}</Appeals>;
 };
 
 export default InboxLayout;

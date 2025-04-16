@@ -3,16 +3,27 @@ import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { encrypt } from "@/services/encrypt";
 
-export async function findOrCreateOrganization(organizationId: string) {
-  let [organization] = await db.select().from(schema.organizations).where(eq(schema.organizations.id, organizationId));
+interface FindOrCreateOrganizationInput {
+  id?: string;
+  name?: string;
+  logo?: string;
+  slug?: string;
+}
 
-  if (organization) return organization;
+export async function findOrCreateOrganization({ id, name, logo, slug }: FindOrCreateOrganizationInput) {
+  if (id) {
+    let [organization] = await db.select().from(schema.organizations).where(eq(schema.organizations.id, id));
+    if (organization) return organization;
+  }
 
-  [organization] = await db
+  if (!name) throw new Error("Failed to create organization");
+
+  let [organization] = await db
     .insert(schema.organizations)
     .values({
-      id: organizationId,
-      name: "",
+      name,
+      logo,
+      slug,
     })
     .returning();
 
@@ -35,7 +46,7 @@ export async function updateOrganization(
     suspensionThreshold?: number;
   },
 ) {
-  const organization = await findOrCreateOrganization(organizationId);
+  const organization = await findOrCreateOrganization({ id: organizationId });
   const [updated] = await db
     .update(schema.organizations)
     .set({

@@ -3,7 +3,7 @@ import db from "@/db";
 import { eq } from "drizzle-orm";
 import { HourlyAnalyticsChart } from "./hourly-analytics-chart";
 
-type HourlyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsHourly.$inferSelect, "clerkOrganizationId">;
+type HourlyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsHourly.$inferSelect, "organizationId">;
 
 export async function HourlySection({ orgId, byRule = false }: { orgId: string; byRule?: boolean }) {
   const stats = await db
@@ -17,7 +17,7 @@ export async function HourlySection({ orgId, byRule = false }: { orgId: string; 
     .where(eq(schema.moderationsAnalyticsHourly.organizationId, orgId));
 
   // Builds a 24-hour timeline of moderation stats, filling gaps with zeros
-  const result: HourlyAnalyticsChartData[] = [];
+  const result = [];
   const now = new Date();
   for (let i = 23; i >= 0; i--) {
     const hour = new Date(now.getTime());
@@ -35,7 +35,6 @@ export async function HourlySection({ orgId, byRule = false }: { orgId: string; 
       const { flaggedByRule, ...rest } = stat;
       result.push({
         ...rest,
-        organizationId: orgId,
         flaggedByRule: {
           ...flaggedByRule,
           other: {
@@ -47,7 +46,6 @@ export async function HourlySection({ orgId, byRule = false }: { orgId: string; 
       });
     } else {
       const empty: HourlyAnalyticsChartData = {
-        organizationId: orgId,
         time: hour,
         moderations: 0,
         flagged: 0,

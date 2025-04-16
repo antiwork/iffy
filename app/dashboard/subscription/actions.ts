@@ -11,6 +11,9 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
 import { getAbsoluteUrl } from "@/lib/url";
+import db from "@/db";
+import { eq } from "drizzle-orm";
+import { organizations, users } from "@/db/tables";
 
 const createCheckoutSessionSchema = z.object({
   tier: z.enum(Object.keys(PRODUCTS) as [keyof typeof PRODUCTS, ...(keyof typeof PRODUCTS)[]]),
@@ -24,18 +27,25 @@ export const createCheckoutSession = actionClient
       throw new Error("Billing is not enabled");
     }
 
-    const organization = await findOrCreateOrganization(organizationId);
+    const organization = await findOrCreateOrganization({ id: organizationId });
 
     const product = PRODUCTS[tier];
 
     let stripeCustomerId = organization.stripeCustomerId;
     if (!stripeCustomerId) {
-      const clerkUser = await (await clerkClient()).users.getUser(userId);
-      const clerkOrganization = await (await clerkClient()).organizations.getOrganization({ organizationId });
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+      });
+
+      const organization = await db.query.organizations.findFirst({
+        where: eq(organizations.id, organizationId),
+      });
+
+      if (!user || !organization) throw new Error("Unauthorized, Unable to create Checkout Session");
 
       const customer = await stripe.customers.create({
-        name: clerkOrganization.name,
-        email: clerkUser.emailAddresses[0]?.emailAddress ?? undefined,
+        name: organization.name,
+        email: user.email,
       });
 
       await updateOrganization(organizationId, {
@@ -107,7 +117,7 @@ export const createPortalSession = actionClient.action(async ({ ctx: { organizat
     throw new Error("Billing is not enabled");
   }
 
-  const organization = await findOrCreateOrganization(organizationId);
+  const organization = await findOrCreateOrganization({ id: organizationId });
   if (!organization.stripeCustomerId) {
     return null;
   }

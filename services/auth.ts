@@ -4,7 +4,7 @@ import { auth as betterAuth, Session } from "@/lib/auth";
 import { headers } from "next/headers";
 import db from "@/db";
 import { and, eq } from "drizzle-orm";
-import { members } from "@/auth-schema";
+import { members } from "@/db/tables";
 
 export async function hasAdminRole() {
   const { userId, orgRole } = await auth();
@@ -44,7 +44,7 @@ type Auth = SignedInAuth | SignedOutAuth;
 export async function auth(): Promise<Auth> {
   const response = (await betterAuth.api.getSession({ headers: await headers() })) as Session;
 
-  if (!response.session) {
+  if (!response || !response.session) {
     return {
       sessionId: null,
       userId: null,

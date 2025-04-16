@@ -6,15 +6,15 @@ import { Section, SectionContent, SectionTitle } from "@/components/sheet/sectio
 import Link from "next/link";
 import { FlaskConical } from "lucide-react";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { formatClerkUser } from "@/lib/clerk";
+import { formatUserWithUserId } from "@/lib/user-action";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import db from "@/db";
 import { notFound } from "next/navigation";
 
-export async function ModerationDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
+export async function ModerationDetail({ organizationId, id }: { organizationId: string; id: string }) {
   const moderation = await db.query.moderations.findFirst({
-    where: and(eq(schema.moderations.clerkOrganizationId, clerkOrganizationId), eq(schema.moderations.id, id)),
+    where: and(eq(schema.moderations.organizationId, organizationId), eq(schema.moderations.id, id)),
     with: {
       moderationsToRules: {
         with: {
@@ -74,10 +74,10 @@ export async function ModerationDetail({ clerkOrganizationId, id }: { clerkOrgan
               <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
               <dd>{formatVia(moderation)}</dd>
             </div>
-            {moderation.clerkUserId && (
+            {moderation.userId && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">By</dt>
-                <dd>{await formatClerkUser(moderation.clerkUserId)}</dd>
+                <dd>{await formatUserWithUserId(moderation.userId)}</dd>
               </div>
             )}
             {rules && rules.length > 0 && (

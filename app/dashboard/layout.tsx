@@ -1,5 +1,5 @@
 import DynamicLayout from "./dynamic-layout";
-import OrganizationList from "./orgnizations";
+import OrganizationList from "./organizations";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { getInboxCount } from "@/services/appeals";
 import { auth } from "@/services/auth";
@@ -16,7 +16,7 @@ export default async function Layout({ children, sheet }: { children: React.Reac
       </div>
     );
 
-  const organization = await findOrCreateOrganization(orgId);
+  const organization = await findOrCreateOrganization({ id: orgId });
   const inboxCount = await getInboxCount(orgId);
   const isAdmin = await hasAdminRole();
   return (

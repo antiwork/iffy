@@ -4,6 +4,6 @@ import { auth } from "./auth";
 
 export const { signIn, signUp, signOut, useSession, organization, useActiveOrganization, useListOrganizations } =
   createAuthClient({
-    baseURL: "http://localhost:3000",
+    baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
     plugins: [organizationClient(), customSessionClient<typeof auth>()],
   });

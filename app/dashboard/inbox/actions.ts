@@ -12,12 +12,6 @@ const createAppealActionSchema = z.object({
 export const createAppealAction = actionClient
   .schema(createAppealActionSchema)
   .bindArgsSchemas<[appealId: z.ZodString]>([z.string()])
-  .action(
-    async ({
-      parsedInput: { status },
-      bindArgsParsedInputs: [appealId],
-      ctx: { clerkOrganizationId, clerkUserId },
-    }) => {
-      await services.createAppealAction({ clerkOrganizationId, appealId, status, via: "Manual", clerkUserId });
-    },
-  );
+  .action(async ({ parsedInput: { status }, bindArgsParsedInputs: [appealId], ctx: { organizationId, userId } }) => {
+    await services.createAppealAction({ organizationId, appealId, status, via: "Manual", userId });
+  });

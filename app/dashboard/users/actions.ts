@@ -16,27 +16,27 @@ const createUserActionSchema = z.object({
 // TODO(s3ththompson): Add bulk services in the future
 export const createUserActions = actionClient
   .schema(createUserActionSchema)
-  .bindArgsSchemas<[userIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
+  .bindArgsSchemas<[endUserIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
   .action(
     async ({
       parsedInput: { status, reasoning },
-      bindArgsParsedInputs: [userIds],
+      bindArgsParsedInputs: [endUserIds],
       ctx: { organizationId, userId },
     }) => {
       const userActions = await Promise.all(
-        userIds.map((userId) =>
+        endUserIds.map((endUserId) =>
           service.createUserAction({
             organizationId,
-            userId,
+            endUserId,
             status,
             via: "Manual",
-            clerkUserId,
+            userId,
             reasoning,
           }),
         ),
       );
-      for (const userId of userIds) {
-        revalidatePath(`/dashboard/users/${userId}`);
+      for (const endUserId of endUserIds) {
+        revalidatePath(`/dashboard/users/${endUserId}`);
       }
       return userActions;
     },
@@ -47,17 +47,17 @@ const setUserProtectedSchema = z.boolean();
 export const setUserProtectedMany = actionClient
   .schema(setUserProtectedSchema)
   .bindArgsSchemas<[userIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
-  .action(async ({ parsedInput, bindArgsParsedInputs: [userIds], ctx: { organizationId } }) => {
-    const userRecords = await db
-      .update(schema.users)
+  .action(async ({ parsedInput, bindArgsParsedInputs: [endUserIds], ctx: { organizationId } }) => {
+    const endUserRecords = await db
+      .update(schema.endUsers)
       .set({
         protected: parsedInput,
       })
-      .where(and(eq(schema.users.organizationId, organizationId), inArray(schema.users.id, userIds)))
+      .where(and(eq(schema.endUsers.organizationId, organizationId), inArray(schema.endUsers.id, endUserIds)))
       .returning();
 
-    for (const userId of userIds) {
-      revalidatePath(`/dashboard/users/${userId}`);
+    for (const endUserId of endUserIds) {
+      revalidatePath(`/dashboard/users/${endUserId}`);
     }
-    return userRecords;
+    return endUserRecords;
   });
