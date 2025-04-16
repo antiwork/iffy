@@ -7,7 +7,7 @@ export async function seedOrganization(clerkOrganizationId: string) {
   const organization = await findOrCreateOrganization(clerkOrganizationId);
   const [updatedOrganization] = await db
     .update(schema.organizations)
-    .set({ testModeEnabled: false, emailsEnabled: true })
+    .set({ testModeEnabled: false, emailsEnabled: true, appealsEnabled: true})
     .where(eq(schema.organizations.id, organization.id))
     .returning();
   return [updatedOrganization];
