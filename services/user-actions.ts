@@ -90,7 +90,7 @@ export async function createUserAction({
         data: {
           organizationId,
           id: userAction.id,
-          userId,
+          endUserId: userId,
           status,
           lastStatus: lastUserAction?.status ?? null,
         },
