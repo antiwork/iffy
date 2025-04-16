@@ -78,8 +78,16 @@ function makeAppealTimeline(
 
 const AppealActionItem = ({ item }: { item: AppealTimelineAction }) => {
   return (
-    <div className="text-sm text-gray-950 dark:text-white/80">
-      Appeal marked {getAppealActionStatus(item.data)} via {formatVia(item.data)}
+    <div className="space-y-1 w-full">
+      <div className="text-sm text-gray-950 dark:text-white/80 text-center">
+        Appeal marked {getAppealActionStatus(item.data)} via {formatVia(item.data)}
+      </div>
+      {/* Conditionally render the reasoning if it exists */}
+      {item.data.reasoning && (
+         <div className="pl-4 text-xs text-stone-600 dark:text-zinc-400 border-l-2 border-stone-200 dark:border-zinc-700 italic">
+           <span className="font-medium not-italic">Reasoning:</span> {item.data.reasoning}
+         </div>
+      )}
     </div>
   );
 };
