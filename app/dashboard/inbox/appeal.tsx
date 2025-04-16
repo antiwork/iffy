@@ -84,8 +84,9 @@ const AppealActionItem = ({ item }: { item: AppealTimelineAction }) => {
       </div>
       {/* Conditionally render the reasoning if it exists */}
       {item.data.reasoning && (
-         <div className="pl-4 text-xs text-stone-600 dark:text-zinc-400 border-l-2 border-stone-200 dark:border-zinc-700 italic">
-           <span className="font-medium not-italic">Reasoning:</span> {item.data.reasoning}
+         <div className="mx-auto max-w-[80%] text-center text-xs text-stone-600 dark:text-zinc-400 border-y border-stone-200 dark:border-zinc-700 italic py-2">
+           <span className="font-medium not-italic block mb-1">Reasoning:</span>
+           {item.data.reasoning}
          </div>
       )}
     </div>
