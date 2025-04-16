@@ -373,6 +373,7 @@ export const appealActions = pgTable(
     status: appealActionStatus().notNull(),
     via: via().default("Inbound").notNull(),
     clerkUserId: text("clerk_user_id"),
+    reasoning: text("reasoning"),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
   },
   (table) => {
