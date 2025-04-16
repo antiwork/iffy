@@ -18,7 +18,7 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
   { id: "update-stripe-payments-payouts" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, status, userId } = event.data;
+    const { authOrganizationId: organizationId, status, endUserId: userId } = event.data;
 
     const user = await step.run("fetch-user", async () => {
       const result = await db.query.endUsers.findFirst({
@@ -62,7 +62,7 @@ const sendUserActionWebhook = inngest.createFunction(
   { id: "send-user-action-webhook" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, id, status, userId } = event.data;
+    const { authOrganizationId: organizationId, id, status, endUserId: userId } = event.data;
 
     const userAction = await step.run("fetch-user-action", async () => {
       const result = await db.query.userActions.findFirst({
@@ -132,7 +132,7 @@ const sendUserActionEmail = inngest.createFunction(
   { id: "send-user-action-email" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, id, status, lastStatus, userId } = event.data;
+    const { authOrganizationId: organizationId, id, status, lastStatus, endUserId: userId } = event.data;
 
     const organization = await step.run("fetch-organization", async () => {
       return await findOrCreateOrganization(organizationId);
@@ -201,7 +201,7 @@ const updateAppealsAfterUserAction = inngest.createFunction(
   { id: "update-appeals-after-user-action" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, status, userId } = event.data;
+    const { authOrganizationId: organizationId, status, endUserId: userId } = event.data;
 
     if (status === "Suspended") return;
 

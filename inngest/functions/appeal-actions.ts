@@ -8,7 +8,7 @@ const updateUserAfterAppealAction = inngest.createFunction(
   { id: "update-user-after-appeal-action" },
   { event: "appeal-action/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, appealId, status, lastStatus } = event.data;
+    const { authOrganizationId: organizationId, appealId, status, lastStatus } = event.data;
 
     // We only care about an appeal that has been marked as approved, having previously been open
     if (lastStatus !== "Open" || status !== "Approved") {

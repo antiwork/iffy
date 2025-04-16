@@ -15,7 +15,7 @@ const moderate = inngest.createFunction(
   { id: "moderate" },
   { event: "moderation/moderated" },
   async ({ event, step }) => {
-    const { organizationId, moderationId, recordId } = event.data;
+    const { authOrganizationId: organizationId, moderationId, recordId } = event.data;
 
     const result = await step.run("moderate", async () => {
       return await service.moderate({ organizationId, recordId });
@@ -35,7 +35,7 @@ const updateUserAfterModeration = inngest.createFunction(
   { id: "update-user-after-moderation" },
   { event: "moderation/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, recordId, status } = event.data;
+    const { authOrganizationId: organizationId, recordId, status } = event.data;
 
     const record = await step.run("fetch-record", async () => {
       const result = await db.query.records.findFirst({
@@ -108,7 +108,7 @@ const sendModerationWebhook = inngest.createFunction(
   { id: "send-moderation-webhook" },
   { event: "moderation/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, id, status, recordId } = event.data;
+    const { authOrganizationId: organizationId, id, status, recordId } = event.data;
 
     const moderation = await step.run("fetch-moderation", async () => {
       const result = await db.query.moderations.findFirst({
@@ -183,7 +183,7 @@ const recordModerationUsage = inngest.createFunction(
   { id: "record-moderation-usage" },
   { event: "moderation/usage" },
   async ({ event, step }) => {
-    const { organizationId } = event.data;
+    const { authOrganizationId: organizationId } = event.data;
 
     await step.run("create-meter-event", async () => {
       return await createMeterEvent(organizationId, "iffy_moderations", 1);
