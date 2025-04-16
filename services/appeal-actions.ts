@@ -13,12 +13,17 @@ export async function createAppealAction({
   status,
   via,
   clerkUserId,
+  reasoning,
+  tx: providedTx, // Optional parameter to accept an external transaction
 }: {
   clerkOrganizationId: string;
   appealId: string;
   status: ActionStatus;
+  reasoning?: string;
+  tx?: any;
 } & ViaWithRelations) {
-  const [appealAction, lastAppealAction] = await db.transaction(async (tx) => {
+  // If an external transaction is provided, use it; otherwise create a new one
+  const runOperation = async (tx: any) => {
     const lastAppealAction = await tx.query.appealActions.findFirst({
       where: and(
         eq(schema.appealActions.clerkOrganizationId, clerkOrganizationId),
@@ -43,6 +48,7 @@ export async function createAppealAction({
         appealId,
         via,
         clerkUserId,
+        reasoning,
       })
       .returning();
 
@@ -60,9 +66,16 @@ export async function createAppealAction({
       .where(and(eq(schema.appeals.clerkOrganizationId, clerkOrganizationId), eq(schema.appeals.id, appealId)));
 
     return [appealAction, lastAppealAction];
-  });
+  };
 
-  if (status !== lastAppealAction?.status) {
+  // Use provided transaction or create a new one
+  const [appealAction, lastAppealAction] = providedTx 
+    ? await runOperation(providedTx)
+    : await db.transaction(runOperation);
+
+  // Only send Inngest event if not using an external transaction
+  // When using an external transaction, the caller should handle events after commit
+  if (!providedTx && status !== lastAppealAction?.status) {
     try {
       await inngest.send({
         name: "appeal-action/status-changed",
@@ -79,5 +92,5 @@ export async function createAppealAction({
     }
   }
 
-  return appealAction;
+  return [appealAction, lastAppealAction];
 }

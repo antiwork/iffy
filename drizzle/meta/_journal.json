@@ -204,6 +204,13 @@
       "when": 1743797894105,
       "tag": "0028_striped_yellowjacket",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1744666917178,
+      "tag": "0029_dashing_hex",
+      "breakpoints": true
     }
   ]
 }

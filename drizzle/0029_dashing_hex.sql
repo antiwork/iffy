@@ -1,0 +1,1 @@
+ALTER TABLE "appeal_actions" ADD COLUMN "reasoning" text;
