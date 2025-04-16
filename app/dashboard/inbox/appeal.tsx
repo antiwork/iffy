@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
+import { approveAppealAndUnflagRecords } from "./actions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -169,28 +174,172 @@ const AppealApproveConfirmation = ({
   onConfirm,
   onCancel,
   disabled,
+  appeal,
+  flaggedRecords,
+  isLoadingFlaggedRecords,
+  isApproveDialogOpen,
+  setIsApproveDialogOpen,
+  setSelectedRecordIds,
+  setReasoning,
+  setReasoningError,
+  setIsApproving,
+  selectedRecordIds,
+  reasoning,
+  reasoningError,
+  isApproving,
+  utils,
+  toast,
+  router
 }: {
   onConfirm: () => void;
   onCancel?: () => void;
   disabled: boolean;
+  appeal: AppealData;
+  flaggedRecords: Record[];
+  isLoadingFlaggedRecords: boolean;
+  isApproveDialogOpen: boolean;
+  setIsApproveDialogOpen: (open: boolean) => void;
+  setSelectedRecordIds: React.Dispatch<React.SetStateAction<Set<string>>>;
+  setReasoning: React.Dispatch<React.SetStateAction<string>>;
+  setReasoningError: React.Dispatch<React.SetStateAction<string | null>>;
+  setIsApproving: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedRecordIds: Set<string>;
+  reasoning: string;
+  reasoningError: string | null;
+  isApproving: boolean;
+  utils: any;
+  toast: any;
+  router: any;
 }) => {
   return (
-    <AlertDialog>
+    <AlertDialog open={isApproveDialogOpen} onOpenChange={setIsApproveDialogOpen}>
       <AlertDialogTrigger asChild>
-        <Button size="sm" disabled={disabled}>
-          Unsuspend
+        <Button
+          size="sm"
+          disabled={appeal.actionStatus !== "Open"}
+          onClick={() => {
+            // Reset state when opening dialog
+            setSelectedRecordIds(new Set(flaggedRecords.map(r => r.id))); // Default to selecting all flagged
+            setReasoning("");
+            setReasoningError(null);
+            setIsApproving(false);
+            setIsApproveDialogOpen(true);
+          }}
+        >
+          Approve Appeal
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="sm:max-w-[600px]">
         <AlertDialogHeader>
-          <AlertDialogTitle>Unsuspend user?</AlertDialogTitle>
+          <AlertDialogTitle>Approve Appeal & Unflag Records</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to approve this appeal and unsuspend the user?
+            Confirm the user should be unsuspended. Select any records below that are now considered compliant. Provide reasoning for the approval.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        {/* --- Records List --- */}
+        <div className="mt-4 space-y-2 max-h-[25vh] overflow-y-auto border p-3 rounded-md dark:border-zinc-700">
+          <Label className="font-semibold">Flagged Records:</Label>
+          {isLoadingFlaggedRecords ? (
+            <div className="space-y-2 py-2">
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-5 w-1/2" />
+            </div>
+          ) : flaggedRecords.length === 0 ? (
+            <p className="text-sm text-stone-500 dark:text-stone-400 py-2">No currently flagged records found for this user.</p>
+          ) : (
+            flaggedRecords.map((record) => (
+              <div key={record.id} className="flex items-center space-x-3 py-1">
+                <Checkbox
+                  id={`record-${record.id}`}
+                  checked={selectedRecordIds.has(record.id)}
+                  onCheckedChange={(checked) => {
+                    setSelectedRecordIds((prev) => {
+                      const next = new Set(prev);
+                      if (checked) {
+                        next.add(record.id);
+                      } else {
+                        next.delete(record.id);
+                      }
+                      return next;
+                    });
+                  }}
+                />
+                <label
+                  htmlFor={`record-${record.id}`}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 truncate cursor-pointer"
+                >
+                  <span className="font-semibold">{record.name}</span> ({record.entity})
+                </label>
+              </div>
+            ))
+          )}
+        </div>
+        {/* --- End Records List --- */}
+
+        {/* --- Reasoning Input --- */}
+        <div className="mt-4 grid w-full gap-2">
+          <Label htmlFor="approval-reasoning">Reasoning (Required)</Label>
+          <Textarea
+            id="approval-reasoning"
+            placeholder="Explain why the appeal is being approved..."
+            value={reasoning}
+            onChange={(e) => {
+              setReasoning(e.target.value);
+              if (e.target.value.trim()) setReasoningError(null);
+            }}
+            className={cn(reasoningError && "border-red-500 dark:border-red-700")}
+          />
+          {reasoningError && <p className="text-sm text-red-600 dark:text-red-500">{reasoningError}</p>}
+        </div>
+        {/* --- End Reasoning Input --- */}
+
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>Unsuspend</AlertDialogAction>
+          <AlertDialogCancel disabled={isApproving}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            disabled={!reasoning.trim() || isApproving} // Must have reasoning
+            onClick={async () => {
+              if (!reasoning.trim()) {
+                setReasoningError("Reasoning is required.");
+                return;
+              }
+              setIsApproving(true);
+              setReasoningError(null);
+              try {
+                // Call server action 
+                //console.log("calling approveAppealAndUnflagRecords server action...")
+                const result = await approveAppealAndUnflagRecords({
+                  appealId: appeal.id,
+                  recordIds: Array.from(selectedRecordIds),
+                  reasoning: reasoning.trim(),
+                });
+
+                if (result?.serverError) {
+                  throw new Error(result.serverError);
+                }
+
+                // Invalidate caches to refresh data
+                await utils.appeal.infinite.invalidate();
+                await utils.record.infinite.invalidate(); // Ensure records table might update
+                await utils.user.infinite.invalidate();   // Ensure user table might update
+
+                toast({ title: "Appeal Approved", description: `User unsuspended and selected records marked compliant.` });
+                setIsApproveDialogOpen(false); // Close dialog
+                router.refresh(); // Refresh page data
+              } catch (error: any) {
+                console.error("Error approving appeal:", error);
+                toast({
+                  title: "Error Approving Appeal",
+                  description: error.message || "Failed to approve appeal. Please try again.",
+                  variant: "destructive",
+                });
+              } finally {
+                setIsApproving(false);
+              }
+            }}
+          >
+            {isApproving ? "Approving..." : "Confirm Approval"}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -257,6 +406,27 @@ export function Appeal({
     [actions, messages, userActions, records, moderations],
   );
 
+  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
+  const [selectedRecordIds, setSelectedRecordIds] = useState<Set<string>>(new Set());
+  const [reasoning, setReasoning] = useState("");
+  const [reasoningError, setReasoningError] = useState<string | null>(null);
+  const [isApproving, setIsApproving] = useState(false);
+
+  const { data: flaggedRecordsData, isLoading: isLoadingFlaggedRecords } = trpc.record.infinite.useQuery(
+    {
+      clerkOrganizationId: appeal.clerkOrganizationId,
+      userId: appeal.userAction.user.id,
+      statuses: ["Flagged"], 
+      limit: 50, // Fetch a reasonable limit, adjust if needed
+    },
+    {
+      enabled: isApproveDialogOpen, // Only fetch when the dialog is open
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    }
+  );
+  
+  const flaggedRecords = useMemo(() => flaggedRecordsData?.records ?? [], [flaggedRecordsData]);
+  
   const createAppealActionWithId = createAppealAction.bind(null, appeal.id);
 
   return (
@@ -319,6 +489,22 @@ export function Appeal({
             }
           }}
           disabled={appeal.actionStatus !== "Open"}
+          appeal={appeal}
+          flaggedRecords={flaggedRecords}
+          isLoadingFlaggedRecords={isLoadingFlaggedRecords}
+          isApproveDialogOpen={isApproveDialogOpen}
+          setIsApproveDialogOpen={setIsApproveDialogOpen}
+          setSelectedRecordIds={setSelectedRecordIds}
+          setReasoning={setReasoning}
+          setReasoningError={setReasoningError}
+          setIsApproving={setIsApproving}
+          selectedRecordIds={selectedRecordIds}
+          reasoning={reasoning}
+          reasoningError={reasoningError}
+          isApproving={isApproving}
+          utils={utils}
+          toast={toast}
+          router={router}
         />
       </div>
     </div>

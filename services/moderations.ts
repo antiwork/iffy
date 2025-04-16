@@ -8,6 +8,7 @@ import { makeStrategyInstance } from "@/strategies";
 import type { StrategyInstance } from "@/strategies/types";
 
 type ModerationStatus = (typeof schema.moderationStatus.enumValues)[number];
+type DBTX = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export interface LinkData {
   originalUrl: string;
@@ -155,6 +156,100 @@ export async function createModeration({
   }
 
   return moderation;
+}
+
+
+export async function createManualModeration({
+  tx, // Accept transaction context from the caller
+  clerkOrganizationId,
+  recordId,
+  status,
+  clerkUserId, // Should be required for manual actions
+  reasoning,
+  createdAt,
+}: {
+  tx: DBTX; // Use the inferred transaction type
+  clerkOrganizationId: string;
+  recordId: string;
+  status: ModerationStatus;
+  clerkUserId: string; 
+  reasoning?: string;
+  createdAt?: Date;
+}) {
+  const record = await tx.query.records.findFirst({
+    where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
+    columns: {
+      userId: true,
+      moderationStatus: true,
+      //protected: true, // Check protection status if relevant for manual override rules
+    },
+  });
+
+  if (!record) {
+    throw new Error(`Record ${recordId} not found within transaction`);
+  }
+
+  // Note: Potentially add logic here if manual moderation should treat 'protected' status differently
+
+  const lastStatus = record.moderationStatus;
+
+  const [moderation] = await tx
+    .insert(schema.moderations)
+    .values({
+      clerkOrganizationId,
+      status,
+      via: "Manual", // Explicitly set as Manual
+      clerkUserId, 
+      reasoning,
+      recordId,
+      // rulesetId: undefined, // Manual actions are not tied to a specific ruleset run
+      testMode: false, 
+      createdAt: createdAt ?? new Date(),
+      pending: false, // Manual actions resolve immediately
+    })
+    .returning();
+
+  if (!moderation) {
+    throw new Error("Failed to create manual moderation record");
+  }
+
+  // Sync the record status with the new manual status
+  const statusChanged = status !== lastStatus;
+  await tx
+    .update(schema.records)
+    .set({
+      moderationStatus: status,
+      moderationStatusCreatedAt: moderation.createdAt,
+      moderationPending: false, // Ensure pending is cleared
+    })
+    .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)));
+
+  // Update user's flagged count if status changed
+  if (statusChanged && record.userId) {
+    if (status === "Flagged") {
+      await tx
+        .update(schema.users)
+        .set({
+          flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} + 1`,
+        })
+        .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+    } else if (lastStatus === "Flagged") {
+      // Only decrement if it *was* flagged
+      await tx
+        .update(schema.users)
+        .set({
+          flaggedRecordsCount: sql`GREATEST(0, ${schema.users.flaggedRecordsCount} - 1)`, // Prevent going below 0
+        })
+        .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+    }
+  }
+
+  // Return necessary data for the caller to send Inngest event after all manual moderations have been made
+  return {
+    moderation,
+    statusChanged,
+    lastStatus,
+  };
 }
 
 export async function createPendingModeration({
