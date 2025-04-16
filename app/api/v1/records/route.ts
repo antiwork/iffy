@@ -33,13 +33,13 @@ export async function GET(req: NextRequest) {
   const { limit, starting_after, ending_before, user, entity, clientId, status } = data;
 
   let conditions: SQL<unknown>[] = [
-    eq(schema.records.organizationId, organizationId),
+    eq(schema.records.authOrganizationId, organizationId),
     isNull(schema.records.deletedAt),
   ];
 
   if (user) {
     const userExists = await db.query.endUsers.findFirst({
-      where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, user)),
+      where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, user)),
       columns: { id: true },
     });
     if (!userExists) {

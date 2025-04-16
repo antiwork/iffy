@@ -22,7 +22,7 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
 
     const user = await step.run("fetch-user", async () => {
       const result = await db.query.endUsers.findFirst({
-        where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, userId)),
+        where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, userId)),
       });
       if (!result) {
         throw new Error(`User not found: ${userId}`);
@@ -33,7 +33,7 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
 
     const organization = await step.run("fetch-organization", async () => {
       const result = await db.query.organizations.findFirst({
-        where: eq(schema.organizations.organizationId, organizationId),
+        where: eq(schema.organizations.authOrganizationId, organizationId),
       });
       if (!result) {
         throw new Error(`Organization settings not found: ${organizationId}`);
@@ -66,7 +66,7 @@ const sendUserActionWebhook = inngest.createFunction(
 
     const userAction = await step.run("fetch-user-action", async () => {
       const result = await db.query.userActions.findFirst({
-        where: and(eq(schema.userActions.organizationId, organizationId), eq(schema.userActions.id, id)),
+        where: and(eq(schema.userActions.authOrganizationId, organizationId), eq(schema.userActions.id, id)),
       });
       if (!result) {
         throw new Error(`Record user action not found: ${id}`);
@@ -77,7 +77,7 @@ const sendUserActionWebhook = inngest.createFunction(
 
     const user = await step.run("fetch-user", async () => {
       const result = await db.query.endUsers.findFirst({
-        where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, userId)),
+        where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, userId)),
       });
       if (!result) {
         throw new Error(`User not found: ${userId}`);
@@ -88,7 +88,7 @@ const sendUserActionWebhook = inngest.createFunction(
 
     await step.run("send-user-action-webhook", async () => {
       const webhook = await db.query.webhookEndpoints.findFirst({
-        where: eq(schema.webhookEndpoints.organizationId, organizationId),
+        where: eq(schema.webhookEndpoints.authOrganizationId, organizationId),
       });
       if (!webhook) throw new Error("No webhook found");
 
@@ -214,7 +214,7 @@ const updateAppealsAfterUserAction = inngest.createFunction(
         .innerJoin(schema.userActions, eq(schema.userActions.id, schema.appeals.userActionId))
         .where(
           and(
-            eq(schema.userActions.organizationId, organizationId),
+            eq(schema.userActions.authOrganizationId, organizationId),
             eq(schema.userActions.endUserId, userId),
             eq(schema.appeals.actionStatus, "Open"),
           ),

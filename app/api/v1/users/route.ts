@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
 
   const { limit, starting_after, ending_before, email, clientId, status, user } = data;
 
-  let conditions: SQL<unknown>[] = [eq(schema.endUsers.organizationId, organizationId)];
+  let conditions: SQL<unknown>[] = [eq(schema.endUsers.authOrganizationId, organizationId)];
 
   if (email) {
     conditions.push(eq(schema.endUsers.email, email));

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
   }
 
   const user = await db.query.endUsers.findFirst({
-    where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, id)),
+    where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, id)),
   });
 
   if (!user) {

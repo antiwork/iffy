@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ appealId:
   const id = (await params).appealId;
 
   const appeal = await db.query.appeals.findFirst({
-    where: and(eq(schema.appeals.organizationId, orgId), eq(schema.appeals.id, id)),
+    where: and(eq(schema.appeals.authOrganizationId, orgId), eq(schema.appeals.id, id)),
     with: {
       userAction: {
         with: {
@@ -40,7 +40,7 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
   const id = (await params).appealId;
 
   const appealWithMessages = await db.query.appeals.findFirst({
-    where: and(eq(schema.appeals.organizationId, orgId), eq(schema.appeals.id, id)),
+    where: and(eq(schema.appeals.authOrganizationId, orgId), eq(schema.appeals.id, id)),
     with: {
       userAction: {
         with: {
@@ -68,7 +68,7 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
   const userId = appeal.userAction.user.id;
 
   const records = await db.query.records.findMany({
-    where: and(eq(schema.records.organizationId, orgId), eq(schema.records.endUserId, userId)),
+    where: and(eq(schema.records.authOrganizationId, orgId), eq(schema.records.endUserId, userId)),
   });
 
   const moderations = await db.query.moderations.findMany({
@@ -88,7 +88,7 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
 
   const userActions = await db.query.userActions.findMany({
     where: and(
-      eq(schema.userActions.organizationId, orgId),
+      eq(schema.userActions.authOrganizationId, orgId),
       eq(schema.userActions.endUserId, userId),
       gte(schema.userActions.createdAt, subDays(appeal.createdAt, HISTORY_DAYS)),
     ),

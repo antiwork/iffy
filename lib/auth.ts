@@ -20,13 +20,7 @@ const magicLinkAuthConfig = magicLink({
   }
 })
 
-const organizationAuthConfig = organization({
-  schema: {
-    organization: {
-      modelName: "organizations",  //map the organization table to organizations table
-    }
-  }
-})
+const organizationAuthConfig = organization()
 
 const nextCookiesAuthConfig = nextCookies()
 

@@ -15,6 +15,7 @@ import {
   AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import cuid from "cuid";
+import { user, organization } from "./auth-schema"
 
 export const appealActionStatus = pgEnum("AppealActionStatus", ["Open", "Rejected", "Approved"]);
 export const emailTemplateType = pgEnum("EmailTemplateType", ["Suspended", "Compliant", "Banned"]);
@@ -38,7 +39,7 @@ export const moderations = pgTable(
   "moderations",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     status: moderationStatus().notNull(),
     pending: boolean().default(false).notNull(),
     via: via().default("AI").notNull(),
@@ -50,7 +51,7 @@ export const moderations = pgTable(
       .defaultNow()
       .notNull()
       .$onUpdate(() => new Date()),
-    userId: text("user_id"),
+    authUserId: text("auth_user_id"),
     testMode: boolean("test_mode").default(false).notNull(),
     tokens: integer().default(0).notNull(),
   },
@@ -64,17 +65,17 @@ export const moderations = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
-      //TODO: table org foreign key decide 
-      moderationsOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "moderations_organization_id_fkey",
+      //TODO: table auth org foreign key decide 
+      moderationsAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "moderations_auth_organization_id_fkey",
       }),
-      //TODO: table user foreign key decide 
-      moderationsUserIdFkey: foreignKey({
-        columns: [table.userId],
+      //TODO: auth user foreign key decide 
+      moderationsAuthUserIdFkey: foreignKey({
+        columns: [table.authUserId],
         foreignColumns: [user.id],
-        name: "moderations_user_id_fkey",
+        name: "moderations_auth_user_id_fkey",
       }),
       moderationsRulesetIdFkey: foreignKey({
         columns: [table.rulesetId],
@@ -85,7 +86,7 @@ export const moderations = pgTable(
         .onDelete("set null"),
       orgStatusIdx: index("moderations_org_status_idx").using(
         "btree",
-        table.organizationId.asc().nullsLast().op("text_ops"),
+        table.authOrganizationId.asc().nullsLast().op("text_ops"),
         table.status.asc().nullsLast(),
       ),
     };
@@ -96,7 +97,7 @@ export const rulesets = pgTable(
   "rulesets",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     name: text().notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
@@ -106,11 +107,11 @@ export const rulesets = pgTable(
   },
   (table) => {
     return {
-      //TODO: table org foreign key descide 
-      rulesetsOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "rulesets_organization_id_fkey",
+      //TODO: table auth org foreign key descide 
+      rulesetsAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "rulesets_auth_organization_id_fkey",
       })
       //.onUpdate("cascade") 
       //.onDelete("restrict"),
@@ -122,12 +123,12 @@ export const userActions = pgTable(
   "user_actions",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     endUserId: text("end_user_id").notNull(),
     status: userActionStatus().notNull(),
     via: via().default("Automation").notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
-    userId: text("user_id"),
+    authUserId: text("auth_user_id"),
     reasoning: text("reasoning"),
     viaRecordId: text("via_record_id").references((): AnyPgColumn => records.id, {
       onDelete: "set null",
@@ -148,17 +149,17 @@ export const userActions = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
-      //TODO: table org foreign key  (do we need foreign key)
-      userActionsOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "user_actions_organization_id_fkey",
+      //TODO: table auth org foreign key  (do we need foreign key)
+      userActionsAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "user_actions_auth_organization_id_fkey",
       }),
-      //TODO: table user foreign key decide 
-      userActionsUserIdFkey: foreignKey({
-        columns: [table.userId],
+      //TODO: auth user foreign key decide 
+      userActionsAuthUserIdFkey: foreignKey({
+        columns: [table.authUserId],
         foreignColumns: [user.id],
-        name: "user_actions_user_id_fkey",
+        name: "user_actions_auth_user_id_fkey",
       }),
     };
   },
@@ -168,7 +169,7 @@ export const rules = pgTable(
   "rules",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     name: text(),
     description: text(),
     presetId: text("preset_id"),
@@ -196,11 +197,11 @@ export const rules = pgTable(
         .onUpdate("cascade")
         .onDelete("restrict"),
 
-      //TODO: table org foreign key 
-      rulesOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "rules_organization_id_fkey",
+      //TODO: table auth org foreign key 
+      rulesAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "rules_auth_organization_id_fkey",
       })
     };
   },
@@ -210,7 +211,7 @@ export const ruleStrategies = pgTable(
   "rule_strategies",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     type: strategyType().notNull(),
     ruleId: text("rule_id").notNull(),
     options: jsonb().notNull(),
@@ -229,11 +230,11 @@ export const ruleStrategies = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
-      //TODO: table org foreign key 
-      ruleStrategiesOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "rule_strategies_organization_id_fkey",
+      //TODO: table auth org foreign key 
+      ruleStrategiesAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "rule_strategies_auth_organization_id_fkey",
       })
     };
   },
@@ -281,7 +282,7 @@ export const messages = pgTable(
   "messages",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     userActionId: text("user_action_id").notNull(),
     toId: text("to_id"),
     fromId: text("from_id"),
@@ -324,11 +325,11 @@ export const messages = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("set null"),
-      //TODO: table org foreign key 
-      messagesOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "messages_organization_id_fkey",
+      //TODO: table auth org foreign key 
+      messagesAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "messages_auth_organization_id_fkey",
       })
     };
   },
@@ -338,7 +339,7 @@ export const endUsers = pgTable(
   "end_users",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     clientId: text("client_id").notNull().unique(),
     clientUrl: text("client_url"),
     stripeAccountId: text("stripe_account_id"),
@@ -359,17 +360,17 @@ export const endUsers = pgTable(
   },
   (table) => {
     return {
-      organizationIdIdx: index("end_users_organization_id_idx").using(
+      authOrganizationIdIdx: index("end_users_auth_organization_id_idx").using(
         "btree",
-        table.organizationId.asc().nullsLast().op("text_ops"),
+        table.authOrganizationId.asc().nullsLast().op("text_ops"),
       ),
       clientIdKey: uniqueIndex("end_users_client_id_key").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
       sortKey: uniqueIndex("end_users_sort_key").using("btree", table.sort.asc().nullsLast().op("int4_ops")),
-      //TODO: table org foreign key 
-      endUserOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "end_users_organization_id_fkey",
+      //TODO: table auth org foreign key 
+      endUserAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "end_users_auth_organization_id_fkey",
       })
     };
   },
@@ -379,7 +380,7 @@ export const webhookEndpoints = pgTable(
   "webhook_endpoints",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     url: text().notNull(),
     secret: text().notNull(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
@@ -390,10 +391,10 @@ export const webhookEndpoints = pgTable(
   },
   (table) => {
     return {
-      webhookEndpointsOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "webhook_endpoints_organization_id_fkey",
+      webhookEndpointsAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "webhook_endpoints_auth_organization_id_fkey",
       })
     };
   },
@@ -403,7 +404,7 @@ export const appeals = pgTable(
   "appeals",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     userActionId: text("user_action_id").notNull().unique(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
@@ -416,9 +417,9 @@ export const appeals = pgTable(
   },
   (table) => {
     return {
-      organizationIdIdx: index("appeals_organization_id_idx").using(
+      organizationIdIdx: index("appeals_auth_organization_id_idx").using(
         "btree",
-        table.organizationId.asc().nullsLast().op("text_ops"),
+        table.authOrganizationId.asc().nullsLast().op("text_ops"),
       ),
       userActionIdIdx: index("appeals_user_action_id_idx").using(
         "btree",
@@ -436,11 +437,11 @@ export const appeals = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
-      //TODO: table org foreign key 
-      appealsOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "appeals_organization_id_fkey",
+      //TODO: table auth org foreign key 
+      appealsAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "appeals_auth_organization_id_fkey",
       })
     };
   },
@@ -450,11 +451,11 @@ export const appealActions = pgTable(
   "appeal_actions",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     appealId: text("appeal_id").notNull(),
     status: appealActionStatus().notNull(),
     via: via().default("Inbound").notNull(),
-    userId: text("user_id"),
+    authUserId: text("auth_user_id"),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
   },
   (table) => {
@@ -466,17 +467,17 @@ export const appealActions = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
-      //TODO: table org foreign key 
-      appealActionsOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "appeal_actions_organization_id_fkey",
+      //TODO: table auth org foreign key 
+      appealActionsAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "appeal_actions_auth_organization_id_fkey",
       }),
-      //TODO: table user foreign key decide 
-      appealActionsUserIdFkey: foreignKey({
-        columns: [table.userId],
+      //TODO: auth user foreign key decide 
+      appealAuthActionsUserIdFkey: foreignKey({
+        columns: [table.authUserId],
         foreignColumns: [user.id],
-        name: "appeal_actions_user_id_fkey",
+        name: "appeal_actions_auth_user_id_fkey",
       }),
     };
   },
@@ -486,8 +487,8 @@ export const apiKeys = pgTable(
   "api_keys",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
-    userId: text("user_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
+    authUserId: text("auth_user_id").notNull(),
     name: text().notNull(),
     encryptedKey: text("encrypted_key").notNull().unique(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
     encryptedKeyHash: text("encrypted_key_hash").unique(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
@@ -510,17 +511,17 @@ export const apiKeys = pgTable(
         table.encryptedKey.asc().nullsLast().op("text_ops"),
       ),
 
-      //TODO: table org foreign key 
-      apiKeysOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "api_keys_organization_id_fkey",
+      //TODO: table auth org foreign key 
+      apiKeysAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "api_keys_auth_organization_id_fkey",
       }),
-      //TODO: table user foreign key decide 
-      apiKeysUserIdFkey: foreignKey({
-        columns: [table.userId],
+      //TODO: auth user foreign key decide 
+      apiKeysAuthUserIdFkey: foreignKey({
+        columns: [table.authUserId],
         foreignColumns: [user.id],
-        name: "api_keys_user_id_fkey",
+        name: "api_keys_auth_user_id_fkey",
       }),
     };
   },
@@ -530,10 +531,7 @@ export const organizations = pgTable(
   "organizations",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    name: text('name').notNull(),
-    slug: text('slug').unique(),
-    logo: text('logo'),
-    metadata: text('metadata'),
+    authOrganizationId: text("auth_organization_id").notNull().unique(),
     stripeCustomerId: text("stripe_customer_id").unique(),
     emailsEnabled: boolean("emails_enabled").default(false).notNull(),
     testModeEnabled: boolean("test_mode_enabled").default(true).notNull(),
@@ -549,10 +547,16 @@ export const organizations = pgTable(
   },
   (table) => {
     return {
-      organizationIdKey: uniqueIndex("organizations_id_key").using(
+      authOrganizationIdKey: uniqueIndex("organizations_auth_organization_id_key").using(
         "btree",
-        table.id.asc().nullsLast().op("text_ops"),
+        table.authOrganizationId.asc().nullsLast().op("text_ops"),
       ),
+      //TODO: table auth org foreign key 
+      organizationsAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "organizations_auth_organization_id_fkey",
+      }),
     };
   },
 );
@@ -561,7 +565,7 @@ export const subscriptions = pgTable(
   "subscriptions",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     stripeSubscriptionId: text("stripe_subscription_id").notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
@@ -571,15 +575,15 @@ export const subscriptions = pgTable(
   },
   (table) => {
     return {
-      organizationIdKey: uniqueIndex("subscriptions_organization_id_key").using(
+      authOrganizationIdKey: uniqueIndex("subscriptions_auth_organization_id_key").using(
         "btree",
-        table.organizationId.asc().nullsLast().op("text_ops"),
+        table.authOrganizationId.asc().nullsLast().op("text_ops"),
       ),
-      //TODO: table org foreign key 
-      subscriptionsOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "subscriptions_organization_id_fkey",
+      //TODO: table auth org foreign key 
+      subscriptionsAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "subscriptions_auth_organization_id_fkey",
       })
     };
   },
@@ -616,7 +620,7 @@ export const records = pgTable(
   "records",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     clientId: text("client_id").notNull().unique(),
     clientUrl: text("client_url"),
     name: text().notNull(),
@@ -641,9 +645,9 @@ export const records = pgTable(
   },
   (table) => {
     return {
-      organizationIdIdx: index("records_organization_id_idx").using(
+      authOrganizationIdIdx: index("records_auth_organization_id_idx").using(
         "btree",
-        table.organizationId.asc().nullsLast().op("text_ops"),
+        table.authOrganizationId.asc().nullsLast().op("text_ops"),
       ),
       clientIdKey: uniqueIndex("records_client_id_key").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
       endUserIdIdx: index("records_end_user_id_idx").using("btree", table.endUserId.asc().nullsLast().op("text_ops")),
@@ -655,11 +659,11 @@ export const records = pgTable(
       })
         .onUpdate("cascade")
         .onDelete("set null"),
-      //TODO: table org foreign key 
-      recordsOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "records_organization_id_fkey",
+      //TODO: table auth org foreign key 
+      recordsAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "records_auth_organization_id_fkey",
       })
     };
   },
@@ -696,7 +700,7 @@ export const webhookEvents = pgTable(
 export const emailTemplates = pgTable(
   "email_templates",
   {
-    organizationId: text("organization_id").notNull(),
+    authOrganizationId: text("auth_organization_id").notNull(),
     type: emailTemplateType().notNull(),
     content: jsonb().notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
@@ -708,82 +712,16 @@ export const emailTemplates = pgTable(
   (table) => {
     return {
       emailTemplatesPkey: primaryKey({
-        columns: [table.organizationId, table.type],
+        columns: [table.authOrganizationId, table.type],
         name: "email_templates_pkey",
       }),
 
-      emailTemplatesOrganizationIdFkey: foreignKey({
-        columns: [table.organizationId],
-        foreignColumns: [organizations.id],
-        name: "email_templates_organization_id_fkey",
+      //TODO: table auth org foreign key decide 
+      emailTemplatesAuthOrganizationIdFkey: foreignKey({
+        columns: [table.authOrganizationId],
+        foreignColumns: [organization.id],
+        name: "email_templates_auth_organization_id_fkey",
       })
     };
   },
 );
-
-// default better-auth schema
-//
-export const user = pgTable("user", {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
-  emailVerified: boolean('email_verified').notNull(),
-  image: text('image'),
-  createdAt: timestamp('created_at').notNull(),
-  updatedAt: timestamp('updated_at').notNull()
-});
-
-export const session = pgTable("session", {
-  id: text('id').primaryKey(),
-  expiresAt: timestamp('expires_at').notNull(),
-  token: text('token').notNull().unique(),
-  createdAt: timestamp('created_at').notNull(),
-  updatedAt: timestamp('updated_at').notNull(),
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
-  activeOrganizationId: text('active_organization_id')
-});
-
-export const account = pgTable("account", {
-  id: text('id').primaryKey(),
-  accountId: text('account_id').notNull(),
-  providerId: text('provider_id').notNull(),
-  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
-  accessToken: text('access_token'),
-  refreshToken: text('refresh_token'),
-  idToken: text('id_token'),
-  accessTokenExpiresAt: timestamp('access_token_expires_at'),
-  refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
-  scope: text('scope'),
-  password: text('password'),
-  createdAt: timestamp('created_at').notNull(),
-  updatedAt: timestamp('updated_at').notNull()
-});
-
-export const verification = pgTable("verification", {
-  id: text('id').primaryKey(),
-  identifier: text('identifier').notNull(),
-  value: text('value').notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at'),
-  updatedAt: timestamp('updated_at')
-});
-
-export const member = pgTable("member", {
-  id: text('id').primaryKey(),
-  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
-  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
-  role: text('role').notNull(),
-  createdAt: timestamp('created_at').notNull()
-});
-
-export const invitation = pgTable("invitation", {
-  id: text('id').primaryKey(),
-  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
-  email: text('email').notNull(),
-  role: text('role'),
-  status: text('status').notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
-  inviterId: text('inviter_id').notNull().references(() => user.id, { onDelete: 'cascade' })
-});

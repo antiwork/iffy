@@ -60,7 +60,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
 
     const existingAppeal = await tx.query.appeals.findFirst({
       where: and(
-        eq(schema.appeals.organizationId, organizationId),
+        eq(schema.appeals.authOrganizationId, organizationId),
         eq(schema.appeals.userActionId, userAction.id),
       ),
     });
@@ -102,7 +102,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
         actionStatus: appealAction.status,
         actionStatusCreatedAt: appealAction.createdAt,
       })
-      .where(and(eq(schema.appeals.organizationId, organizationId), eq(schema.appeals.id, appeal.id)));
+      .where(and(eq(schema.appeals.authOrganizationId, organizationId), eq(schema.appeals.id, appeal.id)));
 
     await tx
       .update(schema.messages)
@@ -111,7 +111,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
       })
       .where(
         and(
-          eq(schema.messages.organizationId, organizationId),
+          eq(schema.messages.authOrganizationId, organizationId),
           eq(schema.messages.userActionId, userAction.id),
         ),
       );
@@ -151,7 +151,7 @@ export async function getInboxCount(orgId: string) {
   const [result] = await db
     .select({ count: count() })
     .from(schema.appeals)
-    .where(and(eq(schema.appeals.organizationId, orgId), eq(schema.appeals.actionStatus, "Open")))
+    .where(and(eq(schema.appeals.authOrganizationId, orgId), eq(schema.appeals.actionStatus, "Open")))
     .execute();
 
   if (!result) {

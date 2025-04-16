@@ -40,7 +40,7 @@ const getWhereInput = (
   const { search, statuses, entities, userId } = input;
 
   return (records: typeof schema.records) => {
-    const conditions = [eq(records.organizationId, organizationId), isNull(records.deletedAt)];
+    const conditions = [eq(records.authOrganizationId, organizationId), isNull(records.deletedAt)];
 
     if (userId) {
       conditions.push(eq(records.endUserId, userId));

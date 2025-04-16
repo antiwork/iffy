@@ -5,7 +5,7 @@ import { eq, desc, and } from "drizzle-orm";
 
 export async function seedAppeals(organizationId: string) {
   const users = await db.query.endUsers.findMany({
-    where: eq(schema.endUsers.organizationId, organizationId),
+    where: eq(schema.endUsers.authOrganizationId, organizationId),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],
@@ -32,7 +32,7 @@ export async function seedAppeals(organizationId: string) {
       .from(schema.appeals)
       .where(
         and(
-          eq(schema.appeals.organizationId, organizationId),
+          eq(schema.appeals.authOrganizationId, organizationId),
           eq(schema.appeals.userActionId, userAction.id),
         ),
       );
@@ -61,7 +61,7 @@ export async function seedAppeals(organizationId: string) {
         actionStatus: appealAction.status,
         actionStatusCreatedAt: appealAction.createdAt,
       })
-      .where(and(eq(schema.appeals.organizationId, organizationId), eq(schema.appeals.id, appeal.id)));
+      .where(and(eq(schema.appeals.authOrganizationId, organizationId), eq(schema.appeals.id, appeal.id)));
 
     await db
       .update(schema.messages)
@@ -70,7 +70,7 @@ export async function seedAppeals(organizationId: string) {
       })
       .where(
         and(
-          eq(schema.messages.organizationId, organizationId),
+          eq(schema.messages.authOrganizationId, organizationId),
           eq(schema.messages.userActionId, userAction.id),
         ),
       );

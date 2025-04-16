@@ -34,7 +34,7 @@ export async function createOrUpdateRecord({
 }) {
   const record = await db.transaction(async (tx) => {
     const lastRecord = await tx.query.records.findFirst({
-      where: and(eq(schema.records.organizationId, organizationId), eq(schema.records.clientId, clientId)),
+      where: and(eq(schema.records.authOrganizationId, organizationId), eq(schema.records.clientId, clientId)),
       columns: {
         userId: true,
         metadata: true,
@@ -92,7 +92,7 @@ export async function createOrUpdateRecord({
             flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} - 1`,
           })
           .where(
-            and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, lastRecord.userId!)),
+            and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, lastRecord.userId!)),
           );
       }
 
@@ -102,7 +102,7 @@ export async function createOrUpdateRecord({
           .set({
             flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} + 1`,
           })
-          .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, record.userId!)));
+          .where(and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, record.userId!)));
       }
     }
 
@@ -119,7 +119,7 @@ export async function deleteRecord(organizationId: string, recordId: string) {
       .set({
         deletedAt: new Date(),
       })
-      .where(and(eq(schema.records.organizationId, organizationId), eq(schema.records.id, recordId)))
+      .where(and(eq(schema.records.authOrganizationId, organizationId), eq(schema.records.id, recordId)))
       .returning();
 
     if (!record) {
@@ -132,7 +132,7 @@ export async function deleteRecord(organizationId: string, recordId: string) {
         .set({
           flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} - 1`,
         })
-        .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, record.endUserId)));
+        .where(and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, record.endUserId)));
     }
 
     try {

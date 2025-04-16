@@ -14,7 +14,7 @@ export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analyt
   WITH time_filtered_moderations AS (
     SELECT 
       ${schema.moderations.id} as moderation_id,
-      ${schema.moderations.organizationId} as organization_id,
+      ${schema.moderations.authOrganizationId} as organization_id,
       ${schema.moderations.createdAt} as created_at,
       ${schema.moderations.status} as status
     FROM ${schema.moderations}
@@ -82,7 +82,7 @@ export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analyti
   WITH time_filtered_moderations AS (
     SELECT 
       ${schema.moderations.id} as moderation_id,
-      ${schema.moderations.organizationId} as organization_id,
+      ${schema.moderations.authOrganizationId} as organization_id,
       ${schema.moderations.createdAt} as created_at,
       ${schema.moderations.status} as status
     FROM ${schema.moderations}

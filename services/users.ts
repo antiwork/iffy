@@ -28,7 +28,7 @@ export async function createOrUpdateUser({
 }) {
   const user = await db.transaction(async (tx) => {
     const lastUser = await tx.query.endUsers.findFirst({
-      where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.clientId, clientId)),
+      where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.clientId, clientId)),
       columns: {
         metadata: true,
       },
@@ -83,7 +83,7 @@ export async function getFlaggedRecordsFromUser({
 }) {
   const records = await db.query.records.findMany({
     where: and(
-      eq(schema.records.organizationId, organizationId),
+      eq(schema.records.authOrganizationId, organizationId),
       eq(schema.records.endUserId, id),
       isNull(schema.records.deletedAt),
     ),

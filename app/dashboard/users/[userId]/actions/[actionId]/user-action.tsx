@@ -16,7 +16,7 @@ import { findOrCreateOrganization } from "@/services/organizations";
 
 export async function UserActionDetail({ organizationId, id }: { organizationId: string; id: string }) {
   const userAction = await db.query.userActions.findFirst({
-    where: and(eq(schema.userActions.organizationId, organizationId), eq(schema.userActions.id, id)),
+    where: and(eq(schema.userActions.authOrganizationId, organizationId), eq(schema.userActions.id, id)),
     with: {
       user: true,
       appeal: true,

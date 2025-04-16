@@ -21,7 +21,8 @@
     "test": "dotenv -e .env.local -- vitest",
     "shortest": "dotenv -e .env.local -- shortest",
     "docs:openapi:generate": "tsx scripts/generate-openapi-docs.ts",
-    "postinstall": "fumadocs-mdx"
+    "postinstall": "fumadocs-mdx",
+    "dev:auth-schema:generate": "npx dotenv -e .env.local -- npx @better-auth/cli generate --output db/auth-schema.ts"
   },
   "exports": {
     "./db": "./db/index.ts",

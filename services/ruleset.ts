@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 export async function findOrCreateDefaultRuleset(organizationId: string) {
   return await db.transaction(async (tx) => {
     const defaultRuleset = await tx.query.rulesets.findFirst({
-      where: eq(schema.rulesets.organizationId, organizationId),
+      where: eq(schema.rulesets.authOrganizationId, organizationId),
     });
 
     if (defaultRuleset) return defaultRuleset;

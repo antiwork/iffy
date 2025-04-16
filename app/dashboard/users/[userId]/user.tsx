@@ -23,7 +23,7 @@ import { formatLink } from "@/lib/url";
 
 export async function UserDetail({ organizationId, id }: { organizationId: string; id: string }) {
   const user = await db.query.endUsers.findFirst({
-    where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, id)),
+    where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, id)),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],

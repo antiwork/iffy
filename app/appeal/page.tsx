@@ -103,7 +103,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
 
   const records = await db.query.records.findMany({
     where: and(
-      eq(schema.records.organizationId, organizationId),
+      eq(schema.records.authOrganizationId, organizationId),
       eq(schema.records.endUserId, user.id),
       isNull(schema.records.deletedAt),
     ),

@@ -19,7 +19,7 @@ export default async function DeveloperPage() {
 
   const keys = await getApiKeys({ organizationId: orgId });
   const webhookEndpoint = await db.query.webhookEndpoints.findFirst({
-    where: eq(schema.webhookEndpoints.organizationId, orgId),
+    where: eq(schema.webhookEndpoints.authOrganizationId, orgId),
   });
   if (webhookEndpoint) {
     webhookEndpoint.secret = decrypt(webhookEndpoint.secret);

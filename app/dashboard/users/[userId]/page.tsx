@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ userId: s
   const id = (await params).userId;
 
   const user = await db.query.endUsers.findFirst({
-    where: and(eq(schema.endUsers.organizationId, orgId), eq(schema.endUsers.id, id)),
+    where: and(eq(schema.endUsers.authOrganizationId, orgId), eq(schema.endUsers.id, id)),
   });
 
   if (!user) {

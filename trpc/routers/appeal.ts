@@ -27,7 +27,7 @@ export const appealRouter = router({
     const sortingOrder = sort === "desc";
     const orderBy = sortingOrder ? desc(schema.appeals.sort) : asc(schema.appeals.sort);
 
-    const conditions = [eq(schema.appeals.organizationId, organizationId)];
+    const conditions = [eq(schema.appeals.authOrganizationId, organizationId)];
 
     if (statuses?.length) {
       conditions.push(inArray(schema.appeals.actionStatus, statuses));
@@ -109,7 +109,7 @@ export const appealRouter = router({
       db
         .select({ count: count() })
         .from(schema.appeals)
-        .where(eq(schema.appeals.organizationId, organizationId)),
+        .where(eq(schema.appeals.authOrganizationId, organizationId)),
       db
         .select({ count: count() })
         .from(schema.appeals)

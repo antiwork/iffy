@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ reco
 
   const record = await db.query.records.findFirst({
     where: and(
-      eq(schema.records.organizationId, organizationId),
+      eq(schema.records.authOrganizationId, organizationId),
       eq(schema.records.id, id),
       isNull(schema.records.deletedAt),
     ),

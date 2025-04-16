@@ -24,7 +24,7 @@ const getWhereInput = (
   const { search, statuses } = input;
 
   return (users: typeof schema.endUsers) => {
-    const conditions = [eq(users.organizationId, organizationId)];
+    const conditions = [eq(users.authOrganizationId, organizationId)];
 
     if (statuses?.length) {
       conditions.push(inArray(users.actionStatus, statuses));

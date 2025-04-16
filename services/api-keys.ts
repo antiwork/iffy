@@ -19,7 +19,7 @@ function createVisualKey(key: string) {
 
 export async function getApiKeys({ organizationId }: { organizationId: string }) {
   const keys = await db.query.apiKeys.findMany({
-    where: and(eq(schema.apiKeys.organizationId, organizationId), isNull(schema.apiKeys.deletedAt)),
+    where: and(eq(schema.apiKeys.authOrganizationId, organizationId), isNull(schema.apiKeys.deletedAt)),
     orderBy: (apiKeys, { desc }) => [desc(apiKeys.createdAt)],
   });
 
@@ -73,7 +73,7 @@ export async function deleteApiKey({ organizationId, id }: { organizationId: str
   await db
     .update(schema.apiKeys)
     .set({ deletedAt: new Date() })
-    .where(and(eq(schema.apiKeys.organizationId, organizationId), eq(schema.apiKeys.id, id)));
+    .where(and(eq(schema.apiKeys.authOrganizationId, organizationId), eq(schema.apiKeys.id, id)));
 }
 
 export async function validateApiKey(apiKey?: string) {
@@ -83,7 +83,7 @@ export async function validateApiKey(apiKey?: string) {
     .update(schema.apiKeys)
     .set({ lastUsedAt: new Date() })
     .where(and(eq(schema.apiKeys.encryptedKeyHash, generateHash(apiKey)), isNull(schema.apiKeys.deletedAt)))
-    .returning({ organizationId: schema.apiKeys.organizationId });
+    .returning({ organizationId: schema.apiKeys.authOrganizationId });
 
   return key?.organizationId ?? null;
 }

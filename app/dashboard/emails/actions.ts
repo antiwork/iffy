@@ -23,7 +23,7 @@ export const updateEmailTemplate = actionClient
           content: { subject, heading, body },
         })
         .onConflictDoUpdate({
-          target: [schema.emailTemplates.organizationId, schema.emailTemplates.type],
+          target: [schema.emailTemplates.authOrganizationId, schema.emailTemplates.type],
           set: {
             content: { subject, heading, body },
           },

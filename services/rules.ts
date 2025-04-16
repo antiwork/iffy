@@ -22,7 +22,7 @@ export type RuleWithStrategiesInsert =
 
 export const getRules = async (organizationId: string, rulesetId: string): Promise<RuleWithStrategies[]> => {
   const rules = await db.query.rules.findMany({
-    where: and(eq(schema.rules.organizationId, organizationId), eq(schema.rules.rulesetId, rulesetId)),
+    where: and(eq(schema.rules.authOrganizationId, organizationId), eq(schema.rules.rulesetId, rulesetId)),
     with: {
       preset: {
         with: {
@@ -108,7 +108,7 @@ export const updateCustomRule = async ({
     const [updatedRule] = await tx
       .update(schema.rules)
       .set({ name, description })
-      .where(and(eq(schema.rules.id, id), eq(schema.rules.organizationId, organizationId)))
+      .where(and(eq(schema.rules.id, id), eq(schema.rules.authOrganizationId, organizationId)))
       .returning();
 
     if (!updatedRule) {
@@ -149,7 +149,7 @@ export const updatePresetRule = async ({
   const [updatedRule] = await db
     .update(schema.rules)
     .set({ presetId })
-    .where(and(eq(schema.rules.id, id), eq(schema.rules.organizationId, organizationId)))
+    .where(and(eq(schema.rules.id, id), eq(schema.rules.authOrganizationId, organizationId)))
     .returning();
 
   if (!updatedRule) {
@@ -162,7 +162,7 @@ export const updatePresetRule = async ({
 export const deleteRule = async (organizationId: string, ruleId: string) => {
   return await db.transaction(async (tx) => {
     const rule = await tx.query.rules.findFirst({
-      where: and(eq(schema.rules.id, ruleId), eq(schema.rules.organizationId, organizationId)),
+      where: and(eq(schema.rules.id, ruleId), eq(schema.rules.authOrganizationId, organizationId)),
     });
     if (!rule) {
       throw new Error("Rule not found");
@@ -173,7 +173,7 @@ export const deleteRule = async (organizationId: string, ruleId: string) => {
     }
     await tx
       .delete(schema.rules)
-      .where(and(eq(schema.rules.id, ruleId), eq(schema.rules.organizationId, organizationId)));
+      .where(and(eq(schema.rules.id, ruleId), eq(schema.rules.authOrganizationId, organizationId)));
 
     return rule;
   });

@@ -95,7 +95,7 @@ export const setRecordProtectedMany = actionClient
       .set({
         protected: parsedInput,
       })
-      .where(and(eq(schema.records.organizationId, organizationId), inArray(schema.records.id, recordIds)))
+      .where(and(eq(schema.records.authOrganizationId, organizationId), inArray(schema.records.id, recordIds)))
       .returning();
 
     for (const recordId of recordIds) {

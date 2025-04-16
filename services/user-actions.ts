@@ -23,7 +23,7 @@ export async function createUserAction({
 } & ViaWithRelations) {
   const [userAction, lastUserAction] = await db.transaction(async (tx) => {
     const user = await tx.query.endUsers.findFirst({
-      where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, userId)),
+      where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, userId)),
       columns: {
         protected: true,
       },
@@ -39,7 +39,7 @@ export async function createUserAction({
 
     const lastUserAction = await tx.query.userActions.findFirst({
       where: and(
-        eq(schema.userActions.organizationId, organizationId),
+        eq(schema.userActions.authOrganizationId, organizationId),
         eq(schema.userActions.endUserId, userId),
       ),
       orderBy: desc(schema.userActions.createdAt),
@@ -78,7 +78,7 @@ export async function createUserAction({
         actionStatus: status,
         actionStatusCreatedAt: userAction.createdAt,
       })
-      .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, userId)));
+      .where(and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, userId)));
 
     return [userAction, lastUserAction];
   });

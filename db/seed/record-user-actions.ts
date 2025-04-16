@@ -8,7 +8,7 @@ import { createMessage } from "@/services/messages";
 
 export async function seedUserActions(organizationId: string) {
   const users = await db.query.endUsers.findMany({
-    where: eq(schema.endUsers.organizationId, organizationId),
+    where: eq(schema.endUsers.authOrganizationId, organizationId),
     with: {
       records: true,
     },

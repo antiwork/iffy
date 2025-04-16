@@ -53,7 +53,7 @@ export const setUserProtectedMany = actionClient
       .set({
         protected: parsedInput,
       })
-      .where(and(eq(schema.endUsers.organizationId, organizationId), inArray(schema.endUsers.id, userIds)))
+      .where(and(eq(schema.endUsers.authOrganizationId, organizationId), inArray(schema.endUsers.id, userIds)))
       .returning();
 
     for (const userId of userIds) {

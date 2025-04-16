@@ -22,7 +22,7 @@ const EmailEditor = async <T extends (typeof schema.emailTemplateType.enumValues
 }: React.HTMLAttributes<HTMLDivElement> & Omit<Parameters<typeof render<T>>[0], "content">) => {
   const template = await db.query.emailTemplates.findFirst({
     where: and(
-      eq(schema.emailTemplates.organizationId, organizationId),
+      eq(schema.emailTemplates.authOrganizationId, organizationId),
       eq(schema.emailTemplates.type, type),
     ),
   });

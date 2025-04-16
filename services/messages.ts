@@ -63,7 +63,7 @@ export async function updateMessage({
   const [message] = await db
     .update(schema.messages)
     .set({ status })
-    .where(and(eq(schema.messages.organizationId, organizationId), eq(schema.messages.id, id)))
+    .where(and(eq(schema.messages.authOrganizationId, organizationId), eq(schema.messages.id, id)))
     .returning();
 
   return message;

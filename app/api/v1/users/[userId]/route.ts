@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
   const { userId: id } = await params;
 
   const user = await db.query.endUsers.findFirst({
-    where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, id)),
+    where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, id)),
     columns: {
       id: true,
       clientId: true,
