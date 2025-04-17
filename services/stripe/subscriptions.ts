@@ -17,13 +17,13 @@ export function isActiveSubscription(subscription: Stripe.Subscription) {
 }
 
 // Find the first current subscription for an organization
-export async function findSubscription(organizationId: string) {
+export async function findSubscription(authOrganizationId: string) {
   if (!env.ENABLE_BILLING || !stripe) {
     throw new Error("Billing is not enabled");
   }
 
   const subscriptions = await db.query.subscriptions.findMany({
-    where: eq(schema.subscriptions.authOrganizationId, organizationId),
+    where: eq(schema.subscriptions.authOrganizationId, authOrganizationId),
     orderBy: desc(schema.subscriptions.createdAt),
   });
 
@@ -37,8 +37,8 @@ export async function findSubscription(organizationId: string) {
   return null;
 }
 
-export async function findSubscriptionTier(organizationId: string) {
-  const subscription = await findSubscription(organizationId);
+export async function findSubscriptionTier(authOrganizationId: string) {
+  const subscription = await findSubscription(authOrganizationId);
   if (!subscription) {
     return null;
   }
@@ -52,14 +52,14 @@ export async function findSubscriptionTier(organizationId: string) {
   return product;
 }
 
-export async function findOrCreateSubscription(organizationId: string, stripeSubscriptionId: string) {
+export async function findOrCreateSubscription(authOrganizationId: string, stripeSubscriptionId: string) {
   if (!env.ENABLE_BILLING || !stripe) {
     throw new Error("Billing is not enabled");
   }
 
   const existingSubscription = await db.query.subscriptions.findFirst({
     where: and(
-      eq(schema.subscriptions.authOrganizationId, organizationId),
+      eq(schema.subscriptions.authOrganizationId, authOrganizationId),
       eq(schema.subscriptions.stripeSubscriptionId, stripeSubscriptionId),
     ),
   });
@@ -71,7 +71,7 @@ export async function findOrCreateSubscription(organizationId: string, stripeSub
   const [subscription] = await db
     .insert(schema.subscriptions)
     .values({
-      organizationId,
+      authOrganizationId,
       stripeSubscriptionId,
     })
     .returning();
@@ -83,8 +83,8 @@ export async function findOrCreateSubscription(organizationId: string, stripeSub
   return await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
 }
 
-export async function hasActiveSubscription(organizationId: string) {
-  const subscription = await findSubscription(organizationId);
+export async function hasActiveSubscription(authOrganizationId: string) {
+  const subscription = await findSubscription(authOrganizationId);
   if (!subscription) {
     return false;
   }
@@ -92,8 +92,8 @@ export async function hasActiveSubscription(organizationId: string) {
   return isActiveSubscription(subscription);
 }
 
-export async function startOfCurrentBillingPeriod(organizationId: string) {
-  const subscription = await findSubscription(organizationId);
+export async function startOfCurrentBillingPeriod(authOrganizationId: string) {
+  const subscription = await findSubscription(authOrganizationId);
   if (!subscription) {
     return null;
   }

@@ -3,18 +3,18 @@ import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { encrypt } from "@/services/encrypt";
 
-export async function findOrCreateOrganization(organizationId: string) {
+export async function findOrCreateOrganization(authOrganizationId: string) {
   let [organization] = await db
     .select()
     .from(schema.organizations)
-    .where(eq(schema.organizations.authOrganizationId, organizationId));
+    .where(eq(schema.organizations.authOrganizationId, authOrganizationId));
 
   if (organization) return organization;
 
   [organization] = await db
     .insert(schema.organizations)
     .values({
-      organizationId,
+      authOrganizationId,
     })
     .returning();
 
@@ -26,7 +26,7 @@ export async function findOrCreateOrganization(organizationId: string) {
 }
 
 export async function updateOrganization(
-  organizationId: string,
+  authOrganizationId: string,
   data: {
     stripeCustomerId?: string;
     emailsEnabled?: boolean;
@@ -37,7 +37,7 @@ export async function updateOrganization(
     suspensionThreshold?: number;
   },
 ) {
-  const organization = await findOrCreateOrganization(organizationId);
+  const organization = await findOrCreateOrganization(authOrganizationId);
   const [updated] = await db
     .update(schema.organizations)
     .set({
@@ -46,7 +46,7 @@ export async function updateOrganization(
     })
     .where(
       and(
-        eq(schema.organizations.authOrganizationId, organizationId),
+        eq(schema.organizations.authOrganizationId, authOrganizationId),
         eq(schema.organizations.id, organization.id),
       ),
     )

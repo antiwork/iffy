@@ -18,11 +18,11 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
   { id: "update-stripe-payments-payouts" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { authOrganizationId: organizationId, status, endUserId: userId } = event.data;
+    const { authOrganizationId: authOrganizationId, status, endUserId: userId } = event.data;
 
     const user = await step.run("fetch-user", async () => {
       const result = await db.query.endUsers.findFirst({
-        where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, userId)),
+        where: and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, userId)),
       });
       if (!result) {
         throw new Error(`User not found: ${userId}`);
@@ -33,10 +33,10 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
 
     const organization = await step.run("fetch-organization", async () => {
       const result = await db.query.organizations.findFirst({
-        where: eq(schema.organizations.authOrganizationId, organizationId),
+        where: eq(schema.organizations.authOrganizationId, authOrganizationId),
       });
       if (!result) {
-        throw new Error(`Organization settings not found: ${organizationId}`);
+        throw new Error(`Organization settings not found: ${authOrganizationId}`);
       }
 
       return result;
@@ -62,11 +62,11 @@ const sendUserActionWebhook = inngest.createFunction(
   { id: "send-user-action-webhook" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { authOrganizationId: organizationId, id, status, endUserId: userId } = event.data;
+    const { authOrganizationId: authOrganizationId, id, status, endUserId: userId } = event.data;
 
     const userAction = await step.run("fetch-user-action", async () => {
       const result = await db.query.userActions.findFirst({
-        where: and(eq(schema.userActions.authOrganizationId, organizationId), eq(schema.userActions.id, id)),
+        where: and(eq(schema.userActions.authOrganizationId, authOrganizationId), eq(schema.userActions.id, id)),
       });
       if (!result) {
         throw new Error(`Record user action not found: ${id}`);
@@ -77,7 +77,7 @@ const sendUserActionWebhook = inngest.createFunction(
 
     const user = await step.run("fetch-user", async () => {
       const result = await db.query.endUsers.findFirst({
-        where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, userId)),
+        where: and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, userId)),
       });
       if (!result) {
         throw new Error(`User not found: ${userId}`);
@@ -88,7 +88,7 @@ const sendUserActionWebhook = inngest.createFunction(
 
     await step.run("send-user-action-webhook", async () => {
       const webhook = await db.query.webhookEndpoints.findFirst({
-        where: eq(schema.webhookEndpoints.authOrganizationId, organizationId),
+        where: eq(schema.webhookEndpoints.authOrganizationId, authOrganizationId),
       });
       if (!webhook) throw new Error("No webhook found");
 
@@ -132,10 +132,10 @@ const sendUserActionEmail = inngest.createFunction(
   { id: "send-user-action-email" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { authOrganizationId: organizationId, id, status, lastStatus, endUserId: userId } = event.data;
+    const { authOrganizationId: authOrganizationId, id, status, lastStatus, endUserId: userId } = event.data;
 
     const organization = await step.run("fetch-organization", async () => {
-      return await findOrCreateOrganization(organizationId);
+      return await findOrCreateOrganization(authOrganizationId);
     });
 
     if (!organization.emailsEnabled) return;
@@ -147,14 +147,14 @@ const sendUserActionEmail = inngest.createFunction(
         case "Compliant":
           if (lastStatus === "Suspended") {
             template = await renderEmailTemplate({
-              organizationId,
+              authOrganizationId,
               type: "Compliant",
             });
           }
           break;
         case "Suspended":
           template = await renderEmailTemplate({
-            organizationId,
+            authOrganizationId,
             type: "Suspended",
             appealUrl: organization.appealsEnabled
               ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(userId)}`)
@@ -163,7 +163,7 @@ const sendUserActionEmail = inngest.createFunction(
           break;
         case "Banned":
           template = await renderEmailTemplate({
-            organizationId,
+            authOrganizationId,
             type: "Banned",
           });
           break;
@@ -176,7 +176,7 @@ const sendUserActionEmail = inngest.createFunction(
 
     await step.run("create-message", async () => {
       return await createMessage({
-        organizationId,
+        authOrganizationId: authOrganizationId,
         userActionId: id,
         type: "Outbound",
         toId: userId,
@@ -187,7 +187,7 @@ const sendUserActionEmail = inngest.createFunction(
 
     await step.run("send-email", async () => {
       return await sendEmail({
-        organizationId,
+        authOrganizationId,
         userId,
         subject: template.subject,
         html: template.html,
@@ -201,7 +201,7 @@ const updateAppealsAfterUserAction = inngest.createFunction(
   { id: "update-appeals-after-user-action" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { authOrganizationId: organizationId, status, endUserId: userId } = event.data;
+    const { authOrganizationId: authOrganizationId, status, endUserId: userId } = event.data;
 
     if (status === "Suspended") return;
 
@@ -214,7 +214,7 @@ const updateAppealsAfterUserAction = inngest.createFunction(
         .innerJoin(schema.userActions, eq(schema.userActions.id, schema.appeals.userActionId))
         .where(
           and(
-            eq(schema.userActions.authOrganizationId, organizationId),
+            eq(schema.userActions.authOrganizationId, authOrganizationId),
             eq(schema.userActions.endUserId, userId),
             eq(schema.appeals.actionStatus, "Open"),
           ),
@@ -227,7 +227,7 @@ const updateAppealsAfterUserAction = inngest.createFunction(
       await step.run("approve-open-appeals-if-compliant", async () => {
         for (const appeal of appeals) {
           await createAppealAction({
-            organizationId,
+            authOrganizationId,
             appealId: appeal.id,
             status: "Approved",
             via: "Automation",
@@ -240,7 +240,7 @@ const updateAppealsAfterUserAction = inngest.createFunction(
       await step.run("reject-open-appeals-if-banned", async () => {
         for (const appeal of appeals) {
           await createAppealAction({
-            organizationId,
+            authOrganizationId,
             appealId: appeal.id,
             status: "Rejected",
             via: "Automation",

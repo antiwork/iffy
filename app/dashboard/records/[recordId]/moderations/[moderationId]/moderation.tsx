@@ -12,9 +12,9 @@ import { eq, and } from "drizzle-orm";
 import db from "@/db";
 import { notFound } from "next/navigation";
 
-export async function ModerationDetail({ organizationId, id }: { organizationId: string; id: string }) {
+export async function ModerationDetail({ authOrganizationId, id }: { authOrganizationId: string; id: string }) {
   const moderation = await db.query.moderations.findFirst({
-    where: and(eq(schema.moderations.authOrganizationId, organizationId), eq(schema.moderations.id, id)),
+    where: and(eq(schema.moderations.authOrganizationId, authOrganizationId), eq(schema.moderations.id, id)),
     with: {
       moderationsToRules: {
         with: {
@@ -74,10 +74,10 @@ export async function ModerationDetail({ organizationId, id }: { organizationId:
               <dt className="text-stone-500 dark:text-zinc-500">Via</dt>
               <dd>{formatVia(moderation)}</dd>
             </div>
-            {moderation.clerkUserId && (
+            {moderation.authUserId && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">By</dt>
-                <dd>{await formatClerkUser(moderation.clerkUserId)}</dd>
+                <dd>{await formatClerkUser(moderation.authUserId)}</dd>
               </div>
             )}
             {rules && rules.length > 0 && (

@@ -14,9 +14,9 @@ import { formatClerkUser } from "@/lib/clerk";
 import { notFound } from "next/navigation";
 import { findOrCreateOrganization } from "@/services/organizations";
 
-export async function UserActionDetail({ organizationId, id }: { organizationId: string; id: string }) {
+export async function UserActionDetail({ authOrganizationId, id }: { authOrganizationId: string; id: string }) {
   const userAction = await db.query.userActions.findFirst({
-    where: and(eq(schema.userActions.authOrganizationId, organizationId), eq(schema.userActions.id, id)),
+    where: and(eq(schema.userActions.authOrganizationId, authOrganizationId), eq(schema.userActions.id, id)),
     with: {
       user: true,
       appeal: true,
@@ -27,7 +27,7 @@ export async function UserActionDetail({ organizationId, id }: { organizationId:
     return notFound();
   }
 
-  const organization = await findOrCreateOrganization(organizationId);
+  const organization = await findOrCreateOrganization(authOrganizationId);
   const appealsEnabled = organization.appealsEnabled;
 
   return (
@@ -91,7 +91,7 @@ export async function UserActionDetail({ organizationId, id }: { organizationId:
                 {userAction.via === "Manual" && (
                   <div className="grid gap-2">
                     <div>Action created manually</div>
-                    {userAction.clerkUserId && <div>{await formatClerkUser(userAction.clerkUserId)}</div>}
+                    {userAction.authUserId && <div>{await formatClerkUser(userAction.authUserId)}</div>}
                   </div>
                 )}
               </dd>

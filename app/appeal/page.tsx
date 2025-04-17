@@ -22,13 +22,13 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
     return redirect("/");
   }
 
-  const [isValid, userId] = validateAppealToken(token);
+  const [isValid, endUserId] = validateAppealToken(token);
   if (!isValid) {
     return redirect("/");
   }
 
   const user = await db.query.endUsers.findFirst({
-    where: eq(schema.endUsers.id, userId),
+    where: eq(schema.endUsers.id, endUserId),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],
@@ -47,8 +47,8 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
   const latestAction = user.actions[0];
   const latestAppeal = latestAction?.appeal;
 
-  const { organizationId } = user;
-  const { appealsEnabled } = await findOrCreateOrganization(organizationId);
+  const { authOrganizationId } = user;
+  const { appealsEnabled } = await findOrCreateOrganization(authOrganizationId);
   if (!appealsEnabled) {
     return redirect("/");
   }
@@ -103,7 +103,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
 
   const records = await db.query.records.findMany({
     where: and(
-      eq(schema.records.authOrganizationId, organizationId),
+      eq(schema.records.authOrganizationId, authOrganizationId),
       eq(schema.records.endUserId, user.id),
       isNull(schema.records.deletedAt),
     ),

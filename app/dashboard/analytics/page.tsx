@@ -20,12 +20,12 @@ async function TotalsSection({ orgId }: { orgId: string }) {
     db
       .select({ count: sql<number>`count(*)` })
       .from(schema.moderations)
-      .where(eq(schema.moderations.organizationId, orgId))
+      .where(eq(schema.moderations.authOrganizationId, orgId))
       .then((res) => Number(res[0]?.count ?? 0)),
     db
       .select({ count: sql<number>`count(*)` })
       .from(schema.moderations)
-      .where(and(eq(schema.moderations.organizationId, orgId), eq(schema.moderations.status, "Flagged")))
+      .where(and(eq(schema.moderations.authOrganizationId, orgId), eq(schema.moderations.status, "Flagged")))
       .then((res) => Number(res[0]?.count ?? 0)),
   ]);
 

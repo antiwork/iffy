@@ -33,5 +33,5 @@ export default async function UserActionPage({ params }: { params: Promise<{ act
 
   const id = (await params).actionId;
 
-  return <UserActionDetail organizationId={orgId} id={id} />;
+  return <UserActionDetail authOrganizationId={orgId} id={id} />;
 }

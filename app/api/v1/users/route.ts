@@ -22,7 +22,7 @@ const ListUsersRequestData = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const [isValid, organizationId] = await authenticateRequest(req);
+  const [isValid, authOrganizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
@@ -32,11 +32,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const organization = await findOrCreateOrganization(organizationId);
+  const organization = await findOrCreateOrganization(authOrganizationId);
 
   const { limit, starting_after, ending_before, email, clientId, status, user } = data;
 
-  let conditions: SQL<unknown>[] = [eq(schema.endUsers.authOrganizationId, organizationId)];
+  let conditions: SQL<unknown>[] = [eq(schema.endUsers.authOrganizationId, authOrganizationId)];
 
   if (email) {
     conditions.push(eq(schema.endUsers.email, email));

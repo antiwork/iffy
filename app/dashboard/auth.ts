@@ -4,9 +4,9 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 export async function authWithOrgSubscription() {
-  const { orgId, userId, ...data } = await auth();
+  const { orgId, endUserId, ...data } = await auth();
 
-  if (!userId) {
+  if (!endUserId) {
     redirect("/");
   }
 
@@ -15,7 +15,7 @@ export async function authWithOrgSubscription() {
   }
 
   if (!env.ENABLE_BILLING) {
-    return { orgId, userId, ...data };
+    return { orgId, endUserId, ...data };
   }
 
   const subscription = await findSubscription(orgId);
@@ -27,13 +27,13 @@ export async function authWithOrgSubscription() {
     redirect("/dashboard/subscription");
   }
 
-  return { orgId, userId, ...data, subscription };
+  return { orgId, endUserId, ...data, subscription };
 }
 
 export async function authWithOrg() {
-  const { orgId, userId, ...data } = await auth();
+  const { orgId, endUserId, ...data } = await auth();
 
-  if (!userId) {
+  if (!endUserId) {
     redirect("/");
   }
 
@@ -41,5 +41,5 @@ export async function authWithOrg() {
     redirect("/dashboard");
   }
 
-  return { orgId, userId, ...data };
+  return { orgId, endUserId, ...data };
 }

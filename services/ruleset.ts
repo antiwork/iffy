@@ -4,10 +4,10 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function findOrCreateDefaultRuleset(organizationId: string) {
+export async function findOrCreateDefaultRuleset(authOrganizationId: string) {
   return await db.transaction(async (tx) => {
     const defaultRuleset = await tx.query.rulesets.findFirst({
-      where: eq(schema.rulesets.authOrganizationId, organizationId),
+      where: eq(schema.rulesets.authOrganizationId, authOrganizationId),
     });
 
     if (defaultRuleset) return defaultRuleset;
@@ -16,7 +16,7 @@ export async function findOrCreateDefaultRuleset(organizationId: string) {
       .insert(schema.rulesets)
       .values({
         name: "Default",
-        organizationId,
+        authOrganizationId,
       })
       .returning();
 
@@ -31,7 +31,7 @@ export async function findOrCreateDefaultRuleset(organizationId: string) {
     for (const preset of defaultPresets) {
       const [newRule] = await tx
         .insert(schema.rules)
-        .values({ organizationId, rulesetId: newRuleset.id, presetId: preset.id })
+        .values({ authOrganizationId, rulesetId: newRuleset.id, presetId: preset.id })
         .returning();
 
       if (!newRule) {

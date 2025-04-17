@@ -7,7 +7,7 @@ import { eq, inArray, ilike, asc, desc, and, or, lt, gt, sql } from "drizzle-orm
 import * as schema from "@/db/schema";
 
 const paginationSchema = z.object({
-  organizationId: z.string(),
+  authOrganizationId: z.string(),
   cursor: z.object({ sort: z.number().int().optional(), skip: z.number().int().optional() }).default({}),
   limit: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40), z.literal(50)]).default(20),
   sorting: z.array(z.object({ id: z.string(), desc: z.boolean() })).default([{ id: "sort", desc: true }]),
@@ -17,14 +17,14 @@ const paginationSchema = z.object({
 
 const getWhereInput = (
   input: z.infer<typeof paginationSchema>,
-  organizationId: string,
+  authOrganizationId: string,
   cursorValue?: number,
   sortingOrder?: boolean,
 ) => {
   const { search, statuses } = input;
 
   return (users: typeof schema.endUsers) => {
-    const conditions = [eq(users.authOrganizationId, organizationId)];
+    const conditions = [eq(users.authOrganizationId, authOrganizationId)];
 
     if (statuses?.length) {
       conditions.push(inArray(users.actionStatus, statuses));
@@ -57,9 +57,9 @@ const getWhereInput = (
 export const userRouter = router({
   infinite: protectedProcedure.input(paginationSchema).query(async ({ input, ctx }) => {
     const { cursor, limit, sorting } = input;
-    const { organizationId } = ctx;
+    const { authOrganizationId } = ctx;
 
-    if (organizationId !== input.organizationId) {
+    if (authOrganizationId !== input.authOrganizationId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
@@ -72,7 +72,7 @@ export const userRouter = router({
       const { sort } = cursor;
       const sortingOrder = sorting[0]?.desc;
       const orderBy = sortingOrder ? desc(schema.endUsers.sort) : asc(schema.endUsers.sort);
-      const where = getWhereInput(input, organizationId, sort, sortingOrder);
+      const where = getWhereInput(input, authOrganizationId, sort, sortingOrder);
 
       users = await db.query.endUsers.findMany({
         where: where(schema.endUsers),
@@ -99,7 +99,7 @@ export const userRouter = router({
     // Offset pagination is more flexible, but less performant
     const { skip } = cursor;
     const offsetValue = skip ?? 0;
-    const where = getWhereInput(input, organizationId);
+    const where = getWhereInput(input, authOrganizationId);
 
     users = await db.query.endUsers.findMany({
       where: where(schema.endUsers),

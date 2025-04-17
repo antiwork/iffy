@@ -28,5 +28,5 @@ export default async function Page({ params }: { params: Promise<{ recordId: str
   const { orgId } = await authWithOrgSubscription();
 
   const id = (await params).recordId;
-  return <RecordDetail organizationId={orgId} id={id} />;
+  return <RecordDetail authOrganizationId={orgId} id={id} />;
 }

@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ moderatio
   const id = (await params).moderationId;
 
   const moderation = await db.query.moderations.findFirst({
-    where: and(eq(schema.moderations.organizationId, orgId), eq(schema.moderations.id, id)),
+    where: and(eq(schema.moderations.authOrganizationId, orgId), eq(schema.moderations.id, id)),
     with: {
       record: true,
     },
@@ -32,5 +32,5 @@ export default async function ModerationPage({ params }: { params: Promise<{ mod
 
   const id = (await params).moderationId;
 
-  return <ModerationDetail organizationId={orgId} id={id} />;
+  return <ModerationDetail authOrganizationId={orgId} id={id} />;
 }

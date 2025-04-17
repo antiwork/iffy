@@ -20,7 +20,7 @@ const ListRecordsRequestData = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const [isValid, organizationId] = await authenticateRequest(req);
+  const [isValid, authOrganizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
@@ -33,13 +33,13 @@ export async function GET(req: NextRequest) {
   const { limit, starting_after, ending_before, user, entity, clientId, status } = data;
 
   let conditions: SQL<unknown>[] = [
-    eq(schema.records.authOrganizationId, organizationId),
+    eq(schema.records.authOrganizationId, authOrganizationId),
     isNull(schema.records.deletedAt),
   ];
 
   if (user) {
     const userExists = await db.query.endUsers.findFirst({
-      where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, user)),
+      where: and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, user)),
       columns: { id: true },
     });
     if (!userExists) {
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
       moderationStatusCreatedAt: schema.records.moderationStatusCreatedAt,
       moderationPending: schema.records.moderationPending,
       moderationPendingCreatedAt: schema.records.moderationPendingCreatedAt,
-      userId: schema.records.endUserId,
+      endUserId: schema.records.endUserId,
     })
     .from(schema.records)
     .where(and(...conditions))
@@ -112,9 +112,9 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
-    data: records.map(({ userId, metadata, ...record }) => ({
+    data: records.map(({ endUserId, metadata, ...record }) => ({
       ...record,
-      user: userId,
+      user: endUserId,
       metadata: metadata ? parseMetadata(metadata) : undefined,
     })),
     has_more: hasMore,

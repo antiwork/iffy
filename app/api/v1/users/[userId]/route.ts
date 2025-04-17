@@ -8,16 +8,16 @@ import { generateAppealToken } from "@/services/appeals";
 import { getAbsoluteUrl } from "@/lib/url";
 import { authenticateRequest } from "@/app/api/auth";
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
-  const [isValid, organizationId] = await authenticateRequest(req);
+export async function GET(req: NextRequest, { params }: { params: Promise<{ endUserId: string }> }) {
+  const [isValid, authOrganizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { userId: id } = await params;
+  const { endUserId: id } = await params;
 
   const user = await db.query.endUsers.findFirst({
-    where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, id)),
+    where: and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, id)),
     columns: {
       id: true,
       clientId: true,
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
     return NextResponse.json({ error: { message: "User not found" } }, { status: 404 });
   }
 
-  const organization = await findOrCreateOrganization(organizationId);
+  const organization = await findOrCreateOrganization(authOrganizationId);
 
   const appealUrl =
     organization.appealsEnabled && user.actionStatus === "Suspended"

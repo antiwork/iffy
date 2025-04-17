@@ -39,7 +39,7 @@ export default async function SubscriptionPage() {
       <div className="text-gray-950 dark:text-stone-50">
         <h2 className="mb-6 text-2xl font-bold">Subscription</h2>
         <div className="space-y-8">
-          <ManageSubscription organizationId={orgId} />
+          <ManageSubscription authOrganizationId={orgId} />
         </div>
       </div>
     </div>

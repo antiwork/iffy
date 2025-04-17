@@ -17,9 +17,9 @@ function createVisualKey(key: string) {
   return prefix + masked + suffix;
 }
 
-export async function getApiKeys({ organizationId }: { organizationId: string }) {
+export async function getApiKeys({ organizationId: authOrganizationId }: { organizationId: string }) {
   const keys = await db.query.apiKeys.findMany({
-    where: and(eq(schema.apiKeys.authOrganizationId, organizationId), isNull(schema.apiKeys.deletedAt)),
+    where: and(eq(schema.apiKeys.authOrganizationId, authOrganizationId), isNull(schema.apiKeys.deletedAt)),
     orderBy: (apiKeys, { desc }) => [desc(apiKeys.createdAt)],
   });
 
@@ -27,7 +27,7 @@ export async function getApiKeys({ organizationId }: { organizationId: string })
     keys.map(async ({ encryptedKey, ...key }) => ({
       ...key,
       previewKey: createVisualKey(decrypt(encryptedKey)),
-      createdBy: await formatClerkUser(key.clerkUserId),
+      createdBy: await formatClerkUser(key.authUserId),
     })),
   );
 
@@ -35,20 +35,20 @@ export async function getApiKeys({ organizationId }: { organizationId: string })
 }
 
 export async function createApiKey({
-  organizationId,
-  clerkUserId,
+  authOrganizationId,
+  authUserId,
   name,
 }: {
-  organizationId: string;
-  clerkUserId: string;
+  authOrganizationId: string;
+  authUserId: string;
   name: string;
 }) {
   const generatedKey = KEY_PREFIX + crypto.randomBytes(KEY_LENGTH).toString("hex");
   const [newKey] = await db
     .insert(schema.apiKeys)
     .values({
-      organizationId,
-      clerkUserId,
+      authOrganizationId,
+      authUserId,
       name,
       encryptedKey: encrypt(generatedKey),
       encryptedKeyHash: generateHash(generatedKey),
@@ -63,7 +63,7 @@ export async function createApiKey({
     key: {
       ...newKey,
       previewKey: createVisualKey(generatedKey),
-      createdBy: await formatClerkUser(clerkUserId),
+      createdBy: await formatClerkUser(authUserId),
     },
     decryptedKey: generatedKey,
   };

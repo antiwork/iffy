@@ -7,7 +7,7 @@ import { parseMetadata } from "@/services/metadata";
 import { authenticateRequest } from "@/app/api/auth";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ recordId: string }> }) {
-  const [isValid, organizationId] = await authenticateRequest(req);
+  const [isValid, authOrganizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ reco
 
   const record = await db.query.records.findFirst({
     where: and(
-      eq(schema.records.authOrganizationId, organizationId),
+      eq(schema.records.authOrganizationId, authOrganizationId),
       eq(schema.records.id, id),
       isNull(schema.records.deletedAt),
     ),
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ reco
       moderationStatusCreatedAt: true,
       moderationPending: true,
       moderationPendingCreatedAt: true,
-      userId: true,
+      endUserId: true,
     },
   });
 
@@ -42,11 +42,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ reco
     return NextResponse.json({ error: { message: "Record not found" } }, { status: 404 });
   }
 
-  const { userId, metadata, ...rest } = record;
+  const { endUserId, metadata, ...rest } = record;
   return NextResponse.json({
     data: {
       ...rest,
-      user: userId,
+      user: endUserId,
       metadata: metadata ? parseMetadata(metadata) : undefined,
     },
   });

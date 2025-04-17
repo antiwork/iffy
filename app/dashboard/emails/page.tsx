@@ -16,13 +16,13 @@ import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 const EmailEditor = async <T extends (typeof schema.emailTemplateType.enumValues)[number]>({
-  organizationId,
+  authOrganizationId,
   type,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & Omit<Parameters<typeof render<T>>[0], "content">) => {
   const template = await db.query.emailTemplates.findFirst({
     where: and(
-      eq(schema.emailTemplates.authOrganizationId, organizationId),
+      eq(schema.emailTemplates.authOrganizationId, authOrganizationId),
       eq(schema.emailTemplates.type, type),
     ),
   });
@@ -38,7 +38,7 @@ const EmailEditor = async <T extends (typeof schema.emailTemplateType.enumValues
           <EmailPreview
             content={content}
             className="rounded-lg"
-            organizationId={organizationId}
+            authOrganizationId={authOrganizationId}
             type={type}
           />
         </div>
@@ -49,13 +49,13 @@ const EmailEditor = async <T extends (typeof schema.emailTemplateType.enumValues
 };
 
 const EmailPreview = async <T extends (typeof schema.emailTemplateType.enumValues)[number]>({
-  organizationId,
+  authOrganizationId,
   content,
   type,
   ...props
 }: Omit<React.HTMLAttributes<HTMLDivElement>, "content"> & Parameters<typeof render<T>>[0]) => {
   const { html } = await render<T>({
-    organizationId,
+    authOrganizationId,
     content,
     type,
     appealUrl: type === "Suspended" ? "#" : undefined,
@@ -82,13 +82,13 @@ const Emails = async () => {
           <TabsTrigger value="banned">Banned</TabsTrigger>
         </TabsList>
         <TabsContent value="suspended">
-          <EmailEditor organizationId={orgId} type="Suspended" />
+          <EmailEditor authOrganizationId={orgId} type="Suspended" />
         </TabsContent>
         <TabsContent value="compliant">
-          <EmailEditor organizationId={orgId} type="Compliant" />
+          <EmailEditor authOrganizationId={orgId} type="Compliant" />
         </TabsContent>
         <TabsContent value="banned">
-          <EmailEditor organizationId={orgId} type="Banned" />
+          <EmailEditor authOrganizationId={orgId} type="Banned" />
         </TabsContent>
       </Tabs>
     </div>

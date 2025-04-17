@@ -16,27 +16,27 @@ const createUserActionSchema = z.object({
 // TODO(s3ththompson): Add bulk services in the future
 export const createUserActions = actionClient
   .schema(createUserActionSchema)
-  .bindArgsSchemas<[userIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
+  .bindArgsSchemas<[endUserIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
   .action(
     async ({
       parsedInput: { status, reasoning },
-      bindArgsParsedInputs: [userIds],
-      ctx: { organizationId, clerkUserId },
+      bindArgsParsedInputs: [endUserIds],
+      ctx: { authOrganizationId, authUserId },
     }) => {
       const userActions = await Promise.all(
-        userIds.map((userId) =>
+        endUserIds.map((endUserId) =>
           service.createUserAction({
-            organizationId,
-            userId,
+            authOrganizationId,
+            endUserId,
             status,
             via: "Manual",
-            clerkUserId,
+            authUserId,
             reasoning,
           }),
         ),
       );
-      for (const userId of userIds) {
-        revalidatePath(`/dashboard/users/${userId}`);
+      for (const endUserId of endUserIds) {
+        revalidatePath(`/dashboard/users/${endUserId}`);
       }
       return userActions;
     },
@@ -46,18 +46,18 @@ const setUserProtectedSchema = z.boolean();
 
 export const setUserProtectedMany = actionClient
   .schema(setUserProtectedSchema)
-  .bindArgsSchemas<[userIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
-  .action(async ({ parsedInput, bindArgsParsedInputs: [userIds], ctx: { organizationId } }) => {
+  .bindArgsSchemas<[endUserIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
+  .action(async ({ parsedInput, bindArgsParsedInputs: [endUserIds], ctx: { authOrganizationId } }) => {
     const userRecords = await db
       .update(schema.endUsers)
       .set({
         protected: parsedInput,
       })
-      .where(and(eq(schema.endUsers.authOrganizationId, organizationId), inArray(schema.endUsers.id, userIds)))
+      .where(and(eq(schema.endUsers.authOrganizationId, authOrganizationId), inArray(schema.endUsers.id, endUserIds)))
       .returning();
 
-    for (const userId of userIds) {
-      revalidatePath(`/dashboard/users/${userId}`);
+    for (const endUserId of endUserIds) {
+      revalidatePath(`/dashboard/users/${endUserId}`);
     }
     return userRecords;
   });

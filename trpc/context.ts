@@ -4,8 +4,8 @@ export const createContext = async () => {
   const { orgId, userId } = await auth();
 
   return {
-    organizationId: orgId,
-    clerkUserId: userId,
+    authOrganizationId: orgId,
+    authUserId: userId,
   };
 };
 

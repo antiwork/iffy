@@ -56,11 +56,11 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
       throw new Error("User is not suspended");
     }
 
-    const { organizationId: organizationId } = endUser;
+    const { authOrganizationId } = endUser;
 
     const existingAppeal = await tx.query.appeals.findFirst({
       where: and(
-        eq(schema.appeals.authOrganizationId, organizationId),
+        eq(schema.appeals.authOrganizationId, authOrganizationId),
         eq(schema.appeals.userActionId, userAction.id),
       ),
     });
@@ -72,7 +72,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
     const [appeal] = await tx
       .insert(schema.appeals)
       .values({
-        organizationId: organizationId,
+        authOrganizationId,
         userActionId: userAction.id,
       })
       .returning();
@@ -84,7 +84,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
     const [appealAction] = await tx
       .insert(schema.appealActions)
       .values({
-        organizationId: organizationId,
+        authOrganizationId,
         appealId: appeal.id,
         status: "Open",
         via: "Inbound",
@@ -102,7 +102,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
         actionStatus: appealAction.status,
         actionStatusCreatedAt: appealAction.createdAt,
       })
-      .where(and(eq(schema.appeals.authOrganizationId, organizationId), eq(schema.appeals.id, appeal.id)));
+      .where(and(eq(schema.appeals.authOrganizationId, authOrganizationId), eq(schema.appeals.id, appeal.id)));
 
     await tx
       .update(schema.messages)
@@ -111,13 +111,13 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
       })
       .where(
         and(
-          eq(schema.messages.authOrganizationId, organizationId),
+          eq(schema.messages.authOrganizationId, authOrganizationId),
           eq(schema.messages.userActionId, userAction.id),
         ),
       );
 
     await tx.insert(schema.messages).values({
-      organizationId,
+      authOrganizationId,
       userActionId: userAction.id,
       fromId: userId,
       text,
@@ -133,7 +133,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
     await inngest.send({
       name: "appeal-action/status-changed",
       data: {
-        organizationId: appeal.organizationId,
+        authOrganizationId: appeal.authOrganizationId,
         id: appealAction.id,
         appealId: appeal.id,
         status: "Open",

@@ -15,15 +15,15 @@ const moderate = inngest.createFunction(
   { id: "moderate" },
   { event: "moderation/moderated" },
   async ({ event, step }) => {
-    const { authOrganizationId: organizationId, moderationId, recordId } = event.data;
+    const { authOrganizationId, moderationId, recordId } = event.data;
 
     const result = await step.run("moderate", async () => {
-      return await service.moderate({ organizationId, recordId });
+      return await service.moderate({ authOrganizationId, recordId });
     });
 
     return await step.run("update-moderation", async () => {
       return await updatePendingModeration({
-        organizationId,
+        authOrganizationId,
         id: moderationId,
         ...result,
       });
@@ -35,11 +35,11 @@ const updateUserAfterModeration = inngest.createFunction(
   { id: "update-user-after-moderation" },
   { event: "moderation/status-changed" },
   async ({ event, step }) => {
-    const { authOrganizationId: organizationId, recordId, status } = event.data;
+    const { authOrganizationId, recordId, status } = event.data;
 
     const record = await step.run("fetch-record", async () => {
       const result = await db.query.records.findFirst({
-        where: and(eq(schema.records.authOrganizationId, organizationId), eq(schema.records.id, recordId)),
+        where: and(eq(schema.records.authOrganizationId, authOrganizationId), eq(schema.records.id, recordId)),
         with: {
           user: true,
         },
@@ -57,11 +57,11 @@ const updateUserAfterModeration = inngest.createFunction(
     }
 
     const flaggedRecords = await step.run("fetch-user-flagged-records", async () => {
-      return await getFlaggedRecordsFromUser({ organizationId, id: user.id });
+      return await getFlaggedRecordsFromUser({ authOrganizationId, id: user.id });
     });
 
     const organization = await step.run("fetch-organization", async () => {
-      return await findOrCreateOrganization(organizationId);
+      return await findOrCreateOrganization(authOrganizationId);
     });
 
     let actionStatus: (typeof schema.userActionStatus.enumValues)[number] | undefined;
@@ -95,8 +95,8 @@ const updateUserAfterModeration = inngest.createFunction(
 
     await step.run("create-user-action", async () => {
       return await createUserAction({
-        organizationId,
-        userId: user.id,
+        authOrganizationId,
+        endUserId: user.id,
         status: actionStatus,
         ...actionVia,
       });
@@ -108,11 +108,11 @@ const sendModerationWebhook = inngest.createFunction(
   { id: "send-moderation-webhook" },
   { event: "moderation/status-changed" },
   async ({ event, step }) => {
-    const { authOrganizationId: organizationId, id, status, recordId } = event.data;
+    const { authOrganizationId, id, status, recordId } = event.data;
 
     const moderation = await step.run("fetch-moderation", async () => {
       const result = await db.query.moderations.findFirst({
-        where: and(eq(schema.moderations.authOrganizationId, organizationId), eq(schema.moderations.id, id)),
+        where: and(eq(schema.moderations.authOrganizationId, authOrganizationId), eq(schema.moderations.id, id)),
       });
       if (!result) {
         throw new Error(`Moderation not found: ${id}`);
@@ -122,7 +122,7 @@ const sendModerationWebhook = inngest.createFunction(
 
     const record = await step.run("fetch-record", async () => {
       const result = await db.query.records.findFirst({
-        where: and(eq(schema.records.authOrganizationId, organizationId), eq(schema.records.id, recordId)),
+        where: and(eq(schema.records.authOrganizationId, authOrganizationId), eq(schema.records.id, recordId)),
         with: {
           user: true,
         },
@@ -138,7 +138,7 @@ const sendModerationWebhook = inngest.createFunction(
 
     await step.run("send-webhook", async () => {
       const webhook = await db.query.webhookEndpoints.findFirst({
-        where: eq(schema.webhookEndpoints.authOrganizationId, organizationId),
+        where: eq(schema.webhookEndpoints.authOrganizationId, authOrganizationId),
       });
       if (!webhook) throw new Error("No webhook found");
 
@@ -183,10 +183,10 @@ const recordModerationUsage = inngest.createFunction(
   { id: "record-moderation-usage" },
   { event: "moderation/usage" },
   async ({ event, step }) => {
-    const { authOrganizationId: organizationId } = event.data;
+    const { authOrganizationId } = event.data;
 
     await step.run("create-meter-event", async () => {
-      return await createMeterEvent(organizationId, "iffy_moderations", 1);
+      return await createMeterEvent(authOrganizationId, "iffy_moderations", 1);
     });
   },
 );

@@ -7,7 +7,7 @@ import { eq, inArray, ilike, asc, desc, and, or, lt, gt, sql, exists, count } fr
 import * as schema from "@/db/schema";
 
 const paginationSchema = z.object({
-  organizationId: z.string(),
+  authOrganizationId: z.string(),
   cursor: z.number().int().optional(),
   limit: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40), z.literal(50)]).default(50),
   sort: z.enum(["asc", "desc"]).default("desc"),
@@ -18,16 +18,16 @@ const paginationSchema = z.object({
 export const appealRouter = router({
   infinite: protectedProcedure.input(paginationSchema).query(async ({ input, ctx }) => {
     const { cursor, limit, sort, search, statuses } = input;
-    const { organizationId } = ctx;
+    const { authOrganizationId } = ctx;
 
-    if (organizationId !== input.organizationId) {
+    if (authOrganizationId !== input.authOrganizationId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
     const sortingOrder = sort === "desc";
     const orderBy = sortingOrder ? desc(schema.appeals.sort) : asc(schema.appeals.sort);
 
-    const conditions = [eq(schema.appeals.authOrganizationId, organizationId)];
+    const conditions = [eq(schema.appeals.authOrganizationId, authOrganizationId)];
 
     if (statuses?.length) {
       conditions.push(inArray(schema.appeals.actionStatus, statuses));
@@ -109,7 +109,7 @@ export const appealRouter = router({
       db
         .select({ count: count() })
         .from(schema.appeals)
-        .where(eq(schema.appeals.authOrganizationId, organizationId)),
+        .where(eq(schema.appeals.authOrganizationId, authOrganizationId)),
       db
         .select({ count: count() })
         .from(schema.appeals)

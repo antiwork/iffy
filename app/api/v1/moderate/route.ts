@@ -12,7 +12,7 @@ import { hasActiveSubscription } from "@/services/stripe/subscriptions";
 import { env } from "@/lib/env";
 
 export async function POST(req: NextRequest) {
-  const [isValid, organizationId] = await authenticateRequest(req);
+  const [isValid, authOrganizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  if (env.ENABLE_BILLING && !(await hasActiveSubscription(organizationId))) {
+  if (env.ENABLE_BILLING && !(await hasActiveSubscription(authOrganizationId))) {
     return NextResponse.json(
       { error: { message: "No active subscription. Please sign up for a subscription." } },
       { status: 403 },
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   let user: typeof schema.endUsers.$inferSelect | undefined;
   if (data.user) {
     user = await createOrUpdateUser({
-      organizationId,
+      authOrganizationId,
       clientId: data.user.clientId,
       clientUrl: data.user.clientUrl,
       email: data.user.email,
@@ -47,14 +47,14 @@ export async function POST(req: NextRequest) {
   const content = typeof data.content === "string" ? { text: data.content } : data.content;
 
   const record = await createOrUpdateRecord({
-    organizationId,
+    authOrganizationId,
     clientId: data.clientId,
     name: data.name,
     entity: data.entity,
     text: content.text,
     imageUrls: content.imageUrls,
     clientUrl: data.clientUrl,
-    userId: user?.id,
+    endUserId: user?.id,
     metadata: data.metadata,
   });
 
@@ -69,12 +69,12 @@ export async function POST(req: NextRequest) {
   }
 
   const result = await moderate({
-    organizationId,
+    authOrganizationId,
     recordId: record.id,
   });
 
   const moderation = await createModeration({
-    organizationId,
+    authOrganizationId,
     recordId: record.id,
     ...result,
     via: "AI",
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     await inngest.send({
       name: "moderation/usage",
       data: {
-        organizationId,
+        authOrganizationId,
         id: moderation.id,
         recordId: record.id,
       },

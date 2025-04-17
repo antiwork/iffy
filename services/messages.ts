@@ -16,7 +16,7 @@ type FromId = {
 type ToOrFromId = ToId | FromId;
 
 export async function createMessage({
-  organizationId,
+  authOrganizationId: authOrganizationId,
   userActionId,
   toId,
   fromId,
@@ -26,7 +26,7 @@ export async function createMessage({
   status = "Pending",
   appealId,
 }: {
-  organizationId: string;
+  authOrganizationId: string;
   userActionId: string;
   subject?: string;
   text: string;
@@ -36,7 +36,7 @@ export async function createMessage({
   const [message] = await db
     .insert(schema.messages)
     .values({
-      organizationId,
+      authOrganizationId,
       userActionId,
       toId,
       fromId,

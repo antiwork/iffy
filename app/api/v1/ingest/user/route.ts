@@ -5,7 +5,7 @@ import { createOrUpdateUser } from "@/services/users";
 import { authenticateRequest } from "@/app/api/auth";
 
 export async function POST(req: NextRequest) {
-  const [isValid, organizationId] = await authenticateRequest(req);
+  const [isValid, authOrganizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   }
 
   const user = await createOrUpdateUser({
-    organizationId,
+    authOrganizationId,
     clientId: data.clientId,
     clientUrl: data.clientUrl,
     email: data.email,

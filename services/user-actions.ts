@@ -7,23 +7,23 @@ import { ViaWithRelations } from "@/lib/types";
 type ActionStatus = (typeof schema.userActionStatus.enumValues)[number];
 
 export async function createUserAction({
-  organizationId,
-  userId,
+  authOrganizationId,
+  endUserId,
   status,
   via,
-  clerkUserId,
+  authUserId,
   reasoning,
   viaRecordId,
   viaAppealId,
 }: {
-  organizationId: string;
-  userId: string;
+  authOrganizationId: string;
+  endUserId: string;
   status: ActionStatus;
   reasoning?: string;
 } & ViaWithRelations) {
   const [userAction, lastUserAction] = await db.transaction(async (tx) => {
     const user = await tx.query.endUsers.findFirst({
-      where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, userId)),
+      where: and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, endUserId)),
       columns: {
         protected: true,
       },
@@ -39,8 +39,8 @@ export async function createUserAction({
 
     const lastUserAction = await tx.query.userActions.findFirst({
       where: and(
-        eq(schema.userActions.authOrganizationId, organizationId),
-        eq(schema.userActions.endUserId, userId),
+        eq(schema.userActions.authOrganizationId, authOrganizationId),
+        eq(schema.userActions.endUserId, endUserId),
       ),
       orderBy: desc(schema.userActions.createdAt),
       columns: {
@@ -56,11 +56,11 @@ export async function createUserAction({
     const [userAction] = await tx
       .insert(schema.userActions)
       .values({
-        organizationId,
+        authOrganizationId,
         status,
-        userId,
+        endUserId,
         via,
-        clerkUserId,
+        authUserId,
         reasoning,
         viaRecordId,
         viaAppealId,
@@ -78,7 +78,7 @@ export async function createUserAction({
         actionStatus: status,
         actionStatusCreatedAt: userAction.createdAt,
       })
-      .where(and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, userId)));
+      .where(and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, endUserId)));
 
     return [userAction, lastUserAction];
   });
@@ -88,9 +88,9 @@ export async function createUserAction({
       await inngest.send({
         name: "user-action/status-changed",
         data: {
-          organizationId,
+          authOrganizationId,
           id: userAction.id,
-          endUserId: userId,
+          endUserId,
           status,
           lastStatus: lastUserAction?.status ?? null,
         },

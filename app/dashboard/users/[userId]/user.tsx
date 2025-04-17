@@ -21,9 +21,9 @@ import { notFound } from "next/navigation";
 import { parseMetadata } from "@/services/metadata";
 import { formatLink } from "@/lib/url";
 
-export async function UserDetail({ organizationId, id }: { organizationId: string; id: string }) {
+export async function UserDetail({ authOrganizationId, id }: { authOrganizationId: string; id: string }) {
   const user = await db.query.endUsers.findFirst({
-    where: and(eq(schema.endUsers.authOrganizationId, organizationId), eq(schema.endUsers.id, id)),
+    where: and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, id)),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],
@@ -121,7 +121,7 @@ export async function UserDetail({ organizationId, id }: { organizationId: strin
       {user.stripeAccountId && (
         <>
           <Separator className="my-2" />
-          <StripeAccount organizationId={organizationId} stripeAccountId={user.stripeAccountId} />
+          <StripeAccount authOrganizationId={authOrganizationId} stripeAccountId={user.stripeAccountId} />
         </>
       )}
       {metadata && (
@@ -150,7 +150,7 @@ export async function UserDetail({ organizationId, id }: { organizationId: strin
           <Section>
             <SectionTitle>Actions</SectionTitle>
             <SectionContent>
-              <ActionsTable organizationId={organizationId} actions={user.actions} />
+              <ActionsTable authOrganizationId={authOrganizationId} actions={user.actions} />
             </SectionContent>
           </Section>
         </>
@@ -159,7 +159,7 @@ export async function UserDetail({ organizationId, id }: { organizationId: strin
       <Section>
         <SectionTitle>Records</SectionTitle>
         <SectionContent>
-          <RecordsTable organizationId={organizationId} userId={user.id} />
+          <RecordsTable authOrganizationId={authOrganizationId} endUserId={user.id} />
         </SectionContent>
       </Section>
     </div>

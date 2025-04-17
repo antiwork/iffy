@@ -30,8 +30,8 @@ const updateOrganizationSchema = z.object({
 
 export const createWebhook = actionClient
   .schema(createWebhookSchema)
-  .action(async ({ parsedInput: { url }, ctx: { organizationId } }) => {
-    const webhook = await webhookService.createWebhook({ organizationId, url });
+  .action(async ({ parsedInput: { url }, ctx: { authOrganizationId } }) => {
+    const webhook = await webhookService.createWebhook({ authOrganizationId, url });
     revalidatePath("/dashboard/developer");
     return webhook;
   });
@@ -39,31 +39,31 @@ export const createWebhook = actionClient
 export const updateWebhookUrl = actionClient
   .schema(updateWebhookUrlSchema)
   .bindArgsSchemas<[id: z.ZodString]>([z.string()])
-  .action(async ({ parsedInput: { url }, bindArgsParsedInputs: [id], ctx: { organizationId } }) => {
-    const webhook = await webhookService.updateWebhookUrl({ organizationId, id, url });
+  .action(async ({ parsedInput: { url }, bindArgsParsedInputs: [id], ctx: { authOrganizationId } }) => {
+    const webhook = await webhookService.updateWebhookUrl({ authOrganizationId, id, url });
     revalidatePath("/dashboard/developer");
     return webhook;
   });
 
 export const createApiKey = actionClient
   .schema(createApiKeySchema)
-  .action(async ({ parsedInput: { name }, ctx: { organizationId, clerkUserId } }) => {
-    const apiKey = await apiKeysService.createApiKey({ organizationId, clerkUserId, name });
+  .action(async ({ parsedInput: { name }, ctx: { authOrganizationId, authUserId } }) => {
+    const apiKey = await apiKeysService.createApiKey({ authOrganizationId, authUserId, name });
     revalidatePath("/dashboard/developer");
     return apiKey;
   });
 
 export const deleteApiKey = actionClient
   .bindArgsSchemas<[id: z.ZodString]>([z.string()])
-  .action(async ({ bindArgsParsedInputs: [id], ctx: { organizationId } }) => {
-    await apiKeysService.deleteApiKey({ organizationId, id });
+  .action(async ({ bindArgsParsedInputs: [id], ctx: { authOrganizationId } }) => {
+    await apiKeysService.deleteApiKey({ authOrganizationId, id });
     revalidatePath("/dashboard/developer");
   });
 
 export const updateOrganization = actionClient
   .schema(updateOrganizationSchema)
-  .action(async ({ parsedInput, ctx: { organizationId } }) => {
-    const settings = await organizationService.updateOrganization(organizationId, parsedInput);
+  .action(async ({ parsedInput, ctx: { authOrganizationId } }) => {
+    const settings = await organizationService.updateOrganization(authOrganizationId, parsedInput);
     revalidatePath("/dashboard/developer");
     revalidatePath("/dashboard/settings");
     return settings;
