@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const Users = async () => {
   const { orgId } = await authWithOrgSubscription();
 
-  return <DataTable clerkOrganizationId={orgId} />;
+  return <DataTable authOrganizationId={orgId} />;
 };
 
 export default Users;

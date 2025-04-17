@@ -22,17 +22,17 @@ export const createModerations = actionClient
     async ({
       parsedInput: { status, reasoning },
       bindArgsParsedInputs: [recordIds],
-      ctx: { clerkOrganizationId, clerkUserId },
+      ctx: { authOrganizationId, authUserId },
     }) => {
       const moderations = await Promise.all(
         recordIds.map((recordId) =>
           service.createModeration({
-            clerkOrganizationId,
+            authOrganizationId,
             recordId,
             status,
             reasoning,
             via: "Manual",
-            clerkUserId,
+            authUserId: authUserId,
           }),
         ),
       );
@@ -46,11 +46,11 @@ export const createModerations = actionClient
 // TODO(s3ththompson): Add bulk services in the future
 export const moderateMany = actionClient
   .bindArgsSchemas<[recordIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
-  .action(async ({ bindArgsParsedInputs: [recordIds], ctx: { clerkOrganizationId } }) => {
+  .action(async ({ bindArgsParsedInputs: [recordIds], ctx: { authOrganizationId } }) => {
     const pendingModerations = await Promise.all(
       recordIds.map(async (recordId) => {
         const pendingModeration = await service.createPendingModeration({
-          clerkOrganizationId,
+          authOrganizationId,
           recordId,
           via: "AI",
         });
@@ -58,7 +58,7 @@ export const moderateMany = actionClient
           await inngest.send({
             name: "moderation/moderated",
             data: {
-              clerkOrganizationId,
+              authOrganizationId,
               moderationId: pendingModeration.id,
               recordId,
             },
@@ -66,7 +66,7 @@ export const moderateMany = actionClient
           await inngest.send({
             name: "moderation/usage",
             data: {
-              clerkOrganizationId,
+              authOrganizationId,
               id: pendingModeration.id,
               recordId,
             },
@@ -89,13 +89,13 @@ const setRecordProtectedSchema = z.boolean();
 export const setRecordProtectedMany = actionClient
   .schema(setRecordProtectedSchema)
   .bindArgsSchemas<[recordIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
-  .action(async ({ parsedInput, bindArgsParsedInputs: [recordIds], ctx: { clerkOrganizationId } }) => {
+  .action(async ({ parsedInput, bindArgsParsedInputs: [recordIds], ctx: { authOrganizationId } }) => {
     const records = await db
       .update(schema.records)
       .set({
         protected: parsedInput,
       })
-      .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), inArray(schema.records.id, recordIds)))
+      .where(and(eq(schema.records.authOrganizationId, authOrganizationId), inArray(schema.records.id, recordIds)))
       .returning();
 
     for (const recordId of recordIds) {

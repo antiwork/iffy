@@ -21,29 +21,29 @@ import {
 } from "drizzle-orm";
 
 const paginationSchema = z.object({
-  clerkOrganizationId: z.string(),
+  authOrganizationId: z.string(),
   cursor: z.object({ sort: z.number().int().optional(), skip: z.number().int().optional() }).default({}),
   limit: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40), z.literal(50)]).default(50),
   sorting: z.array(z.object({ id: z.string(), desc: z.boolean() })).default([{ id: "sort", desc: true }]),
   search: z.string().optional(),
   statuses: z.enum(schema.records.moderationStatus.enumValues).array().optional(),
   entities: z.array(z.string()).optional(),
-  userId: z.string().optional(),
+  endUserId: z.string().optional(),
 });
 
 const getWhereInput = (
   input: z.infer<typeof paginationSchema>,
-  clerkOrganizationId: string,
+  authOrganizationId: string,
   cursorValue?: number,
   sortingOrder?: boolean,
 ) => {
-  const { search, statuses, entities, userId } = input;
+  const { search, statuses, entities, endUserId: userId } = input;
 
   return (records: typeof schema.records) => {
-    const conditions = [eq(records.clerkOrganizationId, clerkOrganizationId), isNull(records.deletedAt)];
+    const conditions = [eq(records.authOrganizationId, authOrganizationId), isNull(records.deletedAt)];
 
     if (userId) {
-      conditions.push(eq(records.userId, userId));
+      conditions.push(eq(records.endUserId, userId));
     }
 
     if (statuses?.length) {
@@ -113,9 +113,9 @@ export const recordRouter = router({
   infinite: protectedProcedure.input(paginationSchema).query(async ({ input, ctx }) => {
     const { cursor, limit, sorting } = input;
     const { sort, skip } = cursor;
-    const { clerkOrganizationId } = ctx;
+    const { authOrganizationId } = ctx;
 
-    if (clerkOrganizationId !== input.clerkOrganizationId) {
+    if (authOrganizationId !== input.authOrganizationId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
@@ -128,7 +128,7 @@ export const recordRouter = router({
     if (supportsCursorPagination) {
       const sortingOrder = sorting[0]?.desc;
       const orderBy = sortingOrder ? desc(schema.records.sort) : asc(schema.records.sort);
-      const where = getWhereInput(input, clerkOrganizationId, sort, sortingOrder);
+      const where = getWhereInput(input, authOrganizationId, sort, sortingOrder);
 
       records = await db.query.records.findMany({
         where: where(schema.records),
@@ -165,7 +165,7 @@ export const recordRouter = router({
 
     // Offset pagination is more flexible, but less performant
     const offsetValue = skip ?? 0;
-    const where = getWhereInput(input, clerkOrganizationId);
+    const where = getWhereInput(input, authOrganizationId);
 
     records = await db.query.records.findMany({
       where: where(schema.records),

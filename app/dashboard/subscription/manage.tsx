@@ -6,11 +6,11 @@ import { METERS } from "@/products/products";
 import { formatSubscriptionStatus } from "@/lib/subscription-badge";
 import { formatDay } from "@/lib/date";
 
-export default async function ManageSubscription({ clerkOrganizationId }: { clerkOrganizationId: string }) {
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
-  const subscription = await findSubscription(clerkOrganizationId);
-  const tier = await findSubscriptionTier(clerkOrganizationId);
-  const usage = await getUsageForCurrentBillingPeriod(clerkOrganizationId, METERS.iffy_moderations.event_name);
+export default async function ManageSubscription({ authOrganizationId }: { authOrganizationId: string }) {
+  const organization = await findOrCreateOrganization(authOrganizationId);
+  const subscription = await findSubscription(authOrganizationId);
+  const tier = await findSubscriptionTier(authOrganizationId);
+  const usage = await getUsageForCurrentBillingPeriod(authOrganizationId, METERS.iffy_moderations.event_name);
 
   return (
     <div className="space-y-4">

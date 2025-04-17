@@ -1,12 +1,11 @@
 "use client";
 
 import * as React from "react";
-
+import { client } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { ClerkLoaded, ClerkLoading, OrganizationSwitcher, SignOutButton } from "@clerk/nextjs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   MessageSquareX,
   LucideIcon,
@@ -18,41 +17,78 @@ import {
   Settings,
   ChartBar,
   CreditCard,
+  LogOut,
+  Building
 } from "lucide-react";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/toaster";
-import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
-import * as schema from "@/db/schema";
+import { useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
-type organization = typeof schema.organizations.$inferSelect;
-
-export default function DynamicLayout({
+export default function DashboardLayout({
   children,
   organization,
   inboxCount,
   showSubscription,
 }: Readonly<{
   children: React.ReactNode;
-  organization: organization;
-  inboxCount: number;
-  showSubscription: boolean;
+  organization: any;
+  inboxCount?: number;
+  showSubscription?: boolean;
 }>) {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
+  const { data: organizations } = client.useListOrganizations();
+
+  const handleSignOut = async () => {
+    setLoading(true);
+    try {
+      await client.signOut();
+      router.push("/");
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSetActiveOrg = async (organizationId) => {
+    setLoading(true);
+    try {
+      await client.organization.setActive({
+        organizationId: organizationId
+      });
+      // Refresh the page to update organization context
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to set active organization:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const navLinks = [
-    ...(organization.appealsEnabled
+    ...(organization?.appealsEnabled
       ? [
-          {
-            title: "Inbox",
-            icon: Inbox,
-            slug: "inbox",
-            badge: inboxCount > 0 ? inboxCount : undefined,
-          },
-        ]
+        {
+          title: "Inbox",
+          icon: Inbox,
+          slug: "inbox",
+          badge: inboxCount > 0 ? inboxCount : undefined,
+        },
+      ]
       : []),
     {
       title: "Moderations",
@@ -77,14 +113,14 @@ export default function DynamicLayout({
       icon: ChartBar,
       slug: "analytics",
     },
-    ...(organization.emailsEnabled
+    ...(organization?.emailsEnabled
       ? [
-          {
-            title: "Emails",
-            icon: Mail,
-            slug: "emails",
-          },
-        ]
+        {
+          title: "Emails",
+          icon: Mail,
+          slug: "emails",
+        },
+      ]
       : []),
     {
       title: "Developer",
@@ -98,12 +134,12 @@ export default function DynamicLayout({
     },
     ...(showSubscription
       ? [
-          {
-            title: "Subscription",
-            icon: CreditCard,
-            slug: "subscription",
-          },
-        ]
+        {
+          title: "Subscription",
+          icon: CreditCard,
+          slug: "subscription",
+        },
+      ]
       : []),
   ];
 
@@ -138,7 +174,9 @@ export default function DynamicLayout({
             )}
           >
             <div className={cn("flex h-[52px] items-center", isCollapsed ? "h-[52px] justify-center" : "px-4")}>
-              <Logo variant={isCollapsed ? "icon" : "small"} />
+              <Link href="/dashboard" className="font-bold text-lg">
+                {isCollapsed ? "BA" : "Better Auth"}
+              </Link>
             </div>
             <Separator className="dark:bg-green-900" />
             <Nav isCollapsed={isCollapsed} links={navLinks} />
@@ -149,18 +187,57 @@ export default function DynamicLayout({
           <ResizablePanel defaultSize={80}>
             <div className={cn("flex h-[52px] items-center justify-end px-4 dark:bg-zinc-900")}>
               <div className="flex gap-2">
-                <ClerkLoading>
+                {loading ? (
                   <Skeleton className="mr-2 h-[20px] w-[125px] rounded-sm" />
-                </ClerkLoading>
-                <ClerkLoaded>
-                  <Button asChild variant="ghost" size="sm">
-                    <SignOutButton />
-                  </Button>
-                  <OrganizationSwitcher
-                    appearance={{ elements: { organizationSwitcherTrigger: "dark:text-white" } }}
-                    hidePersonal={true}
-                  />
-                </ClerkLoaded>
+                ) : (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="gap-2"
+                      onClick={handleSignOut}
+                    >
+                      <LogOut size={16} />
+                      Sign Out
+                    </Button>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-2">
+                          <Building size={16} />
+                          {organization?.name || "Select Organization"}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Organizations</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {organizations?.map((org) => (
+                          <DropdownMenuItem
+                            key={org.id}
+                            onClick={() => handleSetActiveOrg(org.id)}
+                            className={cn(
+                              "cursor-pointer",
+                              organization?.id === org.id && "bg-green-50 dark:bg-green-900/20"
+                            )}
+                          >
+                            {org.name}
+                            {organization?.id === org.id && (
+                              <Badge variant="outline" className="ml-2">
+                                Active
+                              </Badge>
+                            )}
+                          </DropdownMenuItem>
+                        ))}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link href="/organizations">
+                            Manage Organizations
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                )}
               </div>
             </div>
             <Separator />

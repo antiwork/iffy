@@ -3,8 +3,8 @@ import * as schema from "../schema";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { eq } from "drizzle-orm";
 
-export async function seedOrganization(clerkOrganizationId: string) {
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+export async function seedOrganization(organizationId: string) {
+  const organization = await findOrCreateOrganization(organizationId);
   const [updatedOrganization] = await db
     .update(schema.organizations)
     .set({ testModeEnabled: false, emailsEnabled: true })

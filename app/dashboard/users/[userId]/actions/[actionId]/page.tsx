@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ actionId:
   const id = (await params).actionId;
 
   const userAction = await db.query.userActions.findFirst({
-    where: and(eq(schema.userActions.clerkOrganizationId, orgId), eq(schema.userActions.id, id)),
+    where: and(eq(schema.userActions.authOrganizationId, orgId), eq(schema.userActions.id, id)),
     with: {
       user: true,
     },
@@ -33,5 +33,5 @@ export default async function UserActionPage({ params }: { params: Promise<{ act
 
   const id = (await params).actionId;
 
-  return <UserActionDetail clerkOrganizationId={orgId} id={id} />;
+  return <UserActionDetail authOrganizationId={orgId} id={id} />;
 }

@@ -40,22 +40,22 @@ type CreateEmailOptions = RequireAtLeastOne<EmailRenderOptions> & CreateEmailBas
 type EmailTemplateType = (typeof schema.emailTemplateType.enumValues)[number];
 
 export async function renderEmailTemplate<T extends EmailTemplateType>({
-  clerkOrganizationId,
+  authOrganizationId,
   type,
   appealUrl,
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   type: T;
   appealUrl?: string;
 }) {
   const template = await db.query.emailTemplates.findFirst({
     where: (templates, { and, eq }) =>
-      and(eq(templates.clerkOrganizationId, clerkOrganizationId), eq(templates.type, type)),
+      and(eq(templates.authOrganizationId, authOrganizationId), eq(templates.type, type)),
   });
 
   const content = parseContent(template?.content, type);
   return await render<T>({
-    clerkOrganizationId,
+    authOrganizationId: authOrganizationId,
     content,
     type,
     appealUrl,
@@ -63,14 +63,14 @@ export async function renderEmailTemplate<T extends EmailTemplateType>({
 }
 
 export async function sendEmail({
-  clerkOrganizationId,
+  authOrganizationId,
   userId,
   ...payload
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   userId: string;
 } & CreateEmailOptions) {
-  const { emailsEnabled } = await findOrCreateOrganization(clerkOrganizationId);
+  const { emailsEnabled } = await findOrCreateOrganization(authOrganizationId);
 
   if (!emailsEnabled || !env.RESEND_API_KEY) {
     console.log(userId, payload.subject, payload.text, payload.html);
@@ -79,8 +79,8 @@ export async function sendEmail({
 
   const resend = new Resend(env.RESEND_API_KEY);
 
-  const user = await db.query.users.findFirst({
-    where: (users, { and, eq }) => and(eq(users.clerkOrganizationId, clerkOrganizationId), eq(users.id, userId)),
+  const user = await db.query.endUsers.findFirst({
+    where: (users, { and, eq }) => and(eq(users.authOrganizationId, authOrganizationId), eq(users.id, userId)),
   });
 
   if (!user) {
@@ -111,3 +111,63 @@ export async function sendEmail({
 
   return data;
 }
+
+
+
+export async function sendVerificationOTP({ email, otp, type }) {
+
+  if (type !== "sign-in") {
+    console.log(`Email not sent: Type "${type}" is not supported. Only "sign-in" is allowed.`);
+    return null;
+  }
+
+  const subject = 'Verification Code';
+  const text = `Your verification code is: ${otp}`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2>Verification Code</h2>
+      <p>Please use the following code to verify your account:</p>
+      <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; font-size: 24px; text-align: center; letter-spacing: 5px; font-weight: bold;">
+        ${otp}
+      </div>
+      <p style="margin-top: 20px;">This code will expire in 10 minutes.</p>
+      <p>If you didn't request this code, please ignore this email.</p>
+    </div>
+  `;
+
+  // Check for Resend API key
+  if (!process.env.RESEND_API_KEY) {
+    console.log('Verification code:', email, subject, text);
+    return;
+  }
+
+  const Resend = require('resend').Resend;
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const fromEmail = `${process.env.RESEND_FROM_NAME} <${process.env.RESEND_FROM_EMAIL}>`;
+
+  // Log emails in non-production environments unless they're @resend.dev
+  if (process.env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
+    console.log('Verification code:', email, subject, text);
+    return;
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: [email],
+      subject,
+      text,
+      html
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Failed to send verification email:', error);
+    throw new Error('Failed to send verification email');
+  }
+}
+

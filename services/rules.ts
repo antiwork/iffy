@@ -6,23 +6,23 @@ import { Strategy } from "@/strategies/types";
 
 export type RuleWithStrategies = typeof schema.rules.$inferSelect & {
   preset:
-    | (typeof schema.presets.$inferSelect & {
-        strategies: Strategy[];
-      })
-    | null;
+  | (typeof schema.presets.$inferSelect & {
+    strategies: Strategy[];
+  })
+  | null;
   strategies: Strategy[];
 };
 
 export type RuleWithStrategiesInsert =
   | (typeof schema.rules.$inferInsert & { presetId: string; strategies?: never })
   | (typeof schema.rules.$inferInsert & {
-      presetId?: never;
-      strategies: Pick<typeof schema.ruleStrategies.$inferInsert, "type" | "options">[];
-    });
+    presetId?: never;
+    strategies: Pick<typeof schema.ruleStrategies.$inferInsert, "type" | "options">[];
+  });
 
-export const getRules = async (clerkOrganizationId: string, rulesetId: string): Promise<RuleWithStrategies[]> => {
+export const getRules = async (authOrganizationId: string, rulesetId: string): Promise<RuleWithStrategies[]> => {
   const rules = await db.query.rules.findMany({
-    where: and(eq(schema.rules.clerkOrganizationId, clerkOrganizationId), eq(schema.rules.rulesetId, rulesetId)),
+    where: and(eq(schema.rules.authOrganizationId, authOrganizationId), eq(schema.rules.rulesetId, rulesetId)),
     with: {
       preset: {
         with: {
@@ -46,13 +46,13 @@ export const getRules = async (clerkOrganizationId: string, rulesetId: string): 
 };
 
 export const createCustomRule = async ({
-  clerkOrganizationId,
+  authOrganizationId,
   rulesetId,
   strategies,
   name,
   description,
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   rulesetId: string;
   strategies: Pick<typeof schema.ruleStrategies.$inferInsert, "type" | "options">[];
   name: string;
@@ -62,7 +62,7 @@ export const createCustomRule = async ({
     const [newRule] = await tx
       .insert(schema.rules)
       .values({
-        clerkOrganizationId,
+        authOrganizationId,
         rulesetId,
         name,
         description,
@@ -76,7 +76,7 @@ export const createCustomRule = async ({
     for (const strategy of strategies) {
       await tx
         .insert(schema.ruleStrategies)
-        .values({ clerkOrganizationId, type: strategy.type, ruleId: newRule.id, options: strategy.options });
+        .values({ authOrganizationId, type: strategy.type, ruleId: newRule.id, options: strategy.options });
     }
 
     return newRule;
@@ -84,13 +84,13 @@ export const createCustomRule = async ({
 };
 
 export const updateCustomRule = async ({
-  clerkOrganizationId,
+  authOrganizationId,
   id,
   strategies,
   name,
   description,
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   id: string;
   strategies: Pick<typeof schema.ruleStrategies.$inferInsert, "type" | "options">[];
   name: string;
@@ -102,13 +102,13 @@ export const updateCustomRule = async ({
     for (const strategy of strategies) {
       await tx
         .insert(schema.ruleStrategies)
-        .values({ clerkOrganizationId, type: strategy.type, ruleId: id, options: strategy.options });
+        .values({ authOrganizationId, type: strategy.type, ruleId: id, options: strategy.options });
     }
 
     const [updatedRule] = await tx
       .update(schema.rules)
       .set({ name, description })
-      .where(and(eq(schema.rules.id, id), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)))
+      .where(and(eq(schema.rules.id, id), eq(schema.rules.authOrganizationId, authOrganizationId)))
       .returning();
 
     if (!updatedRule) {
@@ -120,15 +120,15 @@ export const updateCustomRule = async ({
 };
 
 export const createPresetRule = async ({
-  clerkOrganizationId,
+  authOrganizationId,
   rulesetId,
   presetId,
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   rulesetId: string;
   presetId: string;
 }) => {
-  const [newRule] = await db.insert(schema.rules).values({ clerkOrganizationId, rulesetId, presetId }).returning();
+  const [newRule] = await db.insert(schema.rules).values({ authOrganizationId, rulesetId, presetId }).returning();
 
   if (!newRule) {
     throw new Error("Failed to create rule");
@@ -138,18 +138,18 @@ export const createPresetRule = async ({
 };
 
 export const updatePresetRule = async ({
-  clerkOrganizationId,
+  authOrganizationId,
   id,
   presetId,
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   id: string;
   presetId: string;
 }) => {
   const [updatedRule] = await db
     .update(schema.rules)
     .set({ presetId })
-    .where(and(eq(schema.rules.id, id), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)))
+    .where(and(eq(schema.rules.id, id), eq(schema.rules.authOrganizationId, authOrganizationId)))
     .returning();
 
   if (!updatedRule) {
@@ -159,10 +159,10 @@ export const updatePresetRule = async ({
   return updatedRule;
 };
 
-export const deleteRule = async (clerkOrganizationId: string, ruleId: string) => {
+export const deleteRule = async (authOrganizationId: string, ruleId: string) => {
   return await db.transaction(async (tx) => {
     const rule = await tx.query.rules.findFirst({
-      where: and(eq(schema.rules.id, ruleId), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)),
+      where: and(eq(schema.rules.id, ruleId), eq(schema.rules.authOrganizationId, authOrganizationId)),
     });
     if (!rule) {
       throw new Error("Rule not found");
@@ -173,7 +173,7 @@ export const deleteRule = async (clerkOrganizationId: string, ruleId: string) =>
     }
     await tx
       .delete(schema.rules)
-      .where(and(eq(schema.rules.id, ruleId), eq(schema.rules.clerkOrganizationId, clerkOrganizationId)));
+      .where(and(eq(schema.rules.id, ruleId), eq(schema.rules.authOrganizationId, authOrganizationId)));
 
     return rule;
   });

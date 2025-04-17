@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import * as schema from "@/db/schema";
 type UserActionStatus = (typeof schema.userActions.status.enumValues)[number];
 
-const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => {
+const DataTable = ({ authOrganizationId }: { authOrganizationId: string }) => {
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const [rowSelection, setRowSelection] = useState({});
@@ -28,7 +28,7 @@ const DataTable = ({ clerkOrganizationId }: { clerkOrganizationId: string }) => 
   const [sorting, setSorting] = useState<SortingState>([{ id: "sort", desc: true }]);
 
   const query = {
-    clerkOrganizationId,
+    authOrganizationId,
     sorting,
     statuses: (columnFilters.find((filter) => filter.id === "status")?.value as UserActionStatus[]) || [],
     search: globalFilter || undefined,

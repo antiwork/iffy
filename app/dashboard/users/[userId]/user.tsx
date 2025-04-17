@@ -21,9 +21,9 @@ import { notFound } from "next/navigation";
 import { parseMetadata } from "@/services/metadata";
 import { formatLink } from "@/lib/url";
 
-export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
-  const user = await db.query.users.findFirst({
-    where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, id)),
+export async function UserDetail({ authOrganizationId, id }: { authOrganizationId: string; id: string }) {
+  const user = await db.query.endUsers.findFirst({
+    where: and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, id)),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],
@@ -121,7 +121,7 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
       {user.stripeAccountId && (
         <>
           <Separator className="my-2" />
-          <StripeAccount clerkOrganizationId={clerkOrganizationId} stripeAccountId={user.stripeAccountId} />
+          <StripeAccount authOrganizationId={authOrganizationId} stripeAccountId={user.stripeAccountId} />
         </>
       )}
       {metadata && (
@@ -150,7 +150,7 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
           <Section>
             <SectionTitle>Actions</SectionTitle>
             <SectionContent>
-              <ActionsTable clerkOrganizationId={clerkOrganizationId} actions={user.actions} />
+              <ActionsTable authOrganizationId={authOrganizationId} actions={user.actions} />
             </SectionContent>
           </Section>
         </>
@@ -159,7 +159,7 @@ export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizatio
       <Section>
         <SectionTitle>Records</SectionTitle>
         <SectionContent>
-          <RecordsTable clerkOrganizationId={clerkOrganizationId} userId={user.id} />
+          <RecordsTable authOrganizationId={authOrganizationId} endUserId={user.id} />
         </SectionContent>
       </Section>
     </div>

@@ -18,9 +18,9 @@ export interface LinkData {
 }
 
 export interface Context {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   record: typeof schema.records.$inferSelect;
-  user?: typeof schema.users.$inferSelect;
+  user?: typeof schema.endUsers.$inferSelect;
   externalLinks: LinkData[];
   tokens: number;
   lastManualModeration?: typeof schema.moderations.$inferSelect;
@@ -32,18 +32,18 @@ export interface StrategyResult {
 }
 
 export async function createModeration({
-  clerkOrganizationId,
+  authOrganizationId,
   recordId,
   status,
   via,
-  clerkUserId,
+  authUserId,
   reasoning,
   rulesetId,
   ruleIds = [],
   testMode = false,
   createdAt,
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   recordId: string;
   status: ModerationStatus;
   reasoning?: string;
@@ -57,9 +57,9 @@ export async function createModeration({
   const moderation = await db.transaction(async (tx) => {
     // read the last status from the record
     const record = await tx.query.records.findFirst({
-      where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
+      where: and(eq(schema.records.authOrganizationId, authOrganizationId), eq(schema.records.id, recordId)),
       columns: {
-        userId: true,
+        endUserId: true,
         moderationStatus: true,
         protected: true,
       },
@@ -78,10 +78,10 @@ export async function createModeration({
     const [moderation] = await tx
       .insert(schema.moderations)
       .values({
-        clerkOrganizationId,
+        authOrganizationId,
         status,
         via,
-        clerkUserId,
+        authUserId,
         reasoning,
         recordId,
         rulesetId,
@@ -111,25 +111,25 @@ export async function createModeration({
         moderationStatusCreatedAt: moderation.createdAt,
         moderationPending: false,
       })
-      .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)));
+      .where(and(eq(schema.records.authOrganizationId, authOrganizationId), eq(schema.records.id, recordId)));
 
     if (status !== lastStatus) {
-      if (record.userId) {
+      if (record.endUserId) {
         if (status === "Flagged") {
           await tx
-            .update(schema.users)
+            .update(schema.endUsers)
             .set({
-              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} + 1`,
+              flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} + 1`,
             })
-            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+            .where(and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, record.endUserId)));
         }
         if (lastStatus === "Flagged" && status !== "Flagged") {
           await tx
-            .update(schema.users)
+            .update(schema.endUsers)
             .set({
-              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
+              flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} - 1`,
             })
-            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+            .where(and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, record.endUserId)));
         }
       }
     }
@@ -142,7 +142,7 @@ export async function createModeration({
       await inngest.send({
         name: "moderation/status-changed",
         data: {
-          clerkOrganizationId,
+          authOrganizationId,
           id: moderation.id,
           recordId,
           status,
@@ -158,19 +158,19 @@ export async function createModeration({
 }
 
 export async function createPendingModeration({
-  clerkOrganizationId,
+  authOrganizationId,
   recordId,
   via,
-  clerkUserId,
+  authUserId,
   createdAt,
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   recordId: string;
   createdAt?: Date;
 } & ViaWithRelations) {
   return await db.transaction(async (tx) => {
     const record = await tx.query.records.findFirst({
-      where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
+      where: and(eq(schema.records.authOrganizationId, authOrganizationId), eq(schema.records.id, recordId)),
       columns: {
         protected: true,
       },
@@ -187,9 +187,9 @@ export async function createPendingModeration({
     const [moderation] = await tx
       .insert(schema.moderations)
       .values({
-        clerkOrganizationId,
+        authOrganizationId,
         via,
-        clerkUserId,
+        authUserId,
         recordId,
         createdAt,
         status: "Compliant",
@@ -208,14 +208,14 @@ export async function createPendingModeration({
         moderationPending: true,
         moderationPendingCreatedAt: moderation.createdAt,
       })
-      .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)));
+      .where(and(eq(schema.records.authOrganizationId, authOrganizationId), eq(schema.records.id, recordId)));
 
     return moderation;
   });
 }
 
 export async function updatePendingModeration({
-  clerkOrganizationId,
+  authOrganizationId,
   id,
   status,
   reasoning,
@@ -224,7 +224,7 @@ export async function updatePendingModeration({
   testMode = false,
   tokens = 0,
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   id: string;
   status: ModerationStatus;
   reasoning?: string;
@@ -247,7 +247,7 @@ export async function updatePendingModeration({
         testMode,
         tokens,
       })
-      .where(and(eq(schema.moderations.id, id), eq(schema.moderations.clerkOrganizationId, clerkOrganizationId)))
+      .where(and(eq(schema.moderations.id, id), eq(schema.moderations.authOrganizationId, authOrganizationId)))
       .returning();
 
     if (!moderation) {
@@ -265,7 +265,7 @@ export async function updatePendingModeration({
 
     const record = await tx.query.records.findFirst({
       where: and(
-        eq(schema.records.clerkOrganizationId, clerkOrganizationId),
+        eq(schema.records.authOrganizationId, authOrganizationId),
         eq(schema.records.id, moderation.recordId),
       ),
     });
@@ -307,26 +307,26 @@ export async function updatePendingModeration({
       .update(schema.records)
       .set(updateData)
       .where(
-        and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, moderation.recordId)),
+        and(eq(schema.records.authOrganizationId, authOrganizationId), eq(schema.records.id, moderation.recordId)),
       );
 
     if (statusChanged) {
-      if (record.userId) {
+      if (record.endUserId) {
         if (status === "Flagged") {
           await tx
-            .update(schema.users)
+            .update(schema.endUsers)
             .set({
-              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} + 1`,
+              flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} + 1`,
             })
-            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+            .where(and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, record.endUserId)));
         }
         if (lastStatus === "Flagged" && status !== "Flagged") {
           await tx
-            .update(schema.users)
+            .update(schema.endUsers)
             .set({
-              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
+              flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} - 1`,
             })
-            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+            .where(and(eq(schema.endUsers.authOrganizationId, authOrganizationId), eq(schema.endUsers.id, record.endUserId)));
         }
       }
     }
@@ -339,7 +339,7 @@ export async function updatePendingModeration({
       await inngest.send({
         name: "moderation/status-changed",
         data: {
-          clerkOrganizationId,
+          authOrganizationId,
           id,
           recordId: moderation.recordId,
           status,
@@ -364,14 +364,14 @@ type ModerationResult = {
 };
 
 export const moderate = async ({
-  clerkOrganizationId,
+  authOrganizationId,
   recordId,
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   recordId: string;
 }): Promise<ModerationResult> => {
   const record = await db.query.records.findFirst({
-    where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
+    where: and(eq(schema.records.authOrganizationId, authOrganizationId), eq(schema.records.id, recordId)),
     with: {
       moderations: {
         where: eq(schema.moderations.via, "Manual"),
@@ -386,17 +386,17 @@ export const moderate = async ({
   }
 
   const ruleset = await db.query.rulesets.findFirst({
-    where: eq(schema.rulesets.clerkOrganizationId, clerkOrganizationId),
+    where: eq(schema.rulesets.authOrganizationId, authOrganizationId),
   });
 
   if (!ruleset) {
     throw new Error("No ruleset found for organization");
   }
 
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization(authOrganizationId);
 
   const rules = await db.query.rules.findMany({
-    where: and(eq(schema.rules.clerkOrganizationId, clerkOrganizationId), eq(schema.rules.rulesetId, ruleset.id)),
+    where: and(eq(schema.rules.authOrganizationId, authOrganizationId), eq(schema.rules.rulesetId, ruleset.id)),
     with: {
       preset: {
         with: {
@@ -408,7 +408,7 @@ export const moderate = async ({
   });
 
   const context: Context = {
-    clerkOrganizationId,
+    authOrganizationId,
     record,
     externalLinks: [],
     tokens: 0,

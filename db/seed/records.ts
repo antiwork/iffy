@@ -51,9 +51,9 @@ const PRODUCTS = [
 ];
 
 export async function seedRecords(
-  clerkOrganizationId: string,
+  authOrganizationId: string,
   ruleset: { id: string },
-  users: (typeof schema.users.$inferSelect)[],
+  users: (typeof schema.endUsers.$inferSelect)[],
 ) {
   const rules = await db.query.rules.findMany({
     where: eq(schema.rules.rulesetId, ruleset.id),
@@ -69,7 +69,7 @@ export async function seedRecords(
     .values(
       products.map((product) => {
         return {
-          clerkOrganizationId,
+          authOrganizationId,
           clientId: `prod_${faker.string.nanoid(10)}`,
           name: product.name,
           entity: "Product",
@@ -98,7 +98,7 @@ export async function seedRecords(
     const [moderation] = await db
       .insert(schema.moderations)
       .values({
-        clerkOrganizationId,
+        authOrganizationId,
         status: isFlagged && !record.protected ? "Flagged" : "Compliant",
         reasoning: faker.lorem.paragraph(2),
         recordId: record.id,
@@ -129,13 +129,13 @@ export async function seedRecords(
       })
       .where(eq(schema.records.id, record.id));
 
-    if (record.userId && isFlagged) {
+    if (record.endUserId && isFlagged) {
       await db
-        .update(schema.users)
+        .update(schema.endUsers)
         .set({
           flaggedRecordsCount: sql`flagged_records_count + 1`,
         })
-        .where(eq(schema.users.id, record.userId));
+        .where(eq(schema.endUsers.id, record.endUserId));
     }
   }
 

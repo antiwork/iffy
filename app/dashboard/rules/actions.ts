@@ -9,16 +9,16 @@ import { ruleFormSchema } from "./schema";
 export const createRule = actionClient
   .schema(ruleFormSchema)
   .bindArgsSchemas<[rulesetId: z.ZodString]>([z.string()])
-  .action(async ({ parsedInput: rule, bindArgsParsedInputs: [rulesetId], ctx: { clerkOrganizationId } }) => {
+  .action(async ({ parsedInput: rule, bindArgsParsedInputs: [rulesetId], ctx: { authOrganizationId } }) => {
     if (rule.type === "Preset") {
       await service.createPresetRule({
-        clerkOrganizationId,
+        authOrganizationId,
         rulesetId,
         presetId: rule.presetId,
       });
     } else {
       await service.createCustomRule({
-        clerkOrganizationId,
+        authOrganizationId,
         rulesetId,
         name: rule.name,
         description: rule.description,
@@ -30,16 +30,16 @@ export const createRule = actionClient
 
 export const updateRule = actionClient
   .schema(ruleFormSchema.and(z.object({ id: z.string() })))
-  .action(async ({ parsedInput: { id, ...rule }, ctx: { clerkOrganizationId } }) => {
+  .action(async ({ parsedInput: { id, ...rule }, ctx: { authOrganizationId } }) => {
     if (rule.type === "Preset") {
       await service.updatePresetRule({
-        clerkOrganizationId,
+        authOrganizationId,
         id,
         presetId: rule.presetId,
       });
     } else {
       await service.updateCustomRule({
-        clerkOrganizationId,
+        authOrganizationId,
         id,
         name: rule.name,
         description: rule.description,
@@ -51,7 +51,7 @@ export const updateRule = actionClient
 
 export const deleteRule = actionClient
   .schema(z.string())
-  .action(async ({ parsedInput: id, ctx: { clerkOrganizationId } }) => {
-    await service.deleteRule(clerkOrganizationId, id);
+  .action(async ({ parsedInput: id, ctx: { authOrganizationId } }) => {
+    await service.deleteRule(authOrganizationId, id);
     revalidatePath("/dashboard/rules");
   });

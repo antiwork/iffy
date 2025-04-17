@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ appealId:
   const id = (await params).appealId;
 
   const appeal = await db.query.appeals.findFirst({
-    where: and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.id, id)),
+    where: and(eq(schema.appeals.authOrganizationId, orgId), eq(schema.appeals.id, id)),
     with: {
       userAction: {
         with: {
@@ -40,7 +40,7 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
   const id = (await params).appealId;
 
   const appealWithMessages = await db.query.appeals.findFirst({
-    where: and(eq(schema.appeals.clerkOrganizationId, orgId), eq(schema.appeals.id, id)),
+    where: and(eq(schema.appeals.authOrganizationId, orgId), eq(schema.appeals.id, id)),
     with: {
       userAction: {
         with: {
@@ -65,15 +65,15 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
 
   const { messages, actions, ...appeal } = appealWithMessages;
 
-  const userId = appeal.userAction.user.id;
+  const endUserId = appeal.userAction.user.id;
 
   const records = await db.query.records.findMany({
-    where: and(eq(schema.records.clerkOrganizationId, orgId), eq(schema.records.userId, userId)),
+    where: and(eq(schema.records.authOrganizationId, orgId), eq(schema.records.endUserId, endUserId)),
   });
 
   const moderations = await db.query.moderations.findMany({
     where: and(
-      eq(schema.moderations.clerkOrganizationId, orgId),
+      eq(schema.moderations.authOrganizationId, orgId),
       gte(schema.moderations.createdAt, subDays(appeal.createdAt, HISTORY_DAYS)),
       inArray(
         schema.moderations.recordId,
@@ -88,8 +88,8 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
 
   const userActions = await db.query.userActions.findMany({
     where: and(
-      eq(schema.userActions.clerkOrganizationId, orgId),
-      eq(schema.userActions.userId, userId),
+      eq(schema.userActions.authOrganizationId, orgId),
+      eq(schema.userActions.endUserId, endUserId),
       gte(schema.userActions.createdAt, subDays(appeal.createdAt, HISTORY_DAYS)),
     ),
     orderBy: [desc(schema.userActions.createdAt)],

@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-type User = typeof schema.users.$inferSelect;
+type User = typeof schema.endUsers.$inferSelect;
 
 export const BulkActionMenu = ({ users }: { users: User[] }) => {
   const utils = trpc.useUtils();

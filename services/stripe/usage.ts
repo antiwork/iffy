@@ -4,12 +4,12 @@ import { startOfCurrentBillingPeriod } from "./subscriptions";
 import stripe from "@/lib/stripe";
 import { z } from "zod";
 
-export async function createMeterEvent(clerkOrganizationId: string, eventName: string, value: number) {
+export async function createMeterEvent(organizationId: string, eventName: string, value: number) {
   if (!env.ENABLE_BILLING || !stripe) {
     throw new Error("Billing is not enabled");
   }
 
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization(organizationId);
   if (!organization.stripeCustomerId) {
     throw new Error("Organization does not have a Stripe Customer ID");
   }
@@ -35,12 +35,12 @@ export async function createMeterEvent(clerkOrganizationId: string, eventName: s
   });
 }
 
-export async function getUsage(clerkOrganizationId: string, eventName: string, start: Date, end?: Date) {
+export async function getUsage(organizationId: string, eventName: string, start: Date, end?: Date) {
   if (!env.ENABLE_BILLING || !stripe) {
     throw new Error("Billing is not enabled");
   }
 
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization(organizationId);
   if (!organization || !organization.stripeCustomerId) {
     return null;
   }
@@ -67,15 +67,15 @@ export async function getUsage(clerkOrganizationId: string, eventName: string, s
   return total;
 }
 
-export async function getUsageForCurrentBillingPeriod(clerkOrganizationId: string, eventName: string) {
+export async function getUsageForCurrentBillingPeriod(organizationId: string, eventName: string) {
   if (!env.ENABLE_BILLING || !stripe) {
     throw new Error("Billing is not enabled");
   }
 
-  const start = await startOfCurrentBillingPeriod(clerkOrganizationId);
+  const start = await startOfCurrentBillingPeriod(organizationId);
   if (!start) {
     return null;
   }
 
-  return getUsage(clerkOrganizationId, eventName, start);
+  return getUsage(organizationId, eventName, start);
 }

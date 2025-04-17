@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ actionId:
   const id = (await params).actionId;
 
   const userAction = await db.query.userActions.findFirst({
-    where: and(eq(schema.userActions.clerkOrganizationId, orgId), eq(schema.userActions.id, id)),
+    where: and(eq(schema.userActions.authOrganizationId, orgId), eq(schema.userActions.id, id)),
     with: {
       user: true,
     },
@@ -36,7 +36,7 @@ export default async function Page({ params }: { params: Promise<{ actionId: str
 
   return (
     <RouterSheet title="User action">
-      <UserActionDetail clerkOrganizationId={orgId} id={id} />
+      <UserActionDetail authOrganizationId={orgId} id={id} />
     </RouterSheet>
   );
 }

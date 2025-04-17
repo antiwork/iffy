@@ -47,12 +47,12 @@ export type WebhookEvents = {
   "user.banned": PublicUserAction & { payload: PublicUser };
 };
 
-export async function createWebhook({ clerkOrganizationId, url }: { clerkOrganizationId: string; url: string }) {
+export async function createWebhook({ authOrganizationId, url }: { authOrganizationId: string; url: string }) {
   const secret = crypto.randomBytes(32).toString("hex");
   const [webhook] = await db
     .insert(schema.webhookEndpoints)
     .values({
-      clerkOrganizationId,
+      authOrganizationId,
       url,
       secret: encrypt(secret),
     })
@@ -67,11 +67,11 @@ export async function createWebhook({ clerkOrganizationId, url }: { clerkOrganiz
 }
 
 export async function updateWebhookUrl({
-  clerkOrganizationId,
+  authOrganizationId,
   id,
   url,
 }: {
-  clerkOrganizationId: string;
+  authOrganizationId: string;
   id: string;
   url: string;
 }) {
@@ -81,7 +81,7 @@ export async function updateWebhookUrl({
       url,
     })
     .where(
-      and(eq(schema.webhookEndpoints.id, id), eq(schema.webhookEndpoints.clerkOrganizationId, clerkOrganizationId)),
+      and(eq(schema.webhookEndpoints.id, id), eq(schema.webhookEndpoints.authOrganizationId, authOrganizationId)),
     )
     .returning();
 
