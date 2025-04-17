@@ -8,7 +8,7 @@ type ActionStatus = (typeof schema.userActionStatus.enumValues)[number];
 
 export async function createUserAction({
   clerkOrganizationId,
-  userId,
+  userRecordId,
   status,
   via,
   clerkUserId,
@@ -17,13 +17,13 @@ export async function createUserAction({
   viaAppealId,
 }: {
   clerkOrganizationId: string;
-  userId: string;
+  userRecordId: string;
   status: ActionStatus;
   reasoning?: string;
 } & ViaWithRelations) {
   const [userAction, lastUserAction] = await db.transaction(async (tx) => {
-    const user = await tx.query.users.findFirst({
-      where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)),
+    const user = await tx.query.userRecords.findFirst({
+      where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, userRecordId)),
       columns: {
         protected: true,
       },
@@ -40,7 +40,7 @@ export async function createUserAction({
     const lastUserAction = await tx.query.userActions.findFirst({
       where: and(
         eq(schema.userActions.clerkOrganizationId, clerkOrganizationId),
-        eq(schema.userActions.userId, userId),
+        eq(schema.userActions.userRecordId, userRecordId),
       ),
       orderBy: desc(schema.userActions.createdAt),
       columns: {
@@ -58,7 +58,7 @@ export async function createUserAction({
       .values({
         clerkOrganizationId,
         status,
-        userId,
+        userRecordId,
         via,
         clerkUserId,
         reasoning,
@@ -73,12 +73,12 @@ export async function createUserAction({
 
     // sync the record user status with the new status
     await tx
-      .update(schema.users)
+      .update(schema.userRecords)
       .set({
         actionStatus: status,
         actionStatusCreatedAt: userAction.createdAt,
       })
-      .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)));
+      .where(and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, userRecordId)));
 
     return [userAction, lastUserAction];
   });
@@ -90,7 +90,7 @@ export async function createUserAction({
         data: {
           clerkOrganizationId,
           id: userAction.id,
-          userId,
+          userId: userRecordId,
           status,
           lastStatus: lastUserAction?.status ?? null,
         },

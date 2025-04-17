@@ -4,7 +4,7 @@ import { moderateAdapter, ModerateRequestData } from "./schema";
 import * as schema from "@/db/schema";
 import { createModeration, moderate } from "@/services/moderations";
 import { createOrUpdateRecord } from "@/services/records";
-import { createOrUpdateUser } from "@/services/users";
+import { createOrUpdateUser } from "@/services/user-records";
 import { parseRequestBody } from "@/app/api/parse";
 import { inngest } from "@/inngest/client";
 import { authenticateRequest } from "../../auth";
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let user: typeof schema.users.$inferSelect | undefined;
+  let user: typeof schema.userRecords.$inferSelect | undefined;
   if (data.user) {
     user = await createOrUpdateUser({
       clerkOrganizationId,
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     text: content.text,
     imageUrls: content.imageUrls,
     clientUrl: data.clientUrl,
-    userId: user?.id,
+    userRecordId: user?.id,
     metadata: data.metadata,
   });
 
