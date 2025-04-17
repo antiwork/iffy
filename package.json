@@ -102,6 +102,7 @@
     "react-resizable-panels": "^2.1.1",
     "recharts": "^2.15.1",
     "resend": "^4.0.0",
+    "sonner": "^2.0.3",
     "stripe": "^17.1.0",
     "superjson": "^2.2.1",
     "svix": "^1.61.4",

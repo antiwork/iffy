@@ -15,7 +15,7 @@ import { IffyImage } from "./iffy-image";
 import { CountLazy } from "./count-lazy";
 import AntiworkFooter from "@/components/antiwork-footer";
 import { DashboardTabs } from "@/components/dashboard-tabs";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { CustomSignedIn, CustomSignedOut } from "@/components/custom-sesion";
 import { env } from "@/lib/env";
 
 const getCount = cache(
@@ -61,12 +61,12 @@ export default async function Page() {
             <Button asChild variant="outline" size="sm">
               <Link href="/docs">Docs</Link>
             </Button>
-            <SignedIn>
+            <CustomSignedIn>
               <Button asChild variant="secondary" size="sm">
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
-            </SignedIn>
-            <SignedOut>
+            </CustomSignedIn>
+            <CustomSignedOut>
               {env.ENABLE_PUBLIC_SIGNUP ? (
                 <>
                   <Button asChild variant="ghost" size="sm">
@@ -81,7 +81,7 @@ export default async function Page() {
                   <Link href="/sign-in">Sign in</Link>
                 </Button>
               )}
-            </SignedOut>
+            </CustomSignedOut>
           </div>
         </div>
         <div className="space-y-12 sm:space-y-24">

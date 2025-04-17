@@ -1,24 +1,24 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
-import { organization as authPluginOrg, magicLink } from "better-auth/plugins";
+import { organization as authPluginOrg, magicLink, emailOTP } from "better-auth/plugins";
 import { organization, user, session, account, verification, member, invitation } from "@/db/auth-schema"
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import db from "@/db";
 import { sendVerificationOTP } from "@/services/email"
 
 
-// const emailAuthConfig = emailOTP({
-//   sendVerificationOnSignUp: true,
-//   async sendVerificationOTP({ email, otp, type }) {
-//     await sendVerificationOTP({ email, otp, type })
-//   }
-// })
-
-const magicLinkAuthConfig = magicLink({
-  sendMagicLink: async ({ email, token, url }, request) => {
-    await sendVerificationOTP({ email, token, url })
+const emailAuthConfig = emailOTP({
+  sendVerificationOnSignUp: true,
+  async sendVerificationOTP({ email, otp, type }) {
+    await sendVerificationOTP({ email, otp, type })
   }
 })
+
+// const magicLinkAuthConfig = magicLink({
+//   sendMagicLink: async ({ email, token, url }, request) => {
+//     await sendVerificationOTP({ email, token, url })
+//   }
+// })
 
 const organizationAuthConfig = authPluginOrg()
 
@@ -44,23 +44,7 @@ const authOptions = {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
   },
-  plugins: [organizationAuthConfig, magicLinkAuthConfig, nextCookiesAuthConfig],
-  // WARN: check this session have orgid without database hook
-  // databaseHooks: {
-  //   session: {
-  //     create: {
-  //       before: async (session) => {
-  //         const org = await getActiveOrganization(session.userId);
-  //         return {
-  //           data: {
-  //             ...session,
-  //             OrganizationId: org.id,
-  //           },
-  //         };
-  //       },
-  //     },
-  //   },
-  // },
+  plugins: [organizationAuthConfig, emailAuthConfig, nextCookiesAuthConfig],
 };
 
 

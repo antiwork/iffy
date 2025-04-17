@@ -1,11 +1,14 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export const createContext = async () => {
-  const { orgId, userId } = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
 
   return {
-    authOrganizationId: orgId,
-    authUserId: userId,
+    authOrganizationId: session?.session.activeOrganizationId,
+    authUserId: session?.session.userId,
   };
 };
 

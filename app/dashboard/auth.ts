@@ -1,21 +1,27 @@
 import { env } from "@/lib/env";
 import { findSubscription, isActiveSubscription } from "@/services/stripe/subscriptions";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 export async function authWithOrgSubscription() {
-  const { orgId, userId, ...data } = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
 
-  if (!userId) {
+  if (!session) {
     redirect("/");
   }
+  var orgId = session.session.activeOrganizationId
+  var userId = session?.session.userId
 
   if (!orgId) {
     redirect("/dashboard");
   }
 
+
   if (!env.ENABLE_BILLING) {
-    return { orgId, endUserId: userId, ...data };
+    return { orgId, userId, };
   }
 
   const subscription = await findSubscription(orgId);
@@ -27,11 +33,16 @@ export async function authWithOrgSubscription() {
     redirect("/dashboard/subscription");
   }
 
-  return { orgId, endUserId: userId, ...data, subscription };
+  return { orgId, endUserId: userId, subscription };
 }
 
 export async function authWithOrg() {
-  const { orgId, userId, ...data } = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  var orgId = session?.session.activeOrganizationId
+  var userId = session?.session.userId
 
   if (!userId) {
     redirect("/");
@@ -41,5 +52,5 @@ export async function authWithOrg() {
     redirect("/dashboard");
   }
 
-  return { orgId, endUserId: userId, ...data };
+  return { orgId, endUserId: userId };
 }
