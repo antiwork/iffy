@@ -68,7 +68,7 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
   const userId = appeal.userAction.user.id;
 
   const records = await db.query.records.findMany({
-    where: and(eq(schema.records.clerkOrganizationId, orgId), eq(schema.records.userId, userId)),
+    where: and(eq(schema.records.clerkOrganizationId, orgId), eq(schema.records.userRecordId, userId)),
   });
 
   const moderations = await db.query.moderations.findMany({
@@ -89,7 +89,7 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
   const userActions = await db.query.userActions.findMany({
     where: and(
       eq(schema.userActions.clerkOrganizationId, orgId),
-      eq(schema.userActions.userId, userId),
+      eq(schema.userActions.userRecordId, userId),
       gte(schema.userActions.createdAt, subDays(appeal.createdAt, HISTORY_DAYS)),
     ),
     orderBy: [desc(schema.userActions.createdAt)],
