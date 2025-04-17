@@ -34,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ reco
       moderationStatusCreatedAt: true,
       moderationPending: true,
       moderationPendingCreatedAt: true,
-      userId: true,
+      userRecordId: true,
     },
   });
 
@@ -42,11 +42,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ reco
     return NextResponse.json({ error: { message: "Record not found" } }, { status: 404 });
   }
 
-  const { userId, metadata, ...rest } = record;
+  const { userRecordId, metadata, ...rest } = record;
   return NextResponse.json({
     data: {
       ...rest,
-      user: userId,
+      user: userRecordId,
       metadata: metadata ? parseMetadata(metadata) : undefined,
     },
   });
