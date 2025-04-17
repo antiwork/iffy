@@ -36,68 +36,68 @@ export async function GET(req: NextRequest) {
 
   const { limit, starting_after, ending_before, email, clientId, status, user } = data;
 
-  let conditions: SQL<unknown>[] = [eq(schema.users.clerkOrganizationId, clerkOrganizationId)];
+  let conditions: SQL<unknown>[] = [eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId)];
 
   if (email) {
-    conditions.push(eq(schema.users.email, email));
+    conditions.push(eq(schema.userRecords.email, email));
   }
 
   if (clientId) {
-    conditions.push(eq(schema.users.clientId, clientId));
+    conditions.push(eq(schema.userRecords.clientId, clientId));
   }
 
   if (status) {
-    conditions.push(eq(schema.users.actionStatus, status));
+    conditions.push(eq(schema.userRecords.actionStatus, status));
   }
 
   if (user) {
-    const userExists = await db.query.users.findFirst({
-      where: eq(schema.users.id, user),
+    const userExists = await db.query.userRecords.findFirst({
+      where: eq(schema.userRecords.id, user),
     });
     if (!userExists) {
       return NextResponse.json({ error: { message: "Invalid user" } }, { status: 400 });
     }
-    conditions.push(eq(schema.users.id, user));
+    conditions.push(eq(schema.userRecords.id, user));
   }
 
   if (starting_after) {
-    const cursor = await db.query.users.findFirst({
-      where: eq(schema.users.id, starting_after),
+    const cursor = await db.query.userRecords.findFirst({
+      where: eq(schema.userRecords.id, starting_after),
       columns: { sort: true },
     });
     if (!cursor) {
       return NextResponse.json({ error: { message: "Invalid starting_after cursor" } }, { status: 400 });
     }
-    conditions.push(gt(schema.users.sort, cursor.sort));
+    conditions.push(gt(schema.userRecords.sort, cursor.sort));
   } else if (ending_before) {
-    const cursor = await db.query.users.findFirst({
-      where: eq(schema.users.id, ending_before),
+    const cursor = await db.query.userRecords.findFirst({
+      where: eq(schema.userRecords.id, ending_before),
       columns: { sort: true },
     });
     if (!cursor) {
       return NextResponse.json({ error: { message: "Invalid ending_before cursor" } }, { status: 400 });
     }
-    conditions.push(lt(schema.users.sort, cursor.sort));
+    conditions.push(lt(schema.userRecords.sort, cursor.sort));
   }
 
   const users = await db
     .select({
-      id: schema.users.id,
-      clientId: schema.users.clientId,
-      clientUrl: schema.users.clientUrl,
-      email: schema.users.email,
-      name: schema.users.name,
-      username: schema.users.username,
-      protected: schema.users.protected,
-      metadata: schema.users.metadata,
-      createdAt: schema.users.createdAt,
-      updatedAt: schema.users.updatedAt,
-      actionStatus: schema.users.actionStatus,
-      actionStatusCreatedAt: schema.users.actionStatusCreatedAt,
+      id: schema.userRecords.id,
+      clientId: schema.userRecords.clientId,
+      clientUrl: schema.userRecords.clientUrl,
+      email: schema.userRecords.email,
+      name: schema.userRecords.name,
+      username: schema.userRecords.username,
+      protected: schema.userRecords.protected,
+      metadata: schema.userRecords.metadata,
+      createdAt: schema.userRecords.createdAt,
+      updatedAt: schema.userRecords.updatedAt,
+      actionStatus: schema.userRecords.actionStatus,
+      actionStatusCreatedAt: schema.userRecords.actionStatusCreatedAt,
     })
-    .from(schema.users)
+    .from(schema.userRecords)
     .where(and(...conditions))
-    .orderBy(ending_before ? desc(schema.users.sort) : schema.users.sort)
+    .orderBy(ending_before ? desc(schema.userRecords.sort) : schema.userRecords.sort)
     .limit(limit + 1);
 
   const hasMore = users.length > limit;
