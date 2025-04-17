@@ -79,8 +79,8 @@ export async function sendEmail({
 
   const resend = new Resend(env.RESEND_API_KEY);
 
-  const user = await db.query.users.findFirst({
-    where: (users, { and, eq }) => and(eq(users.clerkOrganizationId, clerkOrganizationId), eq(users.id, userId)),
+  const user = await db.query.userRecords.findFirst({
+    where: (userRecords, { and, eq }) => and(eq(userRecords.clerkOrganizationId, clerkOrganizationId), eq(userRecords.id, userId)),
   });
 
   if (!user) {
