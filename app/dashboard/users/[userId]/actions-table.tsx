@@ -58,7 +58,7 @@ export async function ActionsTable({
                 <dt></dt>
                 <dd>
                   <Button asChild variant="link" className="h-6 p-0 text-sm">
-                    <Link href={`/dashboard/users/${latestAction.userId}/actions/${latestAction.id}`}>
+                    <Link href={`/dashboard/users/${latestAction.userRecordId}/actions/${latestAction.id}`}>
                       View action details
                     </Link>
                   </Button>
