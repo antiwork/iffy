@@ -4,8 +4,8 @@ import * as schema from "../schema";
 import { eq, desc, and } from "drizzle-orm";
 
 export async function seedAppeals(clerkOrganizationId: string) {
-  const users = await db.query.users.findMany({
-    where: eq(schema.users.clerkOrganizationId, clerkOrganizationId),
+  const users = await db.query.userRecords.findMany({
+    where: eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],
