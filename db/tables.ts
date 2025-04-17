@@ -141,7 +141,7 @@ export const userActions = pgTable(
   },
   (table) => {
     return {
-      userIdIdx: index("user_actions_end_user_id_idx").using("btree", table.endUserId.asc().nullsLast().op("text_ops")),
+      endUserIdIdx: index("user_actions_end_user_id_idx").using("btree", table.endUserId.asc().nullsLast().op("text_ops")),
       userActionsEndUserIdFkey: foreignKey({
         columns: [table.endUserId],
         foreignColumns: [endUsers.id],
@@ -417,7 +417,7 @@ export const appeals = pgTable(
   },
   (table) => {
     return {
-      organizationIdIdx: index("appeals_auth_organization_id_idx").using(
+      authOrganizationIdIdx: index("appeals_auth_organization_id_idx").using(
         "btree",
         table.authOrganizationId.asc().nullsLast().op("text_ops"),
       ),

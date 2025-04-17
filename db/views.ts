@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 
 export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analytics_hourly", {
   time: timestamp("time").notNull(),
-  organizationId: text("organization_id").notNull(),
+  authOrganizationId: text("organization_id").notNull(),
   moderations: integer("moderations").notNull(),
   flagged: integer("flagged").notNull(),
   flaggedByRule: jsonb("flagged_by_rule")
@@ -72,7 +72,7 @@ export const moderationsAnalyticsHourly = pgMaterializedView("moderations_analyt
 
 export const moderationsAnalyticsDaily = pgMaterializedView("moderations_analytics_daily", {
   time: timestamp("time").notNull(),
-  organizationId: text("organization_id").notNull(),
+  authOrganizationId: text("organization_id").notNull(),
   moderations: integer("moderations").notNull(),
   flagged: integer("flagged").notNull(),
   flaggedByRule: jsonb("flagged_by_rule")

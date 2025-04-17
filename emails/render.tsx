@@ -56,12 +56,12 @@ const templates = {
 } as const;
 
 export async function render<T extends EmailTemplateType>({
-  organizationId,
+  authOrganizationId: organizationId,
   content,
   type,
   appealUrl,
 }: {
-  organizationId: string;
+  authOrganizationId: string;
   content: DefaultTemplateContent;
   type: T;
   appealUrl?: string;

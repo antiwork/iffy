@@ -1,10 +1,10 @@
 import db from "@/db";
 
-export async function getActiveOrganization(userId: string) {
+export async function getActiveOrganization(endUserId: string) {
   // Query the database to find the user's active organization
   const userMember = await db.query.member.findFirst({
     where: {
-      userId: userId,
+      endUserId
     },
     with: {
       organization: true,

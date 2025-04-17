@@ -42,14 +42,14 @@ export async function seedUserActions(authOrganizationId: string) {
         actionStatus: userAction.status,
         actionStatusCreatedAt: userAction.createdAt,
       })
-      .where(eq(schema.endUsers.id, userAction.userId));
+      .where(eq(schema.endUsers.id, userAction.endUserId));
 
     if (userAction.status === "Suspended") {
       await createMessage({
         authOrganizationId: authOrganizationId,
         userActionId: userAction.id,
         type: "Outbound",
-        toId: userAction.userId,
+        toId: userAction.endUserId,
         subject,
         text: body,
       });

@@ -1,5 +1,5 @@
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
-import { UserActionDetail } from "@/app/dashboard/users/[endUserId]/actions/[actionId]/user-action";
+import { UserActionDetail } from "@/app/dashboard/users/[userId]/actions/[actionId]/user-action";
 import { redirect, notFound } from "next/navigation";
 import { RouterSheet } from "@/components/router-sheet";
 import { Metadata } from "next";

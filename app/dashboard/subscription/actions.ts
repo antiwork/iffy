@@ -34,7 +34,7 @@ export const createCheckoutSession = actionClient
       const clerkOrganization = await (
         await clerkClient()
       ).organizations.getOrganization({
-        authOrganizationId: authOrganizationId,
+        organizationId: authOrganizationId,
       });
 
       const customer = await stripe.customers.create({

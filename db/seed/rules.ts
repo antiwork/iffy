@@ -8,7 +8,7 @@ export async function seedRules(organizationId: string) {
 
   await db.insert(schema.rules).values(
     presets.map((preset) => ({
-      organizationId: organizationId,
+      authOrganizationId: organizationId,
       rulesetId: ruleset.id,
       presetId: preset.id,
     })),

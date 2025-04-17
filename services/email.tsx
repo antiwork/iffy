@@ -55,7 +55,7 @@ export async function renderEmailTemplate<T extends EmailTemplateType>({
 
   const content = parseContent(template?.content, type);
   return await render<T>({
-    organizationId: authOrganizationId,
+    authOrganizationId: authOrganizationId,
     content,
     type,
     appealUrl,

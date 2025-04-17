@@ -51,7 +51,7 @@ const PRODUCTS = [
 ];
 
 export async function seedRecords(
-  organizationId: string,
+  authOrganizationId: string,
   ruleset: { id: string },
   users: (typeof schema.endUsers.$inferSelect)[],
 ) {
@@ -69,7 +69,7 @@ export async function seedRecords(
     .values(
       products.map((product) => {
         return {
-          organizationId,
+          authOrganizationId,
           clientId: `prod_${faker.string.nanoid(10)}`,
           name: product.name,
           entity: "Product",
@@ -98,7 +98,7 @@ export async function seedRecords(
     const [moderation] = await db
       .insert(schema.moderations)
       .values({
-        organizationId,
+        authOrganizationId,
         status: isFlagged && !record.protected ? "Flagged" : "Compliant",
         reasoning: faker.lorem.paragraph(2),
         recordId: record.id,
@@ -129,13 +129,13 @@ export async function seedRecords(
       })
       .where(eq(schema.records.id, record.id));
 
-    if (record.userId && isFlagged) {
+    if (record.endUserId && isFlagged) {
       await db
         .update(schema.endUsers)
         .set({
           flaggedRecordsCount: sql`flagged_records_count + 1`,
         })
-        .where(eq(schema.endUsers.id, record.userId));
+        .where(eq(schema.endUsers.id, record.endUserId));
     }
   }
 

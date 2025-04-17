@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
-import { organization, magicLink } from "better-auth/plugins";
-import { organizations, user, session, account, verification, member, invitation } from "@/db/tables"
+import { organization as authPluginOrg, magicLink } from "better-auth/plugins";
+import { organization, user, session, account, verification, member, invitation } from "@/db/auth-schema"
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import db from "@/db";
 import { sendVerificationOTP } from "@/services/email"
@@ -20,7 +20,7 @@ const magicLinkAuthConfig = magicLink({
   }
 })
 
-const organizationAuthConfig = organization()
+const organizationAuthConfig = authPluginOrg()
 
 const nextCookiesAuthConfig = nextCookies()
 
@@ -31,7 +31,7 @@ const authOptions = {
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
-      organizations: organizations,
+      organization: organization,
       user: user,
       session: session,
       account: account,

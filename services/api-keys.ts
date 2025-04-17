@@ -17,7 +17,7 @@ function createVisualKey(key: string) {
   return prefix + masked + suffix;
 }
 
-export async function getApiKeys({ organizationId: authOrganizationId }: { organizationId: string }) {
+export async function getApiKeys({ authOrganizationId }: { authOrganizationId: string }) {
   const keys = await db.query.apiKeys.findMany({
     where: and(eq(schema.apiKeys.authOrganizationId, authOrganizationId), isNull(schema.apiKeys.deletedAt)),
     orderBy: (apiKeys, { desc }) => [desc(apiKeys.createdAt)],
@@ -69,11 +69,11 @@ export async function createApiKey({
   };
 }
 
-export async function deleteApiKey({ organizationId, id }: { organizationId: string; id: string }) {
+export async function deleteApiKey({ authOrganizationId, id }: { authOrganizationId: string; id: string }) {
   await db
     .update(schema.apiKeys)
     .set({ deletedAt: new Date() })
-    .where(and(eq(schema.apiKeys.authOrganizationId, organizationId), eq(schema.apiKeys.id, id)));
+    .where(and(eq(schema.apiKeys.authOrganizationId, authOrganizationId), eq(schema.apiKeys.id, id)));
 }
 
 export async function validateApiKey(apiKey?: string) {
@@ -83,7 +83,7 @@ export async function validateApiKey(apiKey?: string) {
     .update(schema.apiKeys)
     .set({ lastUsedAt: new Date() })
     .where(and(eq(schema.apiKeys.encryptedKeyHash, generateHash(apiKey)), isNull(schema.apiKeys.deletedAt)))
-    .returning({ organizationId: schema.apiKeys.authOrganizationId });
+    .returning({ authOrganizationId: schema.apiKeys.authOrganizationId });
 
-  return key?.organizationId ?? null;
+  return key?.authOrganizationId ?? null;
 }
