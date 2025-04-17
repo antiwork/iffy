@@ -6,7 +6,7 @@ type ModerationBase = typeof schema.moderations.$inferSelect;
 
 export type UserAction = typeof schema.userActions.$inferSelect;
 export type Record = typeof schema.records.$inferSelect;
-export type User = typeof schema.users.$inferSelect;
+export type User = typeof schema.userRecords.$inferSelect;
 export type AppealAction = typeof schema.appealActions.$inferSelect;
 
 export type Message = MessageBase & {

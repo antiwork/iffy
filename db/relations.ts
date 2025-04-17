@@ -3,7 +3,7 @@ import {
   records,
   moderations,
   rulesets,
-  users,
+  userRecords,
   userActions,
   appeals,
   messages,
@@ -31,9 +31,9 @@ export const moderationsRelations = relations(moderations, ({ one, many }) => ({
 
 export const recordsRelations = relations(records, ({ one, many }) => ({
   moderations: many(moderations),
-  user: one(users, {
-    fields: [records.userId],
-    references: [users.id],
+  user: one(userRecords, {
+    fields: [records.userRecordId],
+    references: [userRecords.id],
   }),
 }));
 
@@ -43,9 +43,9 @@ export const rulesetsRelations = relations(rulesets, ({ many }) => ({
 }));
 
 export const userActionsRelations = relations(userActions, ({ one, many }) => ({
-  user: one(users, {
-    fields: [userActions.userId],
-    references: [users.id],
+  user: one(userRecords, {
+    fields: [userActions.userRecordId],
+    references: [userRecords.id],
   }),
   messages: many(messages),
   appeal: one(appeals, { fields: [userActions.id], references: [appeals.userActionId] }),
@@ -60,7 +60,7 @@ export const userActionsRelations = relations(userActions, ({ one, many }) => ({
     relationName: "viaAppeal",
   }),
 }));
-export const usersRelations = relations(users, ({ many }) => ({
+export const userRecordsRelations = relations(userRecords, ({ many }) => ({
   actions: many(userActions),
   from: many(messages, { relationName: "from" }),
   to: many(messages, { relationName: "to" }),
@@ -72,18 +72,18 @@ export const messagesRelations = relations(messages, ({ one }) => ({
     fields: [messages.appealId],
     references: [appeals.id],
   }),
-  from: one(users, {
+  from: one(userRecords, {
     fields: [messages.fromId],
-    references: [users.id],
+    references: [userRecords.id],
     relationName: "from",
   }),
   userAction: one(userActions, {
     fields: [messages.userActionId],
     references: [userActions.id],
   }),
-  to: one(users, {
+  to: one(userRecords, {
     fields: [messages.toId],
-    references: [users.id],
+    references: [userRecords.id],
     relationName: "to",
   }),
 }));

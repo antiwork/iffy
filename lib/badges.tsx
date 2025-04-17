@@ -6,7 +6,7 @@ type Appeal = typeof schema.appeals.$inferSelect;
 type AppealAction = typeof schema.appealActions.$inferSelect;
 type Moderation = typeof schema.moderations.$inferSelect;
 type Record = typeof schema.records.$inferSelect;
-type User = typeof schema.users.$inferSelect;
+type User = typeof schema.userRecords.$inferSelect;
 type UserAction = typeof schema.userActions.$inferSelect;
 
 export function formatModerationStatus({ status, pending }: Partial<Pick<Moderation, "status" | "pending">>) {

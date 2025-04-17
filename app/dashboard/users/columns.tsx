@@ -40,7 +40,7 @@ export const columns = [
     enableSorting: false,
     enableHiding: false,
   }),
-  columnHelper.accessor((row) => formatUserCompact(row), {
+  columnHelper.accessor((row: User) => formatUserCompact(row), {
     id: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="User / Record" />,
     cell: (props) => {
@@ -79,7 +79,7 @@ export const columns = [
     cell: ({ row }) => formatUserVia(row.original) ?? "—",
     enableSorting: false,
   }),
-  columnHelper.accessor((row) => row.flaggedRecordsCount, {
+  columnHelper.accessor((row: User) => row.flaggedRecordsCount, {
     id: "flaggedRecordsCount",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Moderations" />,
     cell: (props) => {

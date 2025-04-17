@@ -28,8 +28,8 @@ export function validateAppealToken(token: string): [isValid: false, userId: nul
 
 export async function createAppeal({ userId, text }: { userId: string; text: string }) {
   const [appeal, appealAction] = await db.transaction(async (tx) => {
-    const user = await tx.query.users.findFirst({
-      where: eq(schema.users.id, userId),
+    const user = await tx.query.userRecords.findFirst({
+      where: eq(schema.userRecords.id, userId),
       orderBy: desc(schema.userActions.createdAt),
       with: {
         actions: {

@@ -1,7 +1,7 @@
 import { inngest } from "@/inngest/client";
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { getFlaggedRecordsFromUser } from "@/services/users";
+import { getFlaggedRecordsFromUser } from "@/services/user-records";
 import { createUserAction } from "@/services/user-actions";
 import { and, eq } from "drizzle-orm/expressions";
 import { findOrCreateOrganization } from "@/services/organizations";
@@ -43,7 +43,7 @@ const updateUserAfterDeletion = inngest.createFunction(
       await step.run("create-user-action", async () => {
         return await createUserAction({
           clerkOrganizationId,
-          userId: user.id,
+          userRecordId: user.id,
           status: "Compliant",
           via: "Automation All Compliant",
         });

@@ -58,7 +58,7 @@ export async function ActionsTable({
                 <dt></dt>
                 <dd>
                   <Button asChild variant="link" className="h-6 p-0 text-sm">
-                    <Link href={`/dashboard/users/${latestAction.userId}/actions/${latestAction.id}`}>
+                    <Link href={`/dashboard/users/${latestAction.userRecordId}/actions/${latestAction.id}`}>
                       View action details
                     </Link>
                   </Button>
@@ -107,7 +107,7 @@ export async function ActionsTable({
                 </TableCell>
                 <TableCell className="px-2 py-1">
                   <Button asChild variant="link" className="text-md -mx-4 -my-2 block w-full truncate font-normal">
-                    <Link href={`/dashboard/users/${action.userId}/actions/${action.id}`}>View details</Link>
+                    <Link href={`/dashboard/users/${action.userRecordId}/actions/${action.id}`}>View details</Link>
                   </Button>
                 </TableCell>
               </TableRow>

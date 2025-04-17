@@ -1,7 +1,7 @@
 import { sendWebhook } from "@/services/webhook";
 import { inngest } from "@/inngest/client";
 import db from "@/db";
-import { getFlaggedRecordsFromUser } from "@/services/users";
+import { getFlaggedRecordsFromUser } from "@/services/user-records";
 import { updatePendingModeration } from "@/services/moderations";
 import { createUserAction } from "@/services/user-actions";
 import * as schema from "@/db/schema";
@@ -96,7 +96,7 @@ const updateUserAfterModeration = inngest.createFunction(
     await step.run("create-user-action", async () => {
       return await createUserAction({
         clerkOrganizationId,
-        userId: user.id,
+        userRecordId: user.id,
         status: actionStatus,
         ...actionVia,
       });

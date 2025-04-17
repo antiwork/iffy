@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { IngestUserRequestData } from "./schema";
 import { parseRequestBody } from "@/app/api/parse";
-import { createOrUpdateUser } from "@/services/users";
+import { createOrUpdateUser } from "@/services/user-records";
 import { authenticateRequest } from "@/app/api/auth";
 
 export async function POST(req: NextRequest) {

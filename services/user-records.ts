@@ -26,19 +26,19 @@ export async function createOrUpdateUser({
   stripeAccountId?: string;
   metadata?: Record<string, unknown>;
 }) {
-  const user = await db.transaction(async (tx) => {
-    const lastUser = await tx.query.userRecords.findFirst({
+  const userRecord = await db.transaction(async (tx) => {
+    const lastUserRecord = await tx.query.userRecords.findFirst({
       where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.clientId, clientId)),
       columns: {
         metadata: true,
       },
     });
 
-    if (metadata && lastUser?.metadata) {
-      metadata = mergeMetadata(lastUser.metadata, metadata);
+    if (metadata && lastUserRecord?.metadata) {
+      metadata = mergeMetadata(lastUserRecord.metadata, metadata);
     }
 
-    const [user] = await db
+    const [userRecord] = await db
       .insert(schema.userRecords)
       .values({
         clerkOrganizationId,
@@ -64,14 +64,14 @@ export async function createOrUpdateUser({
       })
       .returning();
 
-    if (!user) {
-      throw new Error("Failed to create or update user");
+    if (!userRecord) {
+      throw new Error("Failed to create or update user record");
     }
 
-    return user;
+    return userRecord;
   });
 
-  return user;
+  return userRecord;
 }
 
 export async function getFlaggedRecordsFromUser({

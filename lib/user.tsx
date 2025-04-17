@@ -1,6 +1,6 @@
 import * as schema from "@/db/schema";
 
-type User = typeof schema.users.$inferSelect;
+type User = typeof schema.userRecords.$inferSelect;
 
 export function formatUser(user: User) {
   let primary = user.clientId;
