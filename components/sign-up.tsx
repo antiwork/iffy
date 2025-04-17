@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { emailOtp } from "@/lib/auth-client";
+import { client } from "@/lib/auth-client";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -27,7 +27,7 @@ export default function SignUp() {
     setLoading(true);
 
     try {
-      await emailOtp.sendVerificationOtp(
+      await client.emailOtp.sendVerificationOtp(
         {
           email: email,
           type: "sign-in",

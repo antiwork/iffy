@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2 } from "lucide-react";
-import { emailOtp, signIn } from "@/lib/auth-client";
+import { client } from "@/lib/auth-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -68,7 +68,7 @@ export default function VerifyOtp({ email, type }: VerifyOtpProps) {
 
     try {
       console.log(`Verifying OTP ${otp} for ${email}`);
-      const result = await signIn.emailOtp({ email, otp });
+      const result = await client.signIn.emailOtp({ email, otp });
       console.log("OTP Verification Successful:", result);
 
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -90,7 +90,7 @@ export default function VerifyOtp({ email, type }: VerifyOtpProps) {
 
     try {
       console.log(`Resending OTP for ${email}`);
-      await emailOtp.sendVerificationOtp(
+      await client.emailOtp.sendVerificationOtp(
         { email, type: "sign-in" },
         {
           onResponse: () => {

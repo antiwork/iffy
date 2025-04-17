@@ -1,23 +1,24 @@
 import DynamicLayout from "./dynamic-layout";
-import { OrganizationList } from "@clerk/nextjs";
+import OrganizationList from "@/components/select-or-create-org";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { getInboxCount } from "@/services/appeals";
-import { auth } from "@clerk/nextjs/server";
 import { hasAdminRole } from "@/services/auth";
 import { env } from "@/lib/env";
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers";
 
 export default async function Layout({ children, sheet }: { children: React.ReactNode; sheet: React.ReactNode }) {
-  const { orgId } = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  var orgId = session?.session.activeOrganizationId
+  console.log(orgId)
 
   if (!orgId)
     return (
       <div className="flex h-screen items-center justify-center">
-        <OrganizationList
-          hidePersonal={true}
-          skipInvitationScreen={true}
-          afterCreateOrganizationUrl="/dashboard/subscription"
-          afterSelectOrganizationUrl="/dashboard/subscription"
-        />
+        <OrganizationList />
       </div>
     );
 

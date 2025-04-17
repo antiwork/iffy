@@ -14,12 +14,6 @@ const emailAuthConfig = emailOTP({
   }
 })
 
-// const magicLinkAuthConfig = magicLink({
-//   sendMagicLink: async ({ email, token, url }, request) => {
-//     await sendVerificationOTP({ email, token, url })
-//   }
-// })
-
 const organizationAuthConfig = authPluginOrg()
 
 const nextCookiesAuthConfig = nextCookies()
