@@ -21,8 +21,8 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
     const { clerkOrganizationId, status, userId } = event.data;
 
     const user = await step.run("fetch-user", async () => {
-      const result = await db.query.users.findFirst({
-        where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)),
+      const result = await db.query.userRecords.findFirst({
+        where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, userId)),
       });
       if (!result) {
         throw new Error(`User not found: ${userId}`);
@@ -76,8 +76,8 @@ const sendUserActionWebhook = inngest.createFunction(
     });
 
     const user = await step.run("fetch-user", async () => {
-      const result = await db.query.users.findFirst({
-        where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, userId)),
+      const result = await db.query.userRecords.findFirst({
+        where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, userId)),
       });
       if (!result) {
         throw new Error(`User not found: ${userId}`);
@@ -215,7 +215,7 @@ const updateAppealsAfterUserAction = inngest.createFunction(
         .where(
           and(
             eq(schema.userActions.clerkOrganizationId, clerkOrganizationId),
-            eq(schema.userActions.userId, userId),
+            eq(schema.userActions.userRecordId, userId),
             eq(schema.appeals.actionStatus, "Open"),
           ),
         );

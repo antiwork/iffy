@@ -37,7 +37,7 @@ const updateUserAfterAppealAction = inngest.createFunction(
     await step.run("create-user-action", async () => {
       return await createUserAction({
         clerkOrganizationId,
-        userId: appeal.userAction.user.id,
+        userRecordId: appeal.userAction.user.id,
         status: "Compliant",
         via: "Automation Appeal Approved",
         viaAppealId: appeal.id,
