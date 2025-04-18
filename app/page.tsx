@@ -6,7 +6,7 @@ import Link from "next/link";
 import dashboard from "./dashboard-moderations.png";
 import dashboardUsers from "./dashboard-users.png";
 import dashboardRules from "./dashboard-rules.png";
-import { LayoutDashboard, Mail, RefreshCw, Tag, Users, Shield } from "lucide-react";
+import { LayoutDashboard, Mail, RefreshCw, Tag } from "lucide-react";
 import * as schema from "@/db/schema";
 import db from "@/db";
 import { count, gte } from "drizzle-orm";
@@ -15,7 +15,7 @@ import { IffyImage } from "./iffy-image";
 import { CountLazy } from "./count-lazy";
 import AntiworkFooter from "@/components/antiwork-footer";
 import { DashboardTabs } from "@/components/dashboard-tabs";
-import { SignedIn, SignedOut } from "@/lib/signed";
+import { SignedIn, SignedOut } from "@/components/signed";
 import { env } from "@/lib/env";
 
 const getCount = cache(

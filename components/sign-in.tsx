@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { Loader } from "lucide-react";
+import { Loader, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from "@/lib/auth-client";
@@ -69,6 +69,41 @@ export function SignIn() {
     }
   };
 
+  const handleMagicLink = async () => {
+    const email = form.getValues("email");
+    if (!email) {
+      form.setError("email", { message: "Please enter your email" });
+      return;
+    }
+
+    try {
+      const { error } = await signIn.magicLink({
+        email,
+        callbackURL: `${window.location.origin}/dashboard`,
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Check your email",
+        description: "We've sent you a magic link to sign in.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="container flex min-h-screen flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
@@ -115,13 +150,25 @@ export function SignIn() {
                     </FormItem>
                   )}
                 />
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={form.formState.isSubmitting || !form.formState.isValid}
-                >
-                  {form.formState.isSubmitting ? <Loader className="animate-spin" /> : "Sign in with email"}
-                </Button>
+                <div className="space-y-2">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={form.formState.isSubmitting || !form.formState.isValid}
+                  >
+                    {form.formState.isSubmitting ? <Loader className="animate-spin" /> : "Sign in with email"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleMagicLink}
+                    disabled={form.formState.isSubmitting}
+                  >
+                    <Mail className="mr-2 h-4 w-4" />
+                    Sign in with magic link
+                  </Button>
+                </div>
                 {form.formState.errors.root && (
                   <p className="text-center text-sm text-red-500">{form.formState.errors.root.message}</p>
                 )}

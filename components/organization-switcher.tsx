@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useListOrganizations, useActiveOrganization, organization } from "@/lib/auth-client";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,63 +9,71 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Plus, Building2, ChevronRight, Settings } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { ChevronDown, Plus, ChevronRight, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useListOrganizations, useActiveOrganization, organization } from "@/lib/auth-client";
+import { CreateOrganization } from "@/components/create-organization";
+import { OrganizationManagement } from "@/components/organization-management";
 
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  slug: z
-    .string()
-    .min(2, "Slug must be at least 2 characters")
-    .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens"),
-  logo: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  logo?: string | null;
+  meta?: Record<string, any>;
+  createdAt: Date;
+  members?: Array<{
+    id: string;
+    userId: string;
+    role: string;
+    createdAt: string;
+    organizationId: string;
+    teamId?: string;
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      image?: string | null;
+    };
+  }>;
+  invitations?: Array<{
+    id: string;
+    email: string;
+    role: string;
+    status: string;
+    createdAt: string;
+  }>;
+}
 
 export function OrganizationSwitcher() {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
+  const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
   const { data: organizations } = useListOrganizations();
   const { data: activeOrganization } = useActiveOrganization();
-  const [isOpen, setIsOpen] = useState(false);
-  const [showCreate, setShowCreate] = useState(false);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      slug: "",
-      logo: "",
-    },
-  });
-
-  const handleSelect = async (orgId: string) => {
-    const { error } = await organization.setActive({ organizationId: orgId });
+  const handleSelect = async (org: Organization) => {
+    const { error } = await organization.setActive({ organizationId: org.id });
     if (!error) {
       router.refresh();
     }
   };
 
-  const onSubmit = async (values: FormValues) => {
-    try {
-      const { data, error } = await organization.create(values);
-      if (error) throw error;
-      setShowCreate(false);
-      form.reset();
-      router.refresh();
-    } catch (err) {
-      form.setError("root", {
-        message: err instanceof Error ? err.message : "Failed to create organization",
-      });
-    }
-  };
+  const formatOrganization = (org: any): Organization => ({
+    ...org,
+    members: org.members?.map((member: any) => ({
+      ...member,
+      createdAt: member.createdAt.toISOString(),
+    })),
+    invitations: org.invitations?.map((invitation: any) => ({
+      ...invitation,
+      createdAt: invitation.expiresAt.toISOString(),
+    })),
+  });
 
   if (!organizations?.length) return null;
 
@@ -74,55 +81,40 @@ export function OrganizationSwitcher() {
 
   return (
     <>
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="focus-visible:ring-shadow-none flex items-center gap-2 px-2 focus-visible:ring-0 focus-visible:ring-offset-0"
-          >
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={activeOrganization?.logo || undefined} />
-              <AvatarFallback>
-                <Building2 className="h-4 w-4" />
-              </AvatarFallback>
-            </Avatar>
-            <span className="max-w-[200px] truncate">{activeOrganization?.name || "Select organization"}</span>
-            <ChevronDown className="h-4 w-4" />
+          <Button variant="ghost" size="sm" className="w-[10rem] justify-between">
+            <div className="flex items-center gap-2">
+              <Avatar className="h-5 w-5">
+                <AvatarImage src={activeOrganization?.logo || undefined} />
+                <AvatarFallback>{activeOrganization?.name?.[0]}</AvatarFallback>
+              </Avatar>
+              <span className="truncate">{activeOrganization?.name || "Select organization"}</span>
+            </div>
+            <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64">
-          <div className="flex items-center justify-between p-2">
-            <span className="text-xs font-medium text-stone-500">Organizations</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 px-2 text-xs"
-              onClick={() => {
-                setIsOpen(false);
-                setShowCreate(true);
-              }}
-            >
-              <Plus className="mr-1 h-3 w-3" />
-              Create
-            </Button>
-          </div>
+        <DropdownMenuContent className="w-[200px]">
+          <DropdownMenuLabel>Organizations</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {activeOrganization && (
-            <DropdownMenuItem className="flex cursor-pointer items-center gap-2 px-2 py-1.5">
+            <DropdownMenuItem
+              className="flex items-center gap-2 px-2 py-1.5 focus:bg-transparent"
+              onSelect={(e) => e.preventDefault()}
+            >
               <Avatar className="h-6 w-6">
                 <AvatarImage src={activeOrganization.logo || undefined} />
-                <AvatarFallback>
-                  <Building2 className="h-4 w-4" />
-                </AvatarFallback>
+                <AvatarFallback>{activeOrganization.name[0]}</AvatarFallback>
               </Avatar>
               <span className="max-w-[200px] truncate">{activeOrganization.name}</span>
               <Button
                 variant="ghost"
                 size="sm"
-                className="ml-auto h-6 px-2 text-xs"
+                className="ml-auto h-5 px-1.5 text-xs hover:bg-stone-200 dark:hover:bg-stone-700"
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push("/dashboard/settings");
+                  setCurrentOrg(formatOrganization(activeOrganization));
+                  setManageOpen(true);
                 }}
               >
                 <Settings className="mr-1 h-3 w-3" />
@@ -136,80 +128,30 @@ export function OrganizationSwitcher() {
               {otherOrganizations.map((org) => (
                 <DropdownMenuItem
                   key={org.id}
-                  onClick={() => handleSelect(org.id)}
-                  className="flex cursor-pointer items-center gap-2 px-2 py-1.5"
+                  onClick={() => handleSelect(formatOrganization(org))}
+                  className="flex cursor-pointer items-center gap-2 px-2 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800"
                 >
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={org.logo || undefined} />
-                    <AvatarFallback>
-                      <Building2 className="h-4 w-4" />
-                    </AvatarFallback>
+                    <AvatarFallback>{org.name[0]}</AvatarFallback>
                   </Avatar>
                   <span className="max-w-[200px] truncate">{org.name}</span>
-                  <ChevronRight className="ml-auto h-4 w-4 text-stone-500" />
+                  <ChevronRight className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                 </DropdownMenuItem>
               ))}
             </>
           )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setCreateOpen(true)} className="hover:bg-stone-100 dark:hover:bg-stone-800">
+            <Plus className="mr-2 h-4 w-4" />
+            Create organization
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create organization</DialogTitle>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="My Organization" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Slug</FormLabel>
-                    <FormControl>
-                      <Input placeholder="my-org" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="logo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Logo URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://example.com/logo.png" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {form.formState.errors.root && (
-                <p className="text-sm text-red-500">{form.formState.errors.root.message}</p>
-              )}
-              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                Create organization
-              </Button>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <CreateOrganization open={createOpen} onOpenChange={setCreateOpen} />
+      {currentOrg && (
+        <OrganizationManagement open={manageOpen} onOpenChange={setManageOpen} organization={currentOrg} />
+      )}
     </>
   );
 }

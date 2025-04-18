@@ -4,7 +4,8 @@ import { auth as betterAuth, Session } from "@/lib/auth";
 import { headers } from "next/headers";
 import db from "@/db";
 import { and, eq } from "drizzle-orm";
-import { members } from "@/db/tables";
+import { endUsers, members } from "@/db/tables";
+import { findOrCreateOrganization } from "./organizations";
 
 export async function hasAdminRole() {
   const { userId, orgRole } = await auth();
@@ -86,4 +87,26 @@ export async function getMemberMeta(userId: string, organizationId: string): Pro
   if (!member) return { isMember: false, role: null };
 
   return { isMember: true, role: member.role };
+}
+
+interface OrganizationMetadata {
+  organizationName: string;
+  organizationLogo: string;
+}
+
+export async function getOrganizationMetadata(organizationId: string): Promise<OrganizationMetadata> {
+  const { name: organizationName, logo: organizationLogo } = await findOrCreateOrganization({ id: organizationId });
+
+  return {
+    organizationName,
+    organizationLogo: organizationLogo || "",
+  };
+}
+
+export async function getUserMetadata(userId: string) {
+  const user = await db.query.endUsers.findFirst({
+    where: eq(endUsers.id, userId),
+  });
+  if (!user) return null;
+  return user.metadata;
 }

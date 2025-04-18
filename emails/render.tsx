@@ -11,6 +11,7 @@ import { DefaultTemplateContent, RenderedTemplate } from "./types";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { AppealButton } from "./components/appeal-button";
 import * as schema from "@/db/schema";
+import { getOrganizationMetadata } from "@/services/auth";
 
 type EmailTemplateType = (typeof schema.emailTemplateType.enumValues)[number];
 
@@ -53,20 +54,6 @@ const templates = {
   ["Compliant"]: CompliantTemplate,
   ["Banned"]: BannedTemplate,
 } as const;
-
-interface OrganizationMetadata {
-  organizationName: string;
-  organizationLogo: string;
-}
-
-async function getOrganizationMetadata(organizationId: string): Promise<OrganizationMetadata> {
-  const { name: organizationName, logo: organizationLogo } = await findOrCreateOrganization({ id: organizationId });
-
-  return {
-    organizationName,
-    organizationLogo: organizationLogo || "",
-  };
-}
 
 export async function render<T extends EmailTemplateType>({
   organizationId,

@@ -422,26 +422,6 @@ export const apiKeys = pgTable(
   },
 );
 
-export const organizations = pgTable("organizations", {
-  id: text().primaryKey().notNull().$defaultFn(cuid),
-  name: text("name").notNull(),
-  slug: text("slug").unique(),
-  logo: text("logo"),
-  metadata: text("metadata"),
-  stripeCustomerId: text("stripe_customer_id").unique(),
-  emailsEnabled: boolean("emails_enabled").default(false).notNull(),
-  testModeEnabled: boolean("test_mode_enabled").default(true).notNull(),
-  appealsEnabled: boolean("appeals_enabled").default(false).notNull(),
-  stripeApiKey: text("stripe_api_key"), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
-  moderationPercentage: doublePrecision("moderation_percentage").default(100).notNull(),
-  suspensionThreshold: integer("suspension_threshold").default(1).notNull(),
-  createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-});
-
 export const subscriptions = pgTable(
   "subscriptions",
   {
@@ -587,7 +567,7 @@ export const emailTemplates = pgTable(
   },
 );
 
-// {** BETTER AUTH SCHEMA **}
+// Better Auth schema
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -639,6 +619,26 @@ export const verifications = pgTable("verifications", {
   updatedAt: timestamp("updated_at"),
 });
 
+export const organizations = pgTable("organizations", {
+  id: text().primaryKey().notNull().$defaultFn(cuid),
+  name: text("name").notNull(),
+  slug: text("slug").unique(),
+  logo: text("logo"),
+  metadata: text("metadata"),
+  stripeCustomerId: text("stripe_customer_id").unique(),
+  emailsEnabled: boolean("emails_enabled").default(false).notNull(),
+  testModeEnabled: boolean("test_mode_enabled").default(true).notNull(),
+  appealsEnabled: boolean("appeals_enabled").default(false).notNull(),
+  stripeApiKey: text("stripe_api_key"), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
+  moderationPercentage: doublePrecision("moderation_percentage").default(100).notNull(),
+  suspensionThreshold: integer("suspension_threshold").default(1).notNull(),
+  createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+});
+
 export const members = pgTable("members", {
   id: text("id").primaryKey(),
   organizationId: text("organization_id")
@@ -663,4 +663,5 @@ export const invitations = pgTable("invitations", {
   inviterId: text("inviter_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
 });
