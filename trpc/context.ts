@@ -1,11 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/services/auth";
 
 export const createContext = async () => {
-  const { orgId, userId } = await auth();
+  const { userId, orgId: organizationId } = await auth();
 
   return {
-    clerkOrganizationId: orgId,
-    clerkUserId: userId,
+    organizationId,
+    userId,
   };
 };
 

@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ recordId:
   const id = (await params).recordId;
 
   const record = await db.query.records.findFirst({
-    where: and(eq(schema.records.clerkOrganizationId, orgId), eq(schema.records.id, id)),
+    where: and(eq(schema.records.organizationId, orgId), eq(schema.records.id, id)),
   });
 
   if (!record) {
@@ -28,5 +28,5 @@ export default async function Page({ params }: { params: Promise<{ recordId: str
   const { orgId } = await authWithOrgSubscription();
 
   const id = (await params).recordId;
-  return <RecordDetail clerkOrganizationId={orgId} id={id} />;
+  return <RecordDetail organizationId={orgId} id={id} />;
 }

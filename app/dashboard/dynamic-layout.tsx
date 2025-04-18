@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { ClerkLoaded, ClerkLoading, OrganizationSwitcher, SignOutButton } from "@clerk/nextjs";
+import { ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
@@ -27,6 +27,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import * as schema from "@/db/schema";
+import { SignOutButton } from "@/auth/signin-button";
+import { OrganizationSwitcher as CustomOrganizationSwitcher } from "@/components/organization-switcher";
 
 type organization = typeof schema.organizations.$inferSelect;
 
@@ -156,10 +158,7 @@ export default function DynamicLayout({
                   <Button asChild variant="ghost" size="sm">
                     <SignOutButton />
                   </Button>
-                  <OrganizationSwitcher
-                    appearance={{ elements: { organizationSwitcherTrigger: "dark:text-white" } }}
-                    hidePersonal={true}
-                  />
+                  <CustomOrganizationSwitcher />
                 </ClerkLoaded>
               </div>
             </div>

@@ -3,7 +3,7 @@
 import crypto from "crypto";
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { formatClerkUser } from "@/lib/clerk";
+import { formatUserWithUserId } from "@/lib/user-action";
 import { eq, and, isNull } from "drizzle-orm";
 import { decrypt, encrypt, generateHash } from "@/services/encrypt";
 
@@ -17,9 +17,9 @@ function createVisualKey(key: string) {
   return prefix + masked + suffix;
 }
 
-export async function getApiKeys({ clerkOrganizationId }: { clerkOrganizationId: string }) {
+export async function getApiKeys({ organizationId }: { organizationId: string }) {
   const keys = await db.query.apiKeys.findMany({
-    where: and(eq(schema.apiKeys.clerkOrganizationId, clerkOrganizationId), isNull(schema.apiKeys.deletedAt)),
+    where: and(eq(schema.apiKeys.organizationId, organizationId), isNull(schema.apiKeys.deletedAt)),
     orderBy: (apiKeys, { desc }) => [desc(apiKeys.createdAt)],
   });
 
@@ -27,7 +27,7 @@ export async function getApiKeys({ clerkOrganizationId }: { clerkOrganizationId:
     keys.map(async ({ encryptedKey, ...key }) => ({
       ...key,
       previewKey: createVisualKey(decrypt(encryptedKey)),
-      createdBy: await formatClerkUser(key.clerkUserId),
+      createdBy: await formatUserWithUserId(key.userId),
     })),
   );
 
@@ -35,20 +35,20 @@ export async function getApiKeys({ clerkOrganizationId }: { clerkOrganizationId:
 }
 
 export async function createApiKey({
-  clerkOrganizationId,
-  clerkUserId,
+  organizationId,
+  userId,
   name,
 }: {
-  clerkOrganizationId: string;
-  clerkUserId: string;
+  organizationId: string;
+  userId: string;
   name: string;
 }) {
   const generatedKey = KEY_PREFIX + crypto.randomBytes(KEY_LENGTH).toString("hex");
   const [newKey] = await db
     .insert(schema.apiKeys)
     .values({
-      clerkOrganizationId,
-      clerkUserId,
+      organizationId,
+      userId,
       name,
       encryptedKey: encrypt(generatedKey),
       encryptedKeyHash: generateHash(generatedKey),
@@ -63,17 +63,17 @@ export async function createApiKey({
     key: {
       ...newKey,
       previewKey: createVisualKey(generatedKey),
-      createdBy: await formatClerkUser(clerkUserId),
+      createdBy: await formatUserWithUserId(userId),
     },
     decryptedKey: generatedKey,
   };
 }
 
-export async function deleteApiKey({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
+export async function deleteApiKey({ organizationId, id }: { organizationId: string; id: string }) {
   await db
     .update(schema.apiKeys)
     .set({ deletedAt: new Date() })
-    .where(and(eq(schema.apiKeys.clerkOrganizationId, clerkOrganizationId), eq(schema.apiKeys.id, id)));
+    .where(and(eq(schema.apiKeys.organizationId, organizationId), eq(schema.apiKeys.id, id)));
 }
 
 export async function validateApiKey(apiKey?: string) {
@@ -83,7 +83,7 @@ export async function validateApiKey(apiKey?: string) {
     .update(schema.apiKeys)
     .set({ lastUsedAt: new Date() })
     .where(and(eq(schema.apiKeys.encryptedKeyHash, generateHash(apiKey)), isNull(schema.apiKeys.deletedAt)))
-    .returning({ clerkOrganizationId: schema.apiKeys.clerkOrganizationId });
+    .returning({ organizationId: schema.apiKeys.organizationId });
 
-  return key?.clerkOrganizationId ?? null;
+  return key?.organizationId ?? null;
 }

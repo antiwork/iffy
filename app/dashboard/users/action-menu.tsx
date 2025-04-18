@@ -11,14 +11,12 @@ import { MoreHorizontal, Command } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { createUserActions, setUserProtectedMany } from "./actions";
 import { toast } from "@/hooks/use-toast";
-import * as schema from "@/db/schema";
 import { useCallback, useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-
-type User = typeof schema.users.$inferSelect;
+import { User } from "./types";
 
 export const BulkActionMenu = ({ users }: { users: User[] }) => {
   const utils = trpc.useUtils();

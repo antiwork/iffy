@@ -1,7 +1,7 @@
 import { env } from "@/lib/env";
-import { SignUp } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
+import { SignUp } from "@/components/sign-up";
 import { notFound, redirect } from "next/navigation";
+import { auth } from "@/services/auth";
 
 export default async function Page() {
   const { userId } = await auth();
@@ -10,13 +10,11 @@ export default async function Page() {
     return notFound();
   }
 
-  if (!userId) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center">
-        <SignUp />
-      </div>
-    );
-  }
+  if (userId) return redirect("/dashboard");
 
-  return redirect("/dashboard");
+  return (
+    <div className="flex h-screen w-screen items-center justify-center">
+      <SignUp />
+    </div>
+  );
 }

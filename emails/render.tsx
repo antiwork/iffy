@@ -1,5 +1,4 @@
 import * as React from "react";
-import { clerkClient } from "@clerk/nextjs/server";
 import { Liquid } from "liquidjs";
 import { z } from "zod";
 import { render as renderComponent, Text } from "@react-email/components";
@@ -12,6 +11,7 @@ import { DefaultTemplateContent, RenderedTemplate } from "./types";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { AppealButton } from "./components/appeal-button";
 import * as schema from "@/db/schema";
+import { getOrganizationMetadata } from "@/services/auth";
 
 type EmailTemplateType = (typeof schema.emailTemplateType.enumValues)[number];
 
@@ -56,33 +56,31 @@ const templates = {
 } as const;
 
 export async function render<T extends EmailTemplateType>({
-  clerkOrganizationId,
+  organizationId,
   content,
   type,
   appealUrl,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   content: DefaultTemplateContent;
   type: T;
   appealUrl?: string;
 }): Promise<RenderedTemplate> {
-  const settings = await findOrCreateOrganization(clerkOrganizationId);
+  const settings = await findOrCreateOrganization({ id: organizationId });
 
-  const { name: clerkOrganizationName, imageUrl: clerkOrganizationImageUrl } = await (
-    await clerkClient()
-  ).organizations.getOrganization({ organizationId: clerkOrganizationId });
+  const { organizationName, organizationLogo: organizationImageUrl } = await getOrganizationMetadata(organizationId);
 
   const { subject, heading, body } = await replacePlaceholders(content, {
-    ORGANIZATION_NAME: clerkOrganizationName,
-    ORGANIZATION_IMAGE_URL: clerkOrganizationImageUrl,
+    organizationName,
+    organizationImageUrl,
   });
 
   const paragraphs = body.split("\n\n");
 
   const email = (
     <DefaultEmail
-      organizationName={clerkOrganizationName}
-      organizationImageUrl={clerkOrganizationImageUrl}
+      organizationName={organizationName}
+      organizationImageUrl={organizationImageUrl}
       subject={subject}
       heading={heading}
     >

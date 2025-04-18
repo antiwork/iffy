@@ -6,7 +6,7 @@ import * as schema from "@/db/schema";
 import { mergeMetadata } from "./metadata";
 
 export async function createOrUpdateUser({
-  clerkOrganizationId,
+  organizationId,
   clientId,
   clientUrl,
   email,
@@ -16,7 +16,7 @@ export async function createOrUpdateUser({
   stripeAccountId,
   metadata,
 }: {
-  clerkOrganizationId: string;
+  organizationId: string;
   clientId: string;
   clientUrl?: string;
   email?: string;
@@ -27,8 +27,8 @@ export async function createOrUpdateUser({
   metadata?: Record<string, unknown>;
 }) {
   const user = await db.transaction(async (tx) => {
-    const lastUser = await tx.query.users.findFirst({
-      where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.clientId, clientId)),
+    const lastUser = await tx.query.endUsers.findFirst({
+      where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.clientId, clientId)),
       columns: {
         metadata: true,
       },
@@ -39,9 +39,9 @@ export async function createOrUpdateUser({
     }
 
     const [user] = await db
-      .insert(schema.users)
+      .insert(schema.endUsers)
       .values({
-        clerkOrganizationId,
+        organizationId,
         clientId,
         clientUrl,
         email,
@@ -52,7 +52,7 @@ export async function createOrUpdateUser({
         metadata,
       })
       .onConflictDoUpdate({
-        target: schema.users.clientId,
+        target: schema.endUsers.clientId,
         set: {
           clientUrl,
           email,
@@ -74,17 +74,11 @@ export async function createOrUpdateUser({
   return user;
 }
 
-export async function getFlaggedRecordsFromUser({
-  clerkOrganizationId,
-  id,
-}: {
-  clerkOrganizationId: string;
-  id: string;
-}) {
+export async function getFlaggedRecordsFromUser({ organizationId, id }: { organizationId: string; id: string }) {
   const records = await db.query.records.findMany({
     where: and(
-      eq(schema.records.clerkOrganizationId, clerkOrganizationId),
-      eq(schema.records.userId, id),
+      eq(schema.records.organizationId, organizationId),
+      eq(schema.records.endUserId, id),
       isNull(schema.records.deletedAt),
     ),
     with: {

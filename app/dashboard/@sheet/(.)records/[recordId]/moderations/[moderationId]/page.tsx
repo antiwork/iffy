@@ -1,6 +1,6 @@
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { ModerationDetail } from "@/app/dashboard/records/[recordId]/moderations/[moderationId]/moderation";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { RouterSheet } from "@/components/router-sheet";
 import { Metadata } from "next";
 import db from "@/db";
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ moderatio
   const id = (await params).moderationId;
 
   const moderation = await db.query.moderations.findFirst({
-    where: and(eq(schema.moderations.clerkOrganizationId, orgId), eq(schema.moderations.id, id)),
+    where: and(eq(schema.moderations.organizationId, orgId), eq(schema.moderations.id, id)),
     with: {
       record: true,
     },
@@ -35,7 +35,7 @@ export default async function Page({ params }: { params: Promise<{ moderationId:
 
   return (
     <RouterSheet title="Moderation">
-      <ModerationDetail clerkOrganizationId={orgId} id={id} />
+      <ModerationDetail organizationId={orgId} id={id} />
     </RouterSheet>
   );
 }

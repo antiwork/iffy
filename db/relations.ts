@@ -3,7 +3,7 @@ import {
   records,
   moderations,
   rulesets,
-  users,
+  endUsers,
   userActions,
   appeals,
   messages,
@@ -15,6 +15,8 @@ import {
   presets,
   ruleStrategies,
   presetStrategies,
+  members,
+  organizations,
 } from "./tables";
 
 export const moderationsRelations = relations(moderations, ({ one, many }) => ({
@@ -31,9 +33,9 @@ export const moderationsRelations = relations(moderations, ({ one, many }) => ({
 
 export const recordsRelations = relations(records, ({ one, many }) => ({
   moderations: many(moderations),
-  user: one(users, {
-    fields: [records.userId],
-    references: [users.id],
+  user: one(endUsers, {
+    fields: [records.endUserId],
+    references: [endUsers.id],
   }),
 }));
 
@@ -43,9 +45,9 @@ export const rulesetsRelations = relations(rulesets, ({ many }) => ({
 }));
 
 export const userActionsRelations = relations(userActions, ({ one, many }) => ({
-  user: one(users, {
-    fields: [userActions.userId],
-    references: [users.id],
+  user: one(endUsers, {
+    fields: [userActions.endUserId],
+    references: [endUsers.id],
   }),
   messages: many(messages),
   appeal: one(appeals, { fields: [userActions.id], references: [appeals.userActionId] }),
@@ -60,7 +62,7 @@ export const userActionsRelations = relations(userActions, ({ one, many }) => ({
     relationName: "viaAppeal",
   }),
 }));
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(endUsers, ({ many }) => ({
   actions: many(userActions),
   from: many(messages, { relationName: "from" }),
   to: many(messages, { relationName: "to" }),
@@ -72,18 +74,18 @@ export const messagesRelations = relations(messages, ({ one }) => ({
     fields: [messages.appealId],
     references: [appeals.id],
   }),
-  from: one(users, {
+  from: one(endUsers, {
     fields: [messages.fromId],
-    references: [users.id],
+    references: [endUsers.id],
     relationName: "from",
   }),
   userAction: one(userActions, {
     fields: [messages.userActionId],
     references: [userActions.id],
   }),
-  to: one(users, {
+  to: one(endUsers, {
     fields: [messages.toId],
-    references: [users.id],
+    references: [endUsers.id],
     relationName: "to",
   }),
 }));
@@ -155,5 +157,12 @@ export const presetStrategiesRelations = relations(presetStrategies, ({ one }) =
   preset: one(presets, {
     fields: [presetStrategies.presetId],
     references: [presets.id],
+  }),
+}));
+
+export const memberOrganizationRelations = relations(members, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [members.organizationId],
+    references: [organizations.id],
   }),
 }));

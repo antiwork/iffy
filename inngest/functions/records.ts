@@ -10,11 +10,11 @@ const updateUserAfterDeletion = inngest.createFunction(
   { id: "update-user-after-deletion" },
   { event: "record/deleted" },
   async ({ event, step }) => {
-    const { clerkOrganizationId, id } = event.data;
+    const { organizationId, id } = event.data;
 
     const record = await step.run("fetch-record", async () => {
       const record = await db.query.records.findFirst({
-        where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, id)),
+        where: and(eq(schema.records.organizationId, organizationId), eq(schema.records.id, id)),
         with: {
           user: true,
         },
@@ -30,20 +30,20 @@ const updateUserAfterDeletion = inngest.createFunction(
 
     const flaggedRecords = await step.run("fetch-user-flagged-records", async () => {
       return await getFlaggedRecordsFromUser({
-        clerkOrganizationId,
+        organizationId,
         id: user.id,
       });
     });
 
     const organization = await step.run("fetch-organization", async () => {
-      return await findOrCreateOrganization(clerkOrganizationId);
+      return await findOrCreateOrganization({ id: organizationId });
     });
 
     if (flaggedRecords.length < organization.suspensionThreshold && user.actionStatus === "Suspended") {
       await step.run("create-user-action", async () => {
         return await createUserAction({
-          clerkOrganizationId,
-          userId: user.id,
+          organizationId,
+          endUserId: user.id,
           status: "Compliant",
           via: "Automation All Compliant",
         });

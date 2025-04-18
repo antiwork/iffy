@@ -3,15 +3,15 @@ import { NextRequest } from "next/server";
 
 export async function authenticateRequest(
   req: NextRequest,
-): Promise<[isValid: false, clerkOrganizationId: null] | [isValid: true, clerkOrganizationId: string]> {
+): Promise<[isValid: false, organizationId: null] | [isValid: true, organizationId: string]> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return [false, null];
   }
   const apiKey = authHeader.split(" ")[1];
-  const clerkOrganizationId = await validateApiKey(apiKey);
-  if (!clerkOrganizationId) {
+  const organizationId = await validateApiKey(apiKey);
+  if (!organizationId) {
     return [false, null];
   }
-  return [true, clerkOrganizationId];
+  return [true, organizationId];
 }

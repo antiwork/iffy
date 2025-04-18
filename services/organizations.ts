@@ -3,18 +3,27 @@ import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { encrypt } from "@/services/encrypt";
 
-export async function findOrCreateOrganization(clerkOrganizationId: string) {
+interface FindOrCreateOrganizationInput {
+  id?: string;
+  name?: string;
+  logo?: string;
+  slug?: string;
+}
+
+export async function findOrCreateOrganization({ id, name, logo, slug }: FindOrCreateOrganizationInput) {
+  if (id) {
+    let [organization] = await db.select().from(schema.organizations).where(eq(schema.organizations.id, id));
+    if (organization) return organization;
+  }
+
+  if (!name) throw new Error("Failed to create organization");
+
   let [organization] = await db
-    .select()
-    .from(schema.organizations)
-    .where(eq(schema.organizations.clerkOrganizationId, clerkOrganizationId));
-
-  if (organization) return organization;
-
-  [organization] = await db
     .insert(schema.organizations)
     .values({
-      clerkOrganizationId,
+      name,
+      logo,
+      slug,
     })
     .returning();
 
@@ -26,7 +35,7 @@ export async function findOrCreateOrganization(clerkOrganizationId: string) {
 }
 
 export async function updateOrganization(
-  clerkOrganizationId: string,
+  organizationId: string,
   data: {
     stripeCustomerId?: string;
     emailsEnabled?: boolean;
@@ -37,19 +46,14 @@ export async function updateOrganization(
     suspensionThreshold?: number;
   },
 ) {
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization({ id: organizationId });
   const [updated] = await db
     .update(schema.organizations)
     .set({
       ...data,
       stripeApiKey: data.stripeApiKey ? encrypt(data.stripeApiKey) : undefined,
     })
-    .where(
-      and(
-        eq(schema.organizations.clerkOrganizationId, clerkOrganizationId),
-        eq(schema.organizations.id, organization.id),
-      ),
-    )
+    .where(and(eq(schema.organizations.id, organizationId), eq(schema.organizations.id, organization.id)))
     .returning();
 
   if (!updated) {

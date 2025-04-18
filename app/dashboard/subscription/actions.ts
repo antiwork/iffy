@@ -11,6 +11,9 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
 import { getAbsoluteUrl } from "@/lib/url";
+import db from "@/db";
+import { eq } from "drizzle-orm";
+import { organizations, users } from "@/db/tables";
 
 const createCheckoutSessionSchema = z.object({
   tier: z.enum(Object.keys(PRODUCTS) as [keyof typeof PRODUCTS, ...(keyof typeof PRODUCTS)[]]),
@@ -19,30 +22,33 @@ const createCheckoutSessionSchema = z.object({
 
 export const createCheckoutSession = actionClient
   .schema(createCheckoutSessionSchema)
-  .action(async ({ parsedInput: { tier, term }, ctx: { clerkOrganizationId, clerkUserId } }) => {
+  .action(async ({ parsedInput: { tier, term }, ctx: { organizationId, userId } }) => {
     if (!env.ENABLE_BILLING || !stripe) {
       throw new Error("Billing is not enabled");
     }
 
-    const organization = await findOrCreateOrganization(clerkOrganizationId);
+    const organization = await findOrCreateOrganization({ id: organizationId });
 
     const product = PRODUCTS[tier];
 
     let stripeCustomerId = organization.stripeCustomerId;
     if (!stripeCustomerId) {
-      const clerkUser = await (await clerkClient()).users.getUser(clerkUserId);
-      const clerkOrganization = await (
-        await clerkClient()
-      ).organizations.getOrganization({
-        organizationId: clerkOrganizationId,
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
       });
+
+      const organization = await db.query.organizations.findFirst({
+        where: eq(organizations.id, organizationId),
+      });
+
+      if (!user || !organization) throw new Error("Unauthorized, Unable to create Checkout Session");
 
       const customer = await stripe.customers.create({
-        name: clerkOrganization.name,
-        email: clerkUser.emailAddresses[0]?.emailAddress ?? undefined,
+        name: organization.name,
+        email: user.email,
       });
 
-      await updateOrganization(clerkOrganizationId, {
+      await updateOrganization(organizationId, {
         stripeCustomerId: customer.id,
       });
 
@@ -106,12 +112,12 @@ export const createCheckoutSession = actionClient
     return session.url;
   });
 
-export const createPortalSession = actionClient.action(async ({ ctx: { clerkOrganizationId } }) => {
+export const createPortalSession = actionClient.action(async ({ ctx: { organizationId } }) => {
   if (!env.ENABLE_BILLING || !stripe) {
     throw new Error("Billing is not enabled");
   }
 
-  const organization = await findOrCreateOrganization(clerkOrganizationId);
+  const organization = await findOrCreateOrganization({ id: organizationId });
   if (!organization.stripeCustomerId) {
     return null;
   }

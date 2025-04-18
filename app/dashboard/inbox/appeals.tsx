@@ -11,12 +11,12 @@ import { trpc } from "@/lib/trpc";
 import { DebouncedInput } from "@/components/debounced-input";
 
 interface AppealsProps {
-  clerkOrganizationId: string;
+  organizationId: string;
   defaultLayout?: number[];
   children: React.ReactNode;
 }
 
-export function Appeals({ clerkOrganizationId, defaultLayout = [20, 32, 48], children }: AppealsProps) {
+export function Appeals({ organizationId, defaultLayout = [20, 32, 48], children }: AppealsProps) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const [tab, setTab] = useState("inbox");
@@ -24,7 +24,7 @@ export function Appeals({ clerkOrganizationId, defaultLayout = [20, 32, 48], chi
 
   const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = trpc.appeal.infinite.useInfiniteQuery(
     {
-      clerkOrganizationId,
+      organizationId,
       statuses: tab === "inbox" ? ["Open"] : undefined,
       search,
     },

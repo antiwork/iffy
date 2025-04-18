@@ -3,7 +3,7 @@ import db from "@/db";
 import { eq, gt, and } from "drizzle-orm";
 import { DailyAnalyticsChart } from "./daily-analytics-chart";
 
-type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "clerkOrganizationId">;
+type DailyAnalyticsChartData = Omit<typeof schema.moderationsAnalyticsDaily.$inferSelect, "organizationId">;
 
 export async function DailySection({
   orgId,
@@ -27,7 +27,7 @@ export async function DailySection({
     .from(schema.moderationsAnalyticsDaily)
     .where(
       and(
-        eq(schema.moderationsAnalyticsDaily.clerkOrganizationId, orgId),
+        eq(schema.moderationsAnalyticsDaily.organizationId, orgId),
         gt(schema.moderationsAnalyticsDaily.time, startDate),
       ),
     );

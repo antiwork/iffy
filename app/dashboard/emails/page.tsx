@@ -16,15 +16,12 @@ import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 const EmailEditor = async <T extends (typeof schema.emailTemplateType.enumValues)[number]>({
-  clerkOrganizationId,
+  organizationId,
   type,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & Omit<Parameters<typeof render<T>>[0], "content">) => {
   const template = await db.query.emailTemplates.findFirst({
-    where: and(
-      eq(schema.emailTemplates.clerkOrganizationId, clerkOrganizationId),
-      eq(schema.emailTemplates.type, type),
-    ),
+    where: and(eq(schema.emailTemplates.organizationId, organizationId), eq(schema.emailTemplates.type, type)),
   });
 
   const content = parseContent(template?.content, type);
@@ -35,12 +32,7 @@ const EmailEditor = async <T extends (typeof schema.emailTemplateType.enumValues
       <div className="mx-8 my-4 grid grid-cols-1 gap-4 p-4 md:grid-cols-3" aria-hidden="true">
         <ContentForm content={content} type={type} />
         <div className="col-span-1 pt-2 md:col-span-2">
-          <EmailPreview
-            content={content}
-            className="rounded-lg"
-            clerkOrganizationId={clerkOrganizationId}
-            type={type}
-          />
+          <EmailPreview content={content} className="rounded-lg" organizationId={organizationId} type={type} />
         </div>
       </div>
       <Separator />
@@ -49,13 +41,13 @@ const EmailEditor = async <T extends (typeof schema.emailTemplateType.enumValues
 };
 
 const EmailPreview = async <T extends (typeof schema.emailTemplateType.enumValues)[number]>({
-  clerkOrganizationId,
+  organizationId,
   content,
   type,
   ...props
 }: Omit<React.HTMLAttributes<HTMLDivElement>, "content"> & Parameters<typeof render<T>>[0]) => {
   const { html } = await render<T>({
-    clerkOrganizationId,
+    organizationId,
     content,
     type,
     appealUrl: type === "Suspended" ? "#" : undefined,
@@ -67,7 +59,7 @@ const EmailPreview = async <T extends (typeof schema.emailTemplateType.enumValue
 const Emails = async () => {
   const { orgId } = await authWithOrgSubscription();
 
-  const organization = await findOrCreateOrganization(orgId);
+  const organization = await findOrCreateOrganization({ id: orgId });
   if (!organization.emailsEnabled) {
     return notFound();
   }
@@ -82,13 +74,13 @@ const Emails = async () => {
           <TabsTrigger value="banned">Banned</TabsTrigger>
         </TabsList>
         <TabsContent value="suspended">
-          <EmailEditor clerkOrganizationId={orgId} type="Suspended" />
+          <EmailEditor organizationId={orgId} type="Suspended" />
         </TabsContent>
         <TabsContent value="compliant">
-          <EmailEditor clerkOrganizationId={orgId} type="Compliant" />
+          <EmailEditor organizationId={orgId} type="Compliant" />
         </TabsContent>
         <TabsContent value="banned">
-          <EmailEditor clerkOrganizationId={orgId} type="Banned" />
+          <EmailEditor organizationId={orgId} type="Banned" />
         </TabsContent>
       </Tabs>
     </div>

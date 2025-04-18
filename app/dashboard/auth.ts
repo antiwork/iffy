@@ -1,10 +1,10 @@
 import { env } from "@/lib/env";
 import { findSubscription, isActiveSubscription } from "@/services/stripe/subscriptions";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/services/auth";
 import { redirect } from "next/navigation";
 
 export async function authWithOrgSubscription() {
-  const { orgId, userId, ...data } = await auth();
+  const { userId, orgId, ...data } = await auth();
 
   if (!userId) {
     redirect("/");
@@ -15,7 +15,7 @@ export async function authWithOrgSubscription() {
   }
 
   if (!env.ENABLE_BILLING) {
-    return { orgId, userId, ...data };
+    return { ...data, userId, orgId };
   }
 
   const subscription = await findSubscription(orgId);
@@ -27,11 +27,11 @@ export async function authWithOrgSubscription() {
     redirect("/dashboard/subscription");
   }
 
-  return { orgId, userId, ...data, subscription };
+  return { ...data, userId, orgId, subscription };
 }
 
 export async function authWithOrg() {
-  const { orgId, userId, ...data } = await auth();
+  const { userId, orgId, ...data } = await auth();
 
   if (!userId) {
     redirect("/");
@@ -41,5 +41,5 @@ export async function authWithOrg() {
     redirect("/dashboard");
   }
 
-  return { orgId, userId, ...data };
+  return { ...data, orgId, userId };
 }
