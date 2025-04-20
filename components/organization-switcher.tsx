@@ -15,7 +15,7 @@ import { ChevronDown, Plus, ChevronRight, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useListOrganizations, useActiveOrganization, organization } from "@/lib/auth-client";
 import { CreateOrganization } from "@/components/create-organization";
-import { OrganizationManagement } from "@/components/organization-management";
+import { OrganizationManagement } from "@/components/organization";
 
 interface Organization {
   id: string;
@@ -52,15 +52,11 @@ export function OrganizationSwitcher() {
   const [open, setOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
-  const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
   const { data: organizations } = useListOrganizations();
   const { data: activeOrganization } = useActiveOrganization();
 
-  const handleSelect = async (org: Organization) => {
-    const { error } = await organization.setActive({ organizationId: org.id });
-    if (!error) {
-      router.refresh();
-    }
+  const setActiveOrganization = async (organizationId: string) => {
+    const { error } = await organization.setActive({ organizationId });
   };
 
   const formatOrganization = (org: any): Organization => ({
@@ -83,7 +79,11 @@ export function OrganizationSwitcher() {
     <>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="w-[10rem] justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="min-w-[10rem] cursor-pointer justify-between focus-visible:ring-0 focus-visible:ring-offset-0"
+          >
             <div className="flex items-center gap-2">
               <Avatar className="h-5 w-5">
                 <AvatarImage src={activeOrganization?.logo || undefined} />
@@ -94,7 +94,7 @@ export function OrganizationSwitcher() {
             <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-[200px]">
+        <DropdownMenuContent className="w-[280px]" align="end">
           <DropdownMenuLabel>Organizations</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {activeOrganization && (
@@ -110,10 +110,9 @@ export function OrganizationSwitcher() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ml-auto h-5 px-1.5 text-xs hover:bg-stone-200 dark:hover:bg-stone-700"
+                className="ml-auto h-5 cursor-pointer px-1.5 text-xs hover:bg-stone-200 dark:hover:bg-stone-700"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setCurrentOrg(formatOrganization(activeOrganization));
                   setManageOpen(true);
                 }}
               >
@@ -128,7 +127,7 @@ export function OrganizationSwitcher() {
               {otherOrganizations.map((org) => (
                 <DropdownMenuItem
                   key={org.id}
-                  onClick={() => handleSelect(formatOrganization(org))}
+                  onClick={() => setActiveOrganization(org.id)}
                   className="flex cursor-pointer items-center gap-2 px-2 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800"
                 >
                   <Avatar className="h-6 w-6">
@@ -149,9 +148,7 @@ export function OrganizationSwitcher() {
         </DropdownMenuContent>
       </DropdownMenu>
       <CreateOrganization open={createOpen} onOpenChange={setCreateOpen} />
-      {currentOrg && (
-        <OrganizationManagement open={manageOpen} onOpenChange={setManageOpen} organization={currentOrg} />
-      )}
+      {activeOrganization && <OrganizationManagement open={manageOpen} onOpenChange={setManageOpen} />}
     </>
   );
 }

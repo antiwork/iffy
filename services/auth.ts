@@ -91,14 +91,20 @@ export async function getMemberMeta(userId: string, organizationId: string): Pro
 
 interface OrganizationMetadata {
   organizationName: string;
+  OrganizationMetadata: string | null;
   organizationLogo: string;
 }
 
 export async function getOrganizationMetadata(organizationId: string): Promise<OrganizationMetadata> {
-  const { name: organizationName, logo: organizationLogo } = await findOrCreateOrganization({ id: organizationId });
+  const {
+    name: organizationName,
+    logo: organizationLogo,
+    metadata: OrganizationMetadata,
+  } = await findOrCreateOrganization({ id: organizationId });
 
   return {
     organizationName,
+    OrganizationMetadata,
     organizationLogo: organizationLogo || "",
   };
 }

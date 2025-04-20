@@ -53,7 +53,7 @@ export function SignUp() {
       email: "",
       password: "",
     },
-    mode: "onBlur",
+    mode: "onChange",
   });
 
   const onSubmit = async (values: FormValues) => {
@@ -92,7 +92,7 @@ export function SignUp() {
 
   return (
     <div className="container flex min-h-screen flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px] lg:w-[420px]">
         <Card className="rounded-2xl">
           <CardHeader className="space-y-1">
             <CardTitle className="text-center text-lg">Create an account</CardTitle>

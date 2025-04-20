@@ -17,6 +17,7 @@ import AntiworkFooter from "@/components/antiwork-footer";
 import { DashboardTabs } from "@/components/dashboard-tabs";
 import { SignedIn, SignedOut } from "@/components/signed";
 import { env } from "@/lib/env";
+import { auth } from "@/services/auth";
 
 const getCount = cache(
   async () => {
@@ -49,6 +50,9 @@ const getCount = cache(
 
 export default async function Page() {
   const { count, countAt, ratePerHour } = await getCount();
+  const session = await auth();
+
+  console.log({ session });
 
   return (
     <div className="min-h-screen space-y-12 overflow-x-hidden bg-white pt-6 font-sans text-black sm:space-y-24">

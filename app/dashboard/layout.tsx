@@ -5,9 +5,12 @@ import { getInboxCount } from "@/services/appeals";
 import { auth } from "@/services/auth";
 import { hasAdminRole } from "@/services/auth";
 import { env } from "@/lib/env";
+import { redirect } from "next/navigation";
 
 export default async function Layout({ children, sheet }: { children: React.ReactNode; sheet: React.ReactNode }) {
-  const { orgId } = await auth();
+  const { userId, orgId } = await auth();
+
+  if (!userId) redirect("/sign-in");
 
   if (!orgId)
     return (

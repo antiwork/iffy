@@ -7,6 +7,8 @@ import DefaultEmail from "./components/default";
 import SuspendedTemplate from "./templates/suspended";
 import CompliantTemplate from "./templates/compliant";
 import BannedTemplate from "./templates/banned";
+import InvitationTemplate from "./templates/invitation";
+import MagicLinkTemplate from "./templates/magiclink";
 import { DefaultTemplateContent, RenderedTemplate } from "./types";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { AppealButton } from "./components/appeal-button";
@@ -53,6 +55,8 @@ const templates = {
   ["Suspended"]: SuspendedTemplate,
   ["Compliant"]: CompliantTemplate,
   ["Banned"]: BannedTemplate,
+  ["Invitation"]: InvitationTemplate,
+  ["MagicLink"]: MagicLinkTemplate,
 } as const;
 
 export async function render<T extends EmailTemplateType>({

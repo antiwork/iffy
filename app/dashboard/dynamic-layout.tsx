@@ -28,7 +28,8 @@ import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import * as schema from "@/db/schema";
 import { SignOutButton } from "@/auth/signin-button";
-import { OrganizationSwitcher as CustomOrganizationSwitcher } from "@/components/organization-switcher";
+import { OrganizationSwitcher } from "@/components/organization-switcher";
+import { BetterAuthLoaded, BetterAuthLoading } from "@/auth/loading";
 
 type organization = typeof schema.organizations.$inferSelect;
 
@@ -151,15 +152,15 @@ export default function DynamicLayout({
           <ResizablePanel defaultSize={80}>
             <div className={cn("flex h-[52px] items-center justify-end px-4 dark:bg-zinc-900")}>
               <div className="flex gap-2">
-                <ClerkLoading>
+                <BetterAuthLoading>
                   <Skeleton className="mr-2 h-[20px] w-[125px] rounded-sm" />
-                </ClerkLoading>
-                <ClerkLoaded>
+                </BetterAuthLoading>
+                <BetterAuthLoaded>
                   <Button asChild variant="ghost" size="sm">
                     <SignOutButton />
                   </Button>
-                  <CustomOrganizationSwitcher />
-                </ClerkLoaded>
+                  <OrganizationSwitcher />
+                </BetterAuthLoaded>
               </div>
             </div>
             <Separator />

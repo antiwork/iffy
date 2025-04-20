@@ -1,10 +1,33 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
+import { isProtectedRoute } from "./lib/protected-route";
+import { Session } from "./lib/auth";
 
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
+export async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+  const loginUrl = new URL("/sign-in", req.url);
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) await auth.protect();
-});
+  if (!isProtectedRoute(pathname)) return NextResponse.next();
+
+  const response = await fetch(req.nextUrl.origin + "/api/auth/get-session", {
+    headers: {
+      cookie: req.headers.get("cookie") || "",
+    },
+  });
+
+  const session = (await response.json()) as Session;
+
+  if (!session) {
+    return NextResponse.redirect(loginUrl);
+  }
+
+  const role = session.session.activeOrganizationRole;
+  const isAdmin = role === "admin" || role === "owner";
+
+  if (!isAdmin) {
+    const loginUrl = new URL("/sign-in", req.url);
+    return NextResponse.redirect(loginUrl);
+  }
+}
 
 export const config = {
   matcher: [

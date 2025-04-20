@@ -17,7 +17,13 @@ import {
 import cuid from "cuid";
 
 export const appealActionStatus = pgEnum("AppealActionStatus", ["Open", "Rejected", "Approved"]);
-export const emailTemplateType = pgEnum("EmailTemplateType", ["Suspended", "Compliant", "Banned"]);
+export const emailTemplateType = pgEnum("EmailTemplateType", [
+  "Suspended",
+  "Compliant",
+  "Banned",
+  "Invitation",
+  "MagicLink",
+]);
 export const messageStatus = pgEnum("MessageStatus", ["Pending", "Delivered"]);
 export const messageType = pgEnum("MessageType", ["Outbound", "Inbound"]);
 export const moderationStatus = pgEnum("ModerationStatus", ["Compliant", "Flagged"]);
