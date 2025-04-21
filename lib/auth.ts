@@ -5,13 +5,11 @@ import db, { schema } from "@/db";
 import { env } from "./env";
 import { and, eq } from "drizzle-orm";
 import { members } from "@/db/tables";
-import { Resend } from "resend";
 import { nextCookies } from "better-auth/next-js";
-import { render } from "@/emails/render";
-import { sendEmail } from "@/services/email";
-
-const fromEmail = `${env.RESEND_FROM_NAME} <${env.RESEND_FROM_EMAIL}>`;
-const resend = new Resend(env.RESEND_API_KEY);
+import { sendTenantEmail } from "@/services/email";
+import { render, replacePlaceholders } from "@/emails/render";
+import InvitationTemplate from "@/emails/templates/invitation";
+import MagicLinkTemplate from "@/emails/templates/magiclink";
 
 const options = {
   appName: "Iffy",
@@ -31,23 +29,40 @@ const options = {
   },
   plugins: [
     organization({
-      sendInvitationEmail: async ({ email, organization, role }) => {
-        if (env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
-          console.log("Your Magic Link: ", url);
-          return;
-        }
-        // TODO: Send email
+      sendInvitationEmail: async ({ email, organization, role, invitation }) => {
+        const url = `${env.NEXT_PUBLIC_BETTER_AUTH_URL}/organization/invite/${invitation.id}`;
+        const { html, subject } = await render({
+          organizationId: organization.id,
+          type: "Invitation",
+          joinUrl: url,
+          content: await replacePlaceholders(InvitationTemplate.defaultContent, {
+            ORGANIZATION_NAME: organization.name,
+            ORGANIZATION_ROLE: role,
+          }),
+        });
+        await sendTenantEmail({
+          email,
+          subject,
+          html,
+        });
       },
     }),
     nextCookies(),
     magicLink({
       disableSignUp: true,
-      async sendMagicLink({ email, url }, request) {
-        if (env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
-          console.log("Your Magic Link: ", url);
-          return;
-        }
-        // TODO: Send email
+      sendMagicLink: async ({ email, url }) => {
+        const { html, subject } = await render({
+          organizationId: "default",
+          type: "MagicLink",
+          magicLink: url,
+          content: MagicLinkTemplate.defaultContent,
+        });
+
+        await sendTenantEmail({
+          email,
+          subject,
+          html,
+        });
       },
     }),
   ],

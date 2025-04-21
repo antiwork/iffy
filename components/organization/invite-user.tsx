@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Button } from "../ui/button";
@@ -23,6 +23,7 @@ export const InviteUser = ({ show, setShow }: InviteUserInput) => {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<InviteFormData>({
     defaultValues: {
@@ -66,19 +67,25 @@ export const InviteUser = ({ show, setShow }: InviteUserInput) => {
             })}
           />
         </div>
-        <Select defaultValue="member" {...register("role")}>
-          <SelectTrigger className="h-8 w-[100px] text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="admin" className="text-xs">
-              Admin
-            </SelectItem>
-            <SelectItem value="member" className="text-xs">
-              Member
-            </SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          name="role"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger className="h-8 w-[100px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin" className="text-xs">
+                  Admin
+                </SelectItem>
+                <SelectItem value="member" className="text-xs">
+                  Member
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
         <Button type="submit" className="h-8">
           Send
         </Button>

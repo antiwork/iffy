@@ -1,6 +1,6 @@
+import { Logo } from "@/components/logo";
 import {
   Body,
-  Button,
   Container,
   Column,
   Head,
@@ -130,34 +130,36 @@ export const DefaultEmail = ({
   children,
 }: TemplateProps & { children: React.ReactNode }) => {
   return (
-    <Html>
-      <Head>
-        <title>{subject}</title>
-        <style>{globalStyles}</style>
-      </Head>
-      <Preview>{heading}</Preview>
-      <Body>
-        <Container>
-          <Heading className="email-heading">{heading}</Heading>
-          <Section className="email-content">{children}</Section>
-          <Section className="email-footer">
-            <Row>
-              <Column align="center">
-                <Img alt="Instagram" height="36" src={organizationImageUrl} width="36" />
-              </Column>
-            </Row>
-            <Row className="email-footer-text">
-              <Column align="center">
-                <Text>from {organizationName}</Text>
-                <Text>
-                  powered by <Link href="https://iffy.com">iffy.com</Link>
-                </Text>
-              </Column>
-            </Row>
-          </Section>
-        </Container>
-      </Body>
-    </Html>
+    <Tailwind>
+      <Html>
+        <Head>
+          <title>{subject}</title>
+          <style>{globalStyles}</style>
+        </Head>
+        <Preview>{heading}</Preview>
+        <Body>
+          <Container>
+            <Heading className="email-heading">{heading}</Heading>
+            <Section className="email-content">{children}</Section>
+            <Section className="email-footer mt-4">
+              <Row className="email-footer-text">
+                <Column align="center">
+                  {organizationImageUrl !== "" ? (
+                    <Img alt="Instagram" height="36" src={organizationImageUrl} width="36" />
+                  ) : (
+                    <Logo className="w-fit rounded bg-black p-1 text-xs text-white" />
+                  )}
+                  <Text>from {organizationName}</Text>
+                  <Text>
+                    powered by <Link href="https://iffy.com">iffy.com</Link>
+                  </Text>
+                </Column>
+              </Row>
+            </Section>
+          </Container>
+        </Body>
+      </Html>
+    </Tailwind>
   );
 };
 

@@ -18,6 +18,7 @@ export async function hasAdminRole() {
 interface SignedInWithActiveOrgAuth {
   sessionId: string;
   userId: string;
+  userEmail: string;
   orgId: string;
   orgRole: string;
   orgSlug: string;
@@ -26,6 +27,7 @@ interface SignedInWithActiveOrgAuth {
 interface SignedInWithoutActiveOrgAuth {
   sessionId: string;
   userId: string;
+  userEmail: string;
   orgId: null;
   orgRole: null;
   orgSlug: null;
@@ -34,6 +36,7 @@ interface SignedInWithoutActiveOrgAuth {
 interface SignedOutAuth {
   sessionId: null;
   userId: null;
+  userEmail: null;
   orgId: null;
   orgRole: null;
   orgSlug: null;
@@ -49,6 +52,7 @@ export async function auth(): Promise<Auth> {
     return {
       sessionId: null,
       userId: null,
+      userEmail: null,
       orgId: null,
       orgRole: null,
       orgSlug: null,
@@ -59,6 +63,7 @@ export async function auth(): Promise<Auth> {
     return {
       sessionId: response.session.id,
       userId: response.session.userId,
+      userEmail: response.user.email,
       orgId: null,
       orgRole: null,
       orgSlug: null,
@@ -68,6 +73,7 @@ export async function auth(): Promise<Auth> {
   return {
     sessionId: response.session.id,
     userId: response.session.userId,
+    userEmail: response.user.email,
     orgId: response.session.activeOrganizationId,
     orgRole: response.session.activeOrganizationRole,
     orgSlug: response.session.activeOrganizationSlug,
@@ -93,6 +99,7 @@ interface OrganizationMetadata {
   organizationName: string;
   OrganizationMetadata: string | null;
   organizationLogo: string;
+  appealsEnabled: boolean;
 }
 
 export async function getOrganizationMetadata(organizationId: string): Promise<OrganizationMetadata> {
@@ -100,12 +107,14 @@ export async function getOrganizationMetadata(organizationId: string): Promise<O
     name: organizationName,
     logo: organizationLogo,
     metadata: OrganizationMetadata,
+    appealsEnabled,
   } = await findOrCreateOrganization({ id: organizationId });
 
   return {
     organizationName,
     OrganizationMetadata,
     organizationLogo: organizationLogo || "",
+    appealsEnabled,
   };
 }
 

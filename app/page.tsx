@@ -50,9 +50,6 @@ const getCount = cache(
 
 export default async function Page() {
   const { count, countAt, ratePerHour } = await getCount();
-  const session = await auth();
-
-  console.log({ session });
 
   return (
     <div className="min-h-screen space-y-12 overflow-x-hidden bg-white pt-6 font-sans text-black sm:space-y-24">

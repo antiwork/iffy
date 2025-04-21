@@ -12,7 +12,7 @@ export const AppealButton = ({ appealUrl, children }: AppealButtonProps & { chil
           href={appealUrl}
           style={{
             backgroundColor: "#000000",
-            borderRadius: 3,
+            borderRadius: 5,
             color: "#fff",
             border: "1px solid rgb(0,0,0, 0.1)",
             cursor: "pointer",

@@ -72,6 +72,7 @@ const Emails = async () => {
           <TabsTrigger value="suspended">Suspended</TabsTrigger>
           <TabsTrigger value="compliant">Compliant</TabsTrigger>
           <TabsTrigger value="banned">Banned</TabsTrigger>
+          <TabsTrigger value="invitation">Invitation</TabsTrigger>
         </TabsList>
         <TabsContent value="suspended">
           <EmailEditor organizationId={orgId} type="Suspended" />
@@ -81,6 +82,9 @@ const Emails = async () => {
         </TabsContent>
         <TabsContent value="banned">
           <EmailEditor organizationId={orgId} type="Banned" />
+        </TabsContent>
+        <TabsContent value="invitation">
+          <EmailEditor organizationId={orgId} type="Invitation" />
         </TabsContent>
       </Tabs>
     </div>

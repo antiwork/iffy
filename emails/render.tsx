@@ -38,7 +38,7 @@ export function validateContent(content: DefaultTemplateContent) {
 
 const liquid = new Liquid();
 
-async function replacePlaceholders(content: DefaultTemplateContent, placeholders: Record<string, any>) {
+export async function replacePlaceholders(content: DefaultTemplateContent, placeholders: Record<string, any>) {
   let processedContent: any = {};
   for (const [key, value] of Object.entries(content)) {
     let rendered = await liquid.parseAndRender(value, placeholders);
@@ -64,15 +64,25 @@ export async function render<T extends EmailTemplateType>({
   content,
   type,
   appealUrl,
+  joinUrl,
+  magicLink,
 }: {
   organizationId: string;
   content: DefaultTemplateContent;
   type: T;
   appealUrl?: string;
+  joinUrl?: string;
+  magicLink?: string;
 }): Promise<RenderedTemplate> {
-  const settings = await findOrCreateOrganization({ id: organizationId });
+  let organizationName = "Iffy";
+  let organizationImageUrl = "";
+  let appealsEnabled = false;
 
-  const { organizationName, organizationLogo: organizationImageUrl } = await getOrganizationMetadata(organizationId);
+  if (organizationId !== "default") {
+    const settings = await findOrCreateOrganization({ id: organizationId });
+    appealsEnabled = settings.appealsEnabled;
+    ({ organizationName, organizationLogo: organizationImageUrl } = await getOrganizationMetadata(organizationId));
+  }
 
   const { subject, heading, body } = await replacePlaceholders(content, {
     organizationName,
@@ -91,9 +101,9 @@ export async function render<T extends EmailTemplateType>({
       {paragraphs.map((p, i) => (
         <Text key={i}>{p}</Text>
       ))}
-      {settings.appealsEnabled && type === "Suspended" && appealUrl && (
-        <AppealButton appealUrl={appealUrl}>Appeal</AppealButton>
-      )}
+      {appealsEnabled && type === "Suspended" && appealUrl && <AppealButton appealUrl={appealUrl}>Appeal</AppealButton>}
+      {type === "Invitation" && joinUrl && <AppealButton appealUrl={joinUrl}>Join</AppealButton>}
+      {type === "MagicLink" && magicLink && <AppealButton appealUrl={magicLink}>Login</AppealButton>}
     </DefaultEmail>
   );
 

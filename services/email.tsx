@@ -110,3 +110,30 @@ export async function sendEmail({
 
   return data;
 }
+
+export async function sendTenantEmail({ email, ...payload }: { email: string } & CreateEmailOptions) {
+  if (!env.RESEND_API_KEY) {
+    console.log(payload.subject, payload.text, payload.html);
+  }
+
+  const resend = new Resend(env.RESEND_API_KEY);
+
+  if (env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
+    console.log(payload.subject, payload.text, payload.html);
+    return;
+  }
+
+  const fromEmail = `${env.RESEND_FROM_NAME} <${env.RESEND_FROM_EMAIL}>`;
+
+  const { data, error } = await resend.emails.send({
+    ...payload,
+    from: fromEmail,
+    to: [email],
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}

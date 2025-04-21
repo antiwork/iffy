@@ -17,6 +17,8 @@ import {
   presetStrategies,
   members,
   organizations,
+  invitations,
+  users,
 } from "./tables";
 
 export const moderationsRelations = relations(moderations, ({ one, many }) => ({
@@ -164,5 +166,19 @@ export const memberOrganizationRelations = relations(members, ({ one }) => ({
   organization: one(organizations, {
     fields: [members.organizationId],
     references: [organizations.id],
+  }),
+}));
+
+export const invitationOrganizationRelations = relations(invitations, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [invitations.organizationId],
+    references: [organizations.id],
+  }),
+}));
+
+export const invitationInviterRelations = relations(invitations, ({ one }) => ({
+  inviter: one(users, {
+    fields: [invitations.inviterId],
+    references: [users.id],
   }),
 }));

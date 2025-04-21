@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Loader, Mail } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from "@/lib/auth-client";
 
@@ -27,6 +27,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function SignIn() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect_url = searchParams.get("redirect_url");
   const { toast } = useToast();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -42,6 +44,7 @@ export function SignIn() {
       const { data, error } = await signIn.email({
         email: values.email,
         password: values.password,
+        callbackURL: redirect_url?.toString() || `${window.location.origin}/dashboard`,
       });
 
       if (error) {
@@ -79,7 +82,7 @@ export function SignIn() {
     try {
       const { error } = await signIn.magicLink({
         email,
-        callbackURL: `${window.location.origin}/dashboard`,
+        callbackURL: redirect_url?.toString() || `${window.location.origin}/dashboard`,
       });
 
       if (error) {
