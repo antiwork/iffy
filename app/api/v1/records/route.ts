@@ -38,11 +38,11 @@ export async function GET(req: NextRequest) {
   ];
 
   if (user) {
-    const userExists = await db.query.userRecords.findFirst({
+    const userRecordExists = await db.query.userRecords.findFirst({
       where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, user)),
       columns: { id: true },
     });
-    if (!userExists) {
+    if (!userRecordExists) {
       return NextResponse.json({ error: { message: "Invalid user ID" } }, { status: 400 });
     }
     conditions.push(eq(schema.records.userRecordId, user));
