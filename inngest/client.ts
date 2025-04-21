@@ -2,7 +2,6 @@ import { EventSchemas, GetEvents, Inngest } from "inngest";
 import { z } from "zod";
 import * as schema from "@/db/schema";
 import { env } from "@/lib/env";
-import { SlackEventPayload, SupportedSlackEvents } from "@/app/api/v1/slack/agent/types";
 
 const eventsMap = {
   "record/deleted": {
@@ -76,7 +75,6 @@ const eventsMap = {
     }),
   },
   "slack/event": {
-    // data: SlackEventPayload<SupportedSlackEvents>>
     id: z.string(),
     data: z.object({
       type: z.string(),

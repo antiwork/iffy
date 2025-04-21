@@ -29,7 +29,6 @@ async function getUserInfo(this: SlackContext<"message">, { userId }: { userId: 
       protected: user.protected,
       actionStatus: user.actionStatus,
       actionStatusCreatedAt: user.actionStatusCreatedAt,
-      // slackId: user.slackId, // TODO:??
     }),
   };
 }
