@@ -218,10 +218,10 @@ Decline: ${declineUrl}
   const fromEmail = `${process.env.RESEND_FROM_NAME} <${process.env.RESEND_FROM_EMAIL}>`;
 
   // Log emails in non-production environments unless they're @resend.dev
-  // if (process.env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
-  //   console.log('Invitation details:', email, subject, text);
-  //   return;
-  // }
+  if (process.env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
+    console.log('Invitation details:', email, subject, text);
+    return;
+  }
 
   try {
     const { data, error } = await resend.emails.send({
