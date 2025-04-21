@@ -7,6 +7,7 @@ CREATE TABLE "slack_inboxes" (
 	"inbox_name" text NOT NULL,
 	"bot_user_id" text NOT NULL,
 	"inbox_access_token" text NOT NULL,
+	"admin_slack_user_ids" text[] DEFAULT '{}' NOT NULL,
 	"created_at" timestamp (3) DEFAULT now() NOT NULL,
 	"updated_at" timestamp (3) DEFAULT now() NOT NULL,
 	CONSTRAINT "slack_inboxes_pkey" PRIMARY KEY("clerk_organization_id","channel_id")
