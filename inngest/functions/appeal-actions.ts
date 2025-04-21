@@ -33,16 +33,31 @@ const updateUserAfterAppealAction = inngest.createFunction(
       if (!appeal) throw new Error(`Appeal not found: ${appealId}`);
       return appeal;
     });
+    const userId = appeal.userAction.user.id;
 
-    await step.run("create-user-action", async () => {
-      return await createUserAction({
-        clerkOrganizationId,
-        userId: appeal.userAction.user.id,
-        status: "Compliant",
-        via: "Automation Appeal Approved",
-        viaAppealId: appeal.id,
+    // See if user is already compliant
+    const currentUser = await step.run("fetch-current-user-status", async () => {
+      return await db.query.users.findFirst({
+          where: eq(schema.users.id, userId),
+          columns: { actionStatus: true }
       });
     });
+
+    // Only create the compliant action if the user ISN'T already compliant
+    // (Likely set by the moderation/status-changed events from unflagging records)
+    if (currentUser?.actionStatus === "Suspended") {
+      await step.run("create-user-action", async () => {
+        return await createUserAction({
+          clerkOrganizationId,
+          userId: appeal.userAction.user.id,
+          status: "Compliant",
+          via: "Automation Appeal Approved",
+          viaAppealId: appeal.id,
+        });
+      });
+    } else {
+      console.log(`Skipping compliant user action for user ${userId} as they are already ${currentUser?.actionStatus ?? 'Unknown'}`);
+    }
   },
 );
 
