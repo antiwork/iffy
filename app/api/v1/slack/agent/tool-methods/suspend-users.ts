@@ -57,7 +57,7 @@ async function suspendUsers(
       await createUserAction({
         clerkOrganizationId: this.organization.clerkOrganizationId,
         clerkUserId: senderClerkId,
-        userId: user.id,
+        userRecordId: user.id,
         status: "Suspended",
         via: "Manual",
         reasoning,

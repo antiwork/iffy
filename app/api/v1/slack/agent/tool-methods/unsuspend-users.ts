@@ -53,7 +53,7 @@ async function unsuspendUsers(
       await createUserAction({
         clerkOrganizationId: this.organization.clerkOrganizationId,
         clerkUserId: senderClerkId,
-        userId: user.id,
+        userRecordId: user.id,
         status: "Compliant",
         via: "Manual",
         reasoning,

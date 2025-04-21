@@ -11,18 +11,25 @@ import { eq } from "drizzle-orm";
  */
 async function findThirdPartyUserById(userId: string) {
   if (userId.includes("@")) {
-    return await db.query.users.findFirst({ where: eq(schema.users.email, userId) });
+    return await db.query.userRecords.findFirst({ where: eq(schema.userRecords.email, userId) });
   }
 
   try {
-    const user = await db.query.users.findFirst({ where: eq(schema.users.clientId, userId) });
+    const user = await db.query.userRecords.findFirst({ where: eq(schema.userRecords.clientId, userId) });
     if (user) {
       return user;
     }
   } catch {}
 
   try {
-    const user = await db.query.users.findFirst({ where: eq(schema.users.id, userId) });
+    const user = await db.query.userRecords.findFirst({ where: eq(schema.userRecords.id, userId) });
+    if (user) {
+      return user;
+    }
+  } catch {}
+
+  try {
+    const user = await db.query.userRecords.findFirst({ where: eq(schema.userRecords.id, userId) });
     if (user) {
       return user;
     }
