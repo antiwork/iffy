@@ -230,7 +230,7 @@ export default function DashboardLayout({
                         ))}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                          <Link href="/organizations">
+                          <Link href="/organization">
                             Manage Organizations
                           </Link>
                         </DropdownMenuItem>

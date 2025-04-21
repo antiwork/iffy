@@ -72,7 +72,7 @@ export default function VerifyOtp({ email, type }: VerifyOtpProps) {
       console.log("OTP Verification Successful:", result);
 
       if (intervalRef.current) clearInterval(intervalRef.current);
-      router.push("/dashboard"); // ✅ redirect here
+      router.push("/dashboard");
     } catch (error) {
       console.error("OTP Verification Failed:", error);
       const message = error instanceof Error ? error.message : "Invalid OTP.";

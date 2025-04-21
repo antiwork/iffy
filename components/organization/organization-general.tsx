@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-
+import React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,43 +19,68 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { LogOut, Pencil, Upload } from "lucide-react"
+import { client } from "@/lib/auth-client"
+import { useOrganization } from "@/lib/organization-context"
 
-interface OrganizationData {
-  id: string
+interface FormData {
   name: string
   slug: string
   imageUrl: string
 }
 
 export function OrganizationGeneral() {
+  const { organization, isLoading, refreshOrganization } = useOrganization()
   const [isEditing, setIsEditing] = useState(false)
-  const [organization, setOrganization] = useState<OrganizationData>({
-    id: "org_123",
-    name: "Acme Inc",
-    slug: "acme-inc",
+
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    slug: "",
     imageUrl: "/placeholder.svg?height=100&width=100",
   })
 
-  const [formData, setFormData] = useState({
-    name: organization.name,
-    slug: organization.slug,
-    imageUrl: organization.imageUrl,
-  })
+  // Update form data when organization data loads
+  React.useEffect(() => {
+    if (organization) {
+      setFormData({
+        name: organization.name,
+        slug: organization.slug || "",
+        imageUrl: organization.logo || "/placeholder.svg?height=100&width=100"
+      })
+    }
+  }, [organization])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setOrganization((prev) => ({ ...prev, ...formData }))
-    setIsEditing(false)
+    try {
+      await client.organization.update({
+        data: {
+          name: formData.name,
+          logo: formData.imageUrl,
+          slug: formData.slug
+        }
+      })
+
+      // Refresh organization data to get updated info
+      await refreshOrganization()
+      setIsEditing(false)
+    } catch (error) {
+      console.error("Failed to update organization:", error)
+    }
   }
 
-  const handleLeaveOrganization = () => {
-    // In a real app, this would call an API to leave the organization
-    console.log("Leaving organization")
+  const handleLeaveOrganization = async () => {
+    try {
+      await client.organization.leave()
+      // Redirect or update UI accordingly
+      window.location.href = "/organizations" // Redirect to organizations page or similar
+    } catch (error) {
+      console.error("Failed to leave organization:", error)
+    }
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +93,24 @@ export function OrganizationGeneral() {
         }
       }
       reader.readAsDataURL(file)
+      // Note: In a real implementation, you would upload this to a server/storage and get back a URL
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">Loading organization details...</div>
+      </div>
+    )
+  }
+
+  if (!organization) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">No organization data available.</div>
+      </div>
+    )
   }
 
   return (
@@ -132,7 +173,10 @@ export function OrganizationGeneral() {
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={organization.imageUrl || "/placeholder.svg"} alt={organization.name} />
+                  <AvatarImage
+                    src={organization.logo || "/placeholder.svg"}
+                    alt={organization.name}
+                  />
                   <AvatarFallback>{organization.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
