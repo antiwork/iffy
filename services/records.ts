@@ -81,12 +81,12 @@ export async function createOrUpdateRecord({
     }
 
     if (record.moderationStatus === "Flagged") {
-      const userRemoved = !!lastRecord?.userRecordId && !record.userRecordId;
-      const userAdded = !lastRecord?.userRecordId && !!record.userRecordId;
-      const userChanged =
+      const userRecordRemoved = !!lastRecord?.userRecordId && !record.userRecordId;
+      const userRecordAdded = !lastRecord?.userRecordId && !!record.userRecordId;
+      const userRecordChanged =
         !!lastRecord?.userRecordId && !!record.userRecordId && lastRecord.userRecordId !== record.userRecordId;
 
-      if (userRemoved || userChanged) {
+      if (userRecordRemoved || userRecordChanged) {
         await tx
           .update(schema.userRecords)
           .set({
@@ -100,7 +100,7 @@ export async function createOrUpdateRecord({
           );
       }
 
-      if (userAdded || userChanged) {
+      if (userRecordAdded || userRecordChanged) {
         await tx
           .update(schema.userRecords)
           .set({

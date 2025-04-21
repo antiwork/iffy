@@ -22,13 +22,13 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
     return redirect("/");
   }
 
-  const [isValid, userId] = validateAppealToken(token);
+  const [isValid, userRecordId] = validateAppealToken(token);
   if (!isValid) {
     return redirect("/");
   }
 
   const userRecord = await db.query.userRecords.findFirst({
-    where: eq(schema.userRecords.id, userId),
+    where: eq(schema.userRecords.id, userRecordId),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],

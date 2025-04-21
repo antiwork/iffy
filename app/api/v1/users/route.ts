@@ -51,10 +51,10 @@ export async function GET(req: NextRequest) {
   }
 
   if (user) {
-    const userExists = await db.query.userRecords.findFirst({
+    const userRecordExists = await db.query.userRecords.findFirst({
       where: eq(schema.userRecords.id, user),
     });
-    if (!userExists) {
+    if (!userRecordExists) {
       return NextResponse.json({ error: { message: "Invalid user" } }, { status: 400 });
     }
     conditions.push(eq(schema.userRecords.id, user));
