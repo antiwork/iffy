@@ -16,7 +16,7 @@ export const submitAppeal = appealActionClient
     if (!isValid) {
       throw new Error("Invalid appeal token");
     }
-    const appeal = await createAppeal({ userId, text });
+    const appeal = await createAppeal({ userRecordId: userId, text });
     revalidatePath("/appeal");
     return { appeal };
   });

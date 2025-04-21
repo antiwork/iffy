@@ -7,7 +7,7 @@ import sample from "lodash/sample";
 import { createMessage } from "@/services/messages";
 
 export async function seedUserActions(clerkOrganizationId: string) {
-  const users = await db.query.userRecords.findMany({
+  const userRecords = await db.query.userRecords.findMany({
     where: eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
     with: {
       records: true,
@@ -17,16 +17,20 @@ export async function seedUserActions(clerkOrganizationId: string) {
   const userActions = await db
     .insert(schema.userActions)
     .values(
-      users.map((user: typeof schema.userRecords.$inferSelect & { records: typeof schema.records.$inferSelect[] }) => {
-        const isFlagged = user.records.some((record: typeof schema.records.$inferSelect) => record.moderationStatus === "Flagged");
-        const status = isFlagged && !user.protected ? sample(["Suspended", "Banned"] as const) : "Compliant";
-        return {
-          clerkOrganizationId,
-          userRecordId: user.id,
-          status,
-          createdAt: user.createdAt,
-        } as const;
-      }),
+      userRecords.map(
+        (userRecord: typeof schema.userRecords.$inferSelect & { records: (typeof schema.records.$inferSelect)[] }) => {
+          const isFlagged = userRecord.records.some(
+            (record: typeof schema.records.$inferSelect) => record.moderationStatus === "Flagged",
+          );
+          const status = isFlagged && !userRecord.protected ? sample(["Suspended", "Banned"] as const) : "Compliant";
+          return {
+            clerkOrganizationId,
+            userRecordId: userRecord.id,
+            status,
+            createdAt: userRecord.createdAt,
+          } as const;
+        },
+      ),
     )
     .returning();
 

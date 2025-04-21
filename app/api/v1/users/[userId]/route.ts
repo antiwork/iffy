@@ -8,15 +8,15 @@ import { generateAppealToken } from "@/services/appeals";
 import { getAbsoluteUrl } from "@/lib/url";
 import { authenticateRequest } from "@/app/api/auth";
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ userRecordId: string }> }) {
   const [isValid, clerkOrganizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { userId: id } = await params;
+  const { userRecordId: id } = await params;
 
-  const user = await db.query.userRecords.findFirst({
+  const userRecord = await db.query.userRecords.findFirst({
     where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, id)),
     columns: {
       id: true,
@@ -34,16 +34,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
     },
   });
 
-  if (!user) {
+  if (!userRecord) {
     return NextResponse.json({ error: { message: "User not found" } }, { status: 404 });
   }
 
   const organization = await findOrCreateOrganization(clerkOrganizationId);
 
   const appealUrl =
-    organization.appealsEnabled && user.actionStatus === "Suspended"
-      ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(user.id)}`)
+    organization.appealsEnabled && userRecord.actionStatus === "Suspended"
+      ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(userRecord.id)}`)
       : null;
 
-  return NextResponse.json({ data: { ...user, appealUrl } });
+  return NextResponse.json({ data: { ...userRecord, appealUrl } });
 }

@@ -13,7 +13,7 @@ import {
   AlertDialogDescription,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { formatUser, getUserSecondaryParts } from "@/lib/user";
+import { formatUserRecord, getUserRecordSecondaryParts } from "@/lib/user-record";
 import {
   formatModerationStatus,
   formatVia,
@@ -37,7 +37,7 @@ import {
   isOutboundMessage,
   isMessage,
   AppealTimelineUserAction,
-  User,
+  UserRecord,
   AppealTimelineAction,
   AppealTimelineModeration,
   AppealTimelineMessage,
@@ -79,16 +79,16 @@ const AppealActionItem = ({ item }: { item: AppealTimelineAction }) => {
   );
 };
 
-const UserActionItem = ({ item, user }: { item: AppealTimelineUserAction; user: User }) => (
+const UserActionItem = ({ item, userRecord }: { item: AppealTimelineUserAction; userRecord: UserRecord }) => (
   <div className="text-sm text-gray-950 dark:text-white/80">
-    <Link href={`/dashboard/users/${user.id}`} className="font-bold">
-      {formatUser(user)}
+    <Link href={`/dashboard/users/${userRecord.id}`} className="font-bold">
+      {formatUserRecord(userRecord)}
     </Link>{" "}
     marked {formatUserActionStatus(item.data)} via {formatVia(item.data)}
   </div>
 );
 
-const ModerationItem = ({ item }: { item: AppealTimelineModeration; user: User }) => (
+const ModerationItem = ({ item }: { item: AppealTimelineModeration; userRecord: UserRecord }) => (
   <div className="text-sm text-gray-950 dark:text-white/80">
     {item.data.record.entity}{" "}
     <Link href={`/dashboard/records/${item.data.record.id}`} className="font-bold">
@@ -125,8 +125,8 @@ const MessageItem = ({ item }: { item: AppealTimelineMessage }) => (
 
 const TimelineItem = ({ item, appeal }: { item: AppealTimelineItem; appeal: AppealData }) => {
   if (isAction(item)) return <AppealActionItem item={item} />;
-  if (isUserAction(item)) return <UserActionItem item={item} user={appeal.userAction.user} />;
-  if (isModeration(item)) return <ModerationItem item={item} user={appeal.userAction.user} />;
+  if (isUserAction(item)) return <UserActionItem item={item} userRecord={appeal.userAction.userRecord} />;
+  if (isModeration(item)) return <ModerationItem item={item} userRecord={appeal.userAction.userRecord} />;
   if (isDeletedRecord(item)) return <DeletedRecordItem item={item} />;
   return <MessageItem item={item} />;
 };
@@ -264,11 +264,11 @@ export function Appeal({
       <div className="flex justify-between gap-4 border-b border-stone-300 p-4 dark:border-zinc-800">
         <div className="flex-1 text-gray-950 dark:text-white/80">
           <div className="text-lg">
-            <Link href={`/dashboard/users/${appeal.userAction.user.id}`} className="font-bold">
-              {formatUser(appeal.userAction.user)}
+            <Link href={`/dashboard/users/${appeal.userAction.userRecordId}`} className="font-bold">
+              {formatUserRecord(appeal.userAction.userRecord)}
             </Link>
           </div>
-          {getUserSecondaryParts(appeal.userAction.user).map((part) => (
+          {getUserRecordSecondaryParts(appeal.userAction.userRecord).map((part) => (
             <div key={part} className="text-sm">
               {part}
             </div>

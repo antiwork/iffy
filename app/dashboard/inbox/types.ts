@@ -6,16 +6,16 @@ type ModerationBase = typeof schema.moderations.$inferSelect;
 
 export type UserAction = typeof schema.userActions.$inferSelect;
 export type Record = typeof schema.records.$inferSelect;
-export type User = typeof schema.userRecords.$inferSelect;
+export type UserRecord = typeof schema.userRecords.$inferSelect;
 export type AppealAction = typeof schema.appealActions.$inferSelect;
 
 export type Message = MessageBase & {
-  from: User | null;
+  from: UserRecord | null;
 };
 
 export type Appeal = AppealBase & {
   userAction: UserAction & {
-    user: User;
+    userRecord: UserRecord;
   };
 };
 

@@ -1,6 +1,6 @@
 import * as schema from "@/db/schema";
 
-type User = typeof schema.userRecords.$inferSelect & {
+type UserRecord = typeof schema.userRecords.$inferSelect & {
   actions: (typeof schema.userActions.$inferSelect)[];
 };
 
@@ -10,4 +10,4 @@ type UserDetail = typeof schema.userRecords.$inferSelect & {
   })[];
 };
 
-export type { User, UserDetail };
+export type { UserRecord, UserDetail };

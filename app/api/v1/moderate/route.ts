@@ -4,7 +4,7 @@ import { moderateAdapter, ModerateRequestData } from "./schema";
 import * as schema from "@/db/schema";
 import { createModeration, moderate } from "@/services/moderations";
 import { createOrUpdateRecord } from "@/services/records";
-import { createOrUpdateUser } from "@/services/user-records";
+import { createOrUpdateUserRecord } from "@/services/user-records";
 import { parseRequestBody } from "@/app/api/parse";
 import { inngest } from "@/inngest/client";
 import { authenticateRequest } from "../../auth";
@@ -29,9 +29,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let user: typeof schema.userRecords.$inferSelect | undefined;
+  let userRecord: typeof schema.userRecords.$inferSelect | undefined;
   if (data.user) {
-    user = await createOrUpdateUser({
+    userRecord = await createOrUpdateUserRecord({
       clerkOrganizationId,
       clientId: data.user.clientId,
       clientUrl: data.user.clientUrl,
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     text: content.text,
     imageUrls: content.imageUrls,
     clientUrl: data.clientUrl,
-    userRecordId: user?.id,
+    userRecordId: userRecord?.id,
     metadata: data.metadata,
   });
 
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       status: result.status,
       id: record.id,
       moderation: moderation.id,
-      ...(user ? { user: user.id } : {}),
+      ...(userRecord ? { user: userRecord.id } : {}),
       message: "Success",
       // TODO(s3ththompson): deprecate
       flagged: result.status === "Flagged",

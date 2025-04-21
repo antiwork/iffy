@@ -22,18 +22,21 @@ export async function createUserAction({
   reasoning?: string;
 } & ViaWithRelations) {
   const [userAction, lastUserAction] = await db.transaction(async (tx) => {
-    const user = await tx.query.userRecords.findFirst({
-      where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, userRecordId)),
+    const userRecord = await tx.query.userRecords.findFirst({
+      where: and(
+        eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+        eq(schema.userRecords.id, userRecordId),
+      ),
       columns: {
         protected: true,
       },
     });
 
-    if (!user) {
+    if (!userRecord) {
       throw new Error("User not found");
     }
 
-    if (user.protected && status !== "Compliant") {
+    if (userRecord.protected && status !== "Compliant") {
       throw new Error("User is protected");
     }
 
@@ -78,7 +81,9 @@ export async function createUserAction({
         actionStatus: status,
         actionStatusCreatedAt: userAction.createdAt,
       })
-      .where(and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, userRecordId)));
+      .where(
+        and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, userRecordId)),
+      );
 
     return [userAction, lastUserAction];
   });
@@ -90,7 +95,7 @@ export async function createUserAction({
         data: {
           clerkOrganizationId,
           id: userAction.id,
-          userId: userRecordId,
+          userRecordId,
           status,
           lastStatus: lastUserAction?.status ?? null,
         },

@@ -86,7 +86,7 @@ export const appealRouter = router({
       with: {
         userAction: {
           with: {
-            user: true,
+            userRecord: true,
           },
         },
         messages: {

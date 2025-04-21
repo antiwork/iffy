@@ -60,7 +60,7 @@ export const BulkActionMenu = ({ records }: { records: Record[] }) => {
         await createModerationsWithIds({ status: "Compliant", reasoning: reasoning.value });
       }
       await utils.record.infinite.invalidate();
-      await utils.user.infinite.invalidate();
+      await utils.userRecord.infinite.invalidate();
     } catch (error) {
       toast({
         title: "Error",

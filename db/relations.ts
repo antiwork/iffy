@@ -31,7 +31,7 @@ export const moderationsRelations = relations(moderations, ({ one, many }) => ({
 
 export const recordsRelations = relations(records, ({ one, many }) => ({
   moderations: many(moderations),
-  user: one(userRecords, {
+  userRecord: one(userRecords, {
     fields: [records.userRecordId],
     references: [userRecords.id],
   }),
@@ -43,7 +43,7 @@ export const rulesetsRelations = relations(rulesets, ({ many }) => ({
 }));
 
 export const userActionsRelations = relations(userActions, ({ one, many }) => ({
-  user: one(userRecords, {
+  userRecord: one(userRecords, {
     fields: [userActions.userRecordId],
     references: [userRecords.id],
   }),

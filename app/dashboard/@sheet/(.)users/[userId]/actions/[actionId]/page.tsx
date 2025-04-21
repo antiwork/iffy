@@ -6,7 +6,7 @@ import { Metadata } from "next";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
-import { formatUser } from "@/lib/user";
+import { formatUserRecord } from "@/lib/user-record";
 
 export async function generateMetadata({ params }: { params: Promise<{ actionId: string }> }): Promise<Metadata> {
   const { orgId } = await authWithOrgSubscription();
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ actionId:
   const userAction = await db.query.userActions.findFirst({
     where: and(eq(schema.userActions.clerkOrganizationId, orgId), eq(schema.userActions.id, id)),
     with: {
-      user: true,
+      userRecord: true,
     },
   });
 
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ actionId:
   }
 
   return {
-    title: `${formatUser(userAction.user)} | User action | Iffy`,
+    title: `${formatUserRecord(userAction.userRecord)} | User action | Iffy`,
   };
 }
 

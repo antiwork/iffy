@@ -5,7 +5,7 @@ import { and, desc, isNull, eq } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import { mergeMetadata } from "./metadata";
 
-export async function createOrUpdateUser({
+export async function createOrUpdateUserRecord({
   clerkOrganizationId,
   clientId,
   clientUrl,
@@ -28,7 +28,10 @@ export async function createOrUpdateUser({
 }) {
   const userRecord = await db.transaction(async (tx) => {
     const lastUserRecord = await tx.query.userRecords.findFirst({
-      where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.clientId, clientId)),
+      where: and(
+        eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+        eq(schema.userRecords.clientId, clientId),
+      ),
       columns: {
         metadata: true,
       },
@@ -74,7 +77,7 @@ export async function createOrUpdateUser({
   return userRecord;
 }
 
-export async function getFlaggedRecordsFromUser({
+export async function getFlaggedRecordsFromUserRecord({
   clerkOrganizationId,
   id,
 }: {
