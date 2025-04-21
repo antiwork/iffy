@@ -33,31 +33,29 @@ export async function POST(req: NextRequest) {
 
   let userRecord: typeof schema.userRecords.$inferSelect | undefined;
   if (data.user) {
-    const { email, name, username, ...rest } = data.user;
     userRecord = await createOrUpdateUserRecord({
       clerkOrganizationId,
-      clientId: rest.clientId,
-      clientUrl: rest.clientUrl,
-      initialProtected: rest.protected,
-      stripeAccountId: rest.stripeAccountId,
-      metadata: rest.metadata,
-      ...(passthrough ? {} : { email, name, username }),
+      clientId: data.user.clientId,
+      clientUrl: data.user.clientUrl,
+      initialProtected: data.user.protected,
+      stripeAccountId: data.user.stripeAccountId,
+      metadata: data.user.metadata,
+      ...(passthrough ? {} : { email: data.user.email, name: data.user.name, username: data.user.username }),
     });
   }
 
   const content = typeof data.content === "string" ? { text: data.content } : data.content;
 
-  const { name, ...rest } = data;
   const record = await createOrUpdateRecord({
     clerkOrganizationId,
-    clientId: rest.clientId,
-    entity: rest.entity,
-    clientUrl: rest.clientUrl,
+    clientId: data.clientId,
+    entity: data.entity,
+    clientUrl: data.clientUrl,
     userRecordId: userRecord?.id,
-    metadata: rest.metadata,
+    metadata: data.metadata,
     ...(passthrough
       ? {}
-      : { name, text: content.text, imageUrls: content.imageUrls, externalUrls: content.externalUrls }),
+      : { name: data.name, text: content.text, imageUrls: content.imageUrls, externalUrls: content.externalUrls }),
   });
 
   if (record.protected) {
@@ -75,7 +73,7 @@ export async function POST(req: NextRequest) {
     recordId: record.id,
     passthroughContext: passthrough
       ? {
-          name,
+          name: data.name,
           text: content.text,
           imageUrls: content.imageUrls ?? [],
           externalUrls: content.externalUrls ?? [],
