@@ -10,7 +10,7 @@ import { authenticateRequest } from "@/app/api/auth";
 import { CreateAppealRequestData } from "./schema";
 import { parseRequestBody } from "@/app/api/parse";
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ userRecordId: string }> }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
   const [isValid, clerkOrganizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
     return NextResponse.json({ error: { message: "Appeals are not enabled" } }, { status: 400 });
   }
 
-  const { userRecordId: id } = await params;
+  const { userId: id } = await params;
 
   const { data, error } = await parseRequestBody(req, CreateAppealRequestData);
   if (error) {

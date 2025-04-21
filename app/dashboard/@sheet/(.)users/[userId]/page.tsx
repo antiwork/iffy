@@ -1,5 +1,5 @@
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
-import { UserDetail } from "@/app/dashboard/users/[userId]/user";
+import { UserRecordDetail } from "@/app/dashboard/users/[userId]/user-record";
 import { notFound, redirect } from "next/navigation";
 import { RouterSheet } from "@/components/router-sheet";
 import db from "@/db";
@@ -8,10 +8,10 @@ import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: Promise<{ userRecordId: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ userId: string }> }): Promise<Metadata> {
   const { orgId } = await authWithOrgSubscription();
 
-  const id = (await params).userRecordId;
+  const id = (await params).userId;
 
   const userRecord = await db.query.userRecords.findFirst({
     where: and(eq(schema.userRecords.clerkOrganizationId, orgId), eq(schema.userRecords.id, id)),
@@ -26,13 +26,13 @@ export async function generateMetadata({ params }: { params: Promise<{ userRecor
   };
 }
 
-export default async function Page({ params }: { params: Promise<{ userRecordId: string }> }) {
+export default async function Page({ params }: { params: Promise<{ userId: string }> }) {
   const { orgId } = await authWithOrgSubscription();
 
-  const id = (await params).userRecordId;
+  const id = (await params).userId;
   return (
     <RouterSheet title="User">
-      <UserDetail clerkOrganizationId={orgId} id={id} />
+      <UserRecordDetail clerkOrganizationId={orgId} id={id} />
     </RouterSheet>
   );
 }

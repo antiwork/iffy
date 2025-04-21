@@ -8,13 +8,13 @@ import { generateAppealToken } from "@/services/appeals";
 import { getAbsoluteUrl } from "@/lib/url";
 import { authenticateRequest } from "@/app/api/auth";
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ userRecordId: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
   const [isValid, clerkOrganizationId] = await authenticateRequest(req);
   if (!isValid) {
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { userRecordId: id } = await params;
+  const { userId: id } = await params;
 
   const userRecord = await db.query.userRecords.findFirst({
     where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, id)),

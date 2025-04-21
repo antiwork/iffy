@@ -21,7 +21,7 @@ import { notFound } from "next/navigation";
 import { parseMetadata } from "@/services/metadata";
 import { formatLink } from "@/lib/url";
 
-export async function UserDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
+export async function UserRecordDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const userRecord = await db.query.userRecords.findFirst({
     where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, id)),
     with: {
