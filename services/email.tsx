@@ -113,8 +113,13 @@ export async function sendEmail({
 }
 
 
+type SendVerificationOTPParams = {
+  email: string;
+  otp: string;
+  type: string;
+};
 
-export async function sendVerificationOTP({ email, otp, type }) {
+export async function sendVerificationOTP({ email, otp, type }: SendVerificationOTPParams) {
 
   if (type !== "sign-in") {
     console.log(`Email not sent: Type "${type}" is not supported. Only "sign-in" is allowed.`);
@@ -135,17 +140,14 @@ export async function sendVerificationOTP({ email, otp, type }) {
     </div>
   `;
 
-  // Check for Resend API key
   if (!process.env.RESEND_API_KEY) {
     console.log('Verification code:', email, subject, text);
     return;
   }
 
-  const Resend = require('resend').Resend;
   const resend = new Resend(process.env.RESEND_API_KEY);
   const fromEmail = `${process.env.RESEND_FROM_NAME} <${process.env.RESEND_FROM_EMAIL}>`;
 
-  // Log emails in non-production environments unless they're @resend.dev
   if (process.env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
     console.log('Verification code:', email, subject, text);
     return;
@@ -171,3 +173,72 @@ export async function sendVerificationOTP({ email, otp, type }) {
   }
 }
 
+type InvitationPayload = {
+  email: string
+  inviteLink: string
+  inviterName: string
+  organizationName: string
+  invitationId: string
+}
+
+export async function sendInvitation({ email, inviteLink, inviterName, organizationName, invitationId }: InvitationPayload) {
+  const subject = `${inviterName} invited you to join ${organizationName}`;
+  const acceptUrl = `${inviteLink}?action=accept&invitationId=${invitationId}`;
+  const declineUrl = `${inviteLink}?action=decline&invitationId=${invitationId}`;
+
+  const text = `
+You've been invited by ${inviterName} to join ${organizationName}.
+
+Accept: ${acceptUrl}
+Decline: ${declineUrl}
+`;
+
+  const html = `
+    <h2>You've Been Invited!</h2>
+    <p>${inviterName} has invited you to join <strong>${organizationName}</strong>.</p>
+    <p>Click a button below to respond to the invitation:</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${acceptUrl}" style="background-color: #4A5568; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+        Accept Invitation
+      </a>
+      &nbsp;&nbsp;
+      <a href="${declineUrl}" style="background-color: #E53E3E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+        Decline Invitation
+      </a>
+    </div>
+  `;
+
+  // Check for Resend API key
+  if (!process.env.RESEND_API_KEY) {
+    console.log('Invitation details:', email, subject, text);
+    return;
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const fromEmail = `${process.env.RESEND_FROM_NAME} <${process.env.RESEND_FROM_EMAIL}>`;
+
+  // Log emails in non-production environments unless they're @resend.dev
+  // if (process.env.NODE_ENV !== "production" && !email.endsWith("@resend.dev")) {
+  //   console.log('Invitation details:', email, subject, text);
+  //   return;
+  // }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: [email],
+      subject,
+      text,
+      html
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Failed to send invitation email:', error);
+    throw new Error('Failed to send invitation email');
+  }
+}

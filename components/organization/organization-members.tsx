@@ -142,16 +142,11 @@ export function OrganizationMembers() {
 
   const handleCancelInvitation = async (invitationId: string) => {
     try {
-      const invitation = organization?.invitations.find(inv => inv.id === invitationId)
+      await client.organization.cancelInvitation({
+        invitationId
+      })
 
-      if (invitation) {
-        await client.organization.removeMember({
-          memberIdOrEmail: invitation.email
-        })
-
-        // Refresh data after cancellation
-        await refreshOrganization()
-      }
+      await refreshOrganization()
     } catch (error) {
       console.error("Failed to cancel invitation:", error)
     }
@@ -189,11 +184,13 @@ export function OrganizationMembers() {
     joinedAt: new Date(member.createdAt)
   }));
 
+
+  console.log(organization.invitations)
   const invitations = organization.invitations.map(invitation => ({
     id: invitation.id,
     email: invitation.email,
     role: invitation.role,
-    sentAt: new Date(invitation.createdAt)
+    status: invitation.status,
   }));
 
   const isAdmin = currentMember?.role === "admin" || currentMember?.role === "owner";
@@ -398,7 +395,7 @@ export function OrganizationMembers() {
                       <tr className="border-b bg-muted/50 text-left">
                         <th className="px-3 py-2 font-medium">Email</th>
                         <th className="px-3 py-2 font-medium">Role</th>
-                        <th className="px-3 py-2 font-medium">Sent</th>
+                        <th className="px-3 py-2 font-medium">Status</th>
                         <th className="px-3 py-2 font-medium sr-only">Actions</th>
                       </tr>
                     </thead>
@@ -407,8 +404,8 @@ export function OrganizationMembers() {
                         <tr key={invitation.id} className="border-b">
                           <td className="px-3 py-2">{invitation.email}</td>
                           <td className="px-3 py-2 capitalize">{invitation.role}</td>
-                          <td className="px-3 py-2 text-xs text-muted-foreground">
-                            {invitation.sentAt ? format(invitation.sentAt, "MMM d, yyyy") : "N/A"}
+                          <td className="px-3 py-2 capitalize text-muted-foreground">
+                            {invitation.status}
                           </td>
                           <td className="px-3 py-2 text-right">
                             {isAdmin && (

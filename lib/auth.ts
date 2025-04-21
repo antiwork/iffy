@@ -4,7 +4,7 @@ import { organization as authPluginOrg, magicLink, emailOTP } from "better-auth/
 import { organization, user, session, account, verification, member, invitation } from "@/db/auth-schema"
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import db from "@/db";
-import { sendVerificationOTP } from "@/services/email"
+import { sendVerificationOTP, sendInvitation } from "@/services/email"
 
 
 const emailAuthConfig = emailOTP({
@@ -14,7 +14,19 @@ const emailAuthConfig = emailOTP({
   }
 })
 
-const organizationAuthConfig = authPluginOrg()
+const organizationAuthConfig = authPluginOrg({
+  async sendInvitationEmail(data) {
+    const inviteLink = `https://localhost:3000/api/invitations`
+    sendInvitation({
+      email: data.email,
+      inviterName: data.inviter.user.name,
+      organizationName: data.organization.name,
+      inviteLink,
+      invitationId: data.id
+    }
+    )
+  }
+})
 
 const nextCookiesAuthConfig = nextCookies()
 
