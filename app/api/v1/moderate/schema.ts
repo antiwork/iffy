@@ -33,6 +33,7 @@ export const ModerateRequestData = z
         metadata: MetadataSchema.optional(),
       })
       .optional(),
+    passthrough: z.boolean().optional().default(false),
   })
   .strict();
 

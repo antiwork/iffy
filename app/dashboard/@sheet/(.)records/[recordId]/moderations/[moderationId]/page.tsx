@@ -1,11 +1,12 @@
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { ModerationDetail } from "@/app/dashboard/records/[recordId]/moderations/[moderationId]/moderation";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { RouterSheet } from "@/components/router-sheet";
 import { Metadata } from "next";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { formatRecord } from "@/lib/record";
 
 export async function generateMetadata({ params }: { params: Promise<{ moderationId: string }> }): Promise<Metadata> {
   const { orgId } = await authWithOrgSubscription();
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ moderatio
   }
 
   return {
-    title: `${moderation.record.name} | Moderation | Iffy`,
+    title: `${formatRecord(moderation.record)} | Moderation | Iffy`,
   };
 }
 

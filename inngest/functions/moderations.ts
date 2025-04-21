@@ -152,7 +152,7 @@ const sendModerationWebhook = inngest.createFunction(
             id: record.id,
             clientId: record.clientId,
             clientUrl: record.clientUrl ?? undefined,
-            name: record.name,
+            name: record.name ?? undefined,
             entity: record.entity,
             protected: record.protected,
             metadata: record.metadata ? parseMetadata(record.metadata) : undefined,

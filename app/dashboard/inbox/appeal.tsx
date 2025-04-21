@@ -49,6 +49,7 @@ import { createAppealAction } from "./actions";
 import { trpc } from "@/lib/trpc";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { formatRecord } from "@/lib/record";
 
 function makeAppealTimeline(
   actions: AppealAction[],
@@ -92,7 +93,7 @@ const ModerationItem = ({ item }: { item: AppealTimelineModeration; userRecord: 
   <div className="text-sm text-gray-950 dark:text-white/80">
     {item.data.record.entity}{" "}
     <Link href={`/dashboard/records/${item.data.record.id}`} className="font-bold">
-      {item.data.record.name}
+      {formatRecord(item.data.record)}
     </Link>{" "}
     marked {formatModerationStatus(item.data)} via {formatVia(item.data)}
   </div>

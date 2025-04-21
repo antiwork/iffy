@@ -11,6 +11,7 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { FlaskConical } from "lucide-react";
 import { Date } from "@/components/date";
 import { ActionMenu } from "../../records/action-menu";
+import { formatRecord } from "@/lib/record";
 
 export function RecordsTable({
   clerkOrganizationId,
@@ -85,7 +86,7 @@ export function RecordsTable({
                           variant="link"
                           className="text-md -mx-4 -my-2 block w-full truncate font-normal"
                         >
-                          <Link href={`/dashboard/records/${record.id}`}>{record.name}</Link>
+                          <Link href={`/dashboard/records/${record.id}`}>{formatRecord(record)}</Link>
                         </Button>
                         {record.moderations[0]?.testMode && (
                           <TooltipProvider>

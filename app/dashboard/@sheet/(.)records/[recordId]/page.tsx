@@ -7,6 +7,7 @@ import { and, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
+import { formatRecord } from "@/lib/record";
 
 export async function generateMetadata({ params }: { params: Promise<{ recordId: string }> }): Promise<Metadata> {
   const { orgId } = await authWithOrgSubscription();
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ recordId:
   }
 
   return {
-    title: `Record ${record.name} (${record.entity}) | Iffy`,
+    title: `Record ${formatRecord(record)} (${record.entity}) | Iffy`,
   };
 }
 

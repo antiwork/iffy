@@ -6,6 +6,7 @@ import * as schema from "@/db/schema";
 import { ViaWithRelations } from "@/lib/types";
 import { makeStrategyInstance } from "@/strategies";
 import type { StrategyInstance } from "@/strategies/types";
+import { isRecordWithContent, RecordWithContent } from "@/lib/record";
 
 type ModerationStatus = (typeof schema.moderationStatus.enumValues)[number];
 
@@ -19,8 +20,7 @@ export interface LinkData {
 
 export interface Context {
   clerkOrganizationId: string;
-  record: typeof schema.records.$inferSelect;
-  user?: typeof schema.userRecords.$inferSelect;
+  record: RecordWithContent;
   externalLinks: LinkData[];
   tokens: number;
   lastManualModeration?: typeof schema.moderations.$inferSelect;
@@ -386,11 +386,18 @@ type ModerationResult = {
 export const moderate = async ({
   clerkOrganizationId,
   recordId,
+  passthroughContext,
 }: {
   clerkOrganizationId: string;
   recordId: string;
+  passthroughContext?: {
+    name: string;
+    text: string;
+    imageUrls: string[];
+    externalUrls: string[];
+  };
 }): Promise<ModerationResult> => {
-  const record = await db.query.records.findFirst({
+  let record = await db.query.records.findFirst({
     where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
     with: {
       moderations: {
@@ -426,6 +433,17 @@ export const moderate = async ({
       strategies: true,
     },
   });
+
+  if (passthroughContext) {
+    record = {
+      ...record,
+      ...passthroughContext,
+    };
+  }
+
+  if (!isRecordWithContent(record)) {
+    throw new Error("Record name and text are required to moderate");
+  }
 
   const context: Context = {
     clerkOrganizationId,

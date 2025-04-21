@@ -20,6 +20,7 @@ import * as schema from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import db from "@/db";
 import { parseMetadata } from "@/services/metadata";
+import { formatRecord } from "@/lib/record";
 
 export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const record = await db.query.records.findFirst({
@@ -53,7 +54,7 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
     <div>
       <Header>
         <HeaderContent>
-          <HeaderPrimary className={cn(record.deletedAt && "line-through")}>{record.name}</HeaderPrimary>
+          <HeaderPrimary className={cn(record.deletedAt && "line-through")}>{formatRecord(record)}</HeaderPrimary>
           <HeaderSecondary>{record.entity}</HeaderSecondary>
         </HeaderContent>
         <HeaderActions className="flex items-center gap-4">
@@ -188,29 +189,33 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
         </>
       )}
       <Separator className="my-2" />
-      <Section>
-        <SectionTitle>Content</SectionTitle>
-        <SectionContent className="grid gap-3">
-          <dl className="grid gap-3">
-            {record.externalUrls && record.externalUrls.length > 0 && (
-              <div className="grid grid-cols-2 gap-4">
-                <dt className="text-stone-500 dark:text-zinc-500">External Links</dt>
-                <dd>
-                  {record.externalUrls.map((url, index) => (
-                    <Button key={index} asChild variant="link" className="text-md -mx-4 -my-2 font-normal">
-                      <Link href={url} target="_blank" rel="noopener noreferrer">
-                        {formatLink(url)} <ExternalLink className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  ))}
-                </dd>
-              </div>
-            )}
-          </dl>
-          <Code>{record.text}</Code>
-          {record.imageUrls.length > 0 ? <RecordImages imageUrls={record.imageUrls} /> : null}
-        </SectionContent>
-      </Section>
+      {record.externalUrls.length > 0 ||
+        record.text ||
+        (record.imageUrls.length > 0 && (
+          <Section>
+            <SectionTitle>Content</SectionTitle>
+            <SectionContent className="grid gap-3">
+              <dl className="grid gap-3">
+                {record.externalUrls.length > 0 && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <dt className="text-stone-500 dark:text-zinc-500">External Links</dt>
+                    <dd>
+                      {record.externalUrls.map((url, index) => (
+                        <Button key={index} asChild variant="link" className="text-md -mx-4 -my-2 font-normal">
+                          <Link href={url} target="_blank" rel="noopener noreferrer">
+                            {formatLink(url)} <ExternalLink className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      ))}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+              {record.text && <Code>{record.text}</Code>}
+              {record.imageUrls.length > 0 ? <RecordImages imageUrls={record.imageUrls} /> : null}
+            </SectionContent>
+          </Section>
+        ))}
       {record.moderations.length > 0 && (
         <>
           <Separator className="my-2" />

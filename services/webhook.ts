@@ -21,7 +21,7 @@ type PublicRecord = {
   id: string;
   clientId: string;
   clientUrl?: string;
-  name: string;
+  name?: string;
   entity: string;
   protected: boolean;
   metadata?: Record<string, string>;

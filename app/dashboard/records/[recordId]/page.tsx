@@ -1,10 +1,11 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { RecordDetail } from "./record";
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { Metadata } from "next";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { formatRecord } from "@/lib/record";
 
 export async function generateMetadata({ params }: { params: Promise<{ recordId: string }> }): Promise<Metadata> {
   const { orgId } = await authWithOrgSubscription();
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ recordId:
   }
 
   return {
-    title: `${record.name} (${record.entity}) | Iffy`,
+    title: `${formatRecord(record)} (${record.entity}) | Iffy`,
   };
 }
 

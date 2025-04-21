@@ -17,6 +17,7 @@ import { trpc } from "@/lib/trpc";
 import * as schema from "@/db/schema";
 import { createModerations, moderateMany, setRecordProtectedMany } from "./actions";
 import { toast } from "@/hooks/use-toast";
+import { isRecordWithContent } from "@/lib/record";
 
 type Record = typeof schema.records.$inferSelect;
 
@@ -42,7 +43,10 @@ export const BulkActionMenu = ({ records }: { records: Record[] }) => {
   const hideFlag = records.length === 1 && records[0]?.moderationStatus === "Flagged";
   const hideUnflag = records.length === 1 && records[0]?.moderationStatus === "Compliant";
 
-  const disableRemoderateAndFlag = records.length === 1 && records[0]?.protected;
+  const disableRemoderate =
+    (records.length === 1 && records[0]?.protected) ||
+    (records.length === 1 && records[0] && !isRecordWithContent(records[0]));
+  const disableFlag = records.length === 1 && records[0]?.protected;
 
   const hideProtect = records.length === 1 && records[0]?.protected;
   const hideUnprotect = records.length === 1 && !records[0]?.protected;
@@ -102,7 +106,7 @@ export const BulkActionMenu = ({ records }: { records: Record[] }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
-            disabled={disableRemoderateAndFlag}
+            disabled={disableRemoderate}
             onClick={async (event) => {
               try {
                 event.stopPropagation();
@@ -132,7 +136,7 @@ export const BulkActionMenu = ({ records }: { records: Record[] }) => {
           )}
           {!hideFlag && (
             <DropdownMenuItem
-              disabled={disableRemoderateAndFlag}
+              disabled={disableFlag}
               onClick={(event) => {
                 event.stopPropagation();
                 setActionType("flag");

@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { formatRecordStatus, formatUserActionStatus } from "@/lib/badges";
 import { desc, eq, and, isNull } from "drizzle-orm";
+import { formatRecord } from "@/lib/record";
 
 // Ensure page is never cached
 export const dynamic = "force-dynamic";
@@ -135,7 +136,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
                 return (
                   <TableRow key={record.id}>
                     <TableCell>
-                      <div className="font-medium">{record.name}</div>
+                      <div className="font-medium">{formatRecord(record)}</div>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <Badge variant="secondary">

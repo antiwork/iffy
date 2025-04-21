@@ -11,8 +11,8 @@ export async function createOrUpdateRecord({
   name,
   entity,
   text,
-  imageUrls,
-  externalUrls,
+  imageUrls = [],
+  externalUrls = [],
   clientUrl,
   userRecordId,
   createdAt,
@@ -22,9 +22,9 @@ export async function createOrUpdateRecord({
   clerkOrganizationId: string;
   clientId: string;
   clientUrl?: string;
-  name: string;
+  name?: string;
   entity: string;
-  text: string;
+  text?: string;
   imageUrls?: string[];
   externalUrls?: string[];
   userRecordId?: string;

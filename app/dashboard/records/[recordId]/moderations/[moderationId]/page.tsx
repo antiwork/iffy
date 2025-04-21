@@ -5,6 +5,7 @@ import { ModerationDetail } from "./moderation";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { formatRecord } from "@/lib/record";
 
 export async function generateMetadata({ params }: { params: Promise<{ moderationId: string }> }): Promise<Metadata> {
   const { orgId } = await authWithOrgSubscription();
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ moderatio
   }
 
   return {
-    title: `${moderation.record.name} | Moderation | Iffy`,
+    title: `${formatRecord(moderation.record)} | Moderation | Iffy`,
   };
 }
 

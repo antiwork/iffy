@@ -11,6 +11,7 @@ import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import db from "@/db";
 import { notFound } from "next/navigation";
+import { formatRecord } from "@/lib/record";
 
 export async function ModerationDetail({ clerkOrganizationId, id }: { clerkOrganizationId: string; id: string }) {
   const moderation = await db.query.moderations.findFirst({
@@ -41,7 +42,7 @@ export async function ModerationDetail({ clerkOrganizationId, id }: { clerkOrgan
         <HeaderContent>
           <HeaderPrimary>
             <Link href={`/dashboard/records/${moderation.record.id}`} className="hover:underline">
-              {moderation.record.name}
+              {formatRecord(moderation.record)}
             </Link>
           </HeaderPrimary>
           <HeaderSecondary>{moderation.record.entity}</HeaderSecondary>
