@@ -4,7 +4,7 @@ import { DateFull } from "@/components/date";
 import { Header, HeaderContent, HeaderPrimary, HeaderSecondary } from "@/components/sheet/header";
 import { Section, SectionContent, SectionTitle } from "@/components/sheet/section";
 import Link from "next/link";
-import { formatUser, getUserSecondaryParts } from "@/lib/user";
+import { formatUserRecord, getUserRecordSecondaryParts } from "@/lib/user-record";
 import { Button } from "@/components/ui/button";
 
 import * as schema from "@/db/schema";
@@ -18,7 +18,7 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
   const userAction = await db.query.userActions.findFirst({
     where: and(eq(schema.userActions.clerkOrganizationId, clerkOrganizationId), eq(schema.userActions.id, id)),
     with: {
-      user: true,
+      userRecord: true,
       appeal: true,
     },
   });
@@ -35,12 +35,12 @@ export async function UserActionDetail({ clerkOrganizationId, id }: { clerkOrgan
       <Header>
         <HeaderContent>
           <HeaderPrimary>
-            <Link href={`/dashboard/users/${userAction.user.id}`} className="hover:underline">
-              {formatUser(userAction.user)}
+            <Link href={`/dashboard/users/${userAction.userRecord.id}`} className="hover:underline">
+              {formatUserRecord(userAction.userRecord)}
             </Link>
           </HeaderPrimary>
           <HeaderSecondary>
-            {getUserSecondaryParts(userAction.user).map((part) => (
+            {getUserRecordSecondaryParts(userAction.userRecord).map((part) => (
               <div key={part}>{part}</div>
             ))}
           </HeaderSecondary>

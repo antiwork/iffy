@@ -5,7 +5,7 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { createPendingModeration } from "@/services/moderations";
-import { createOrUpdateUser } from "@/services/users";
+import { createOrUpdateUserRecord } from "@/services/user-records";
 import { createOrUpdateRecord, deleteRecord } from "@/services/records";
 import { inngest } from "@/inngest/client";
 import { parseRequestBody } from "@/app/api/parse";
@@ -32,9 +32,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let user: typeof schema.users.$inferSelect | undefined;
+  let userRecord: typeof schema.userRecords.$inferSelect | undefined;
   if (data.user) {
-    user = await createOrUpdateUser({
+    userRecord = await createOrUpdateUserRecord({
       clerkOrganizationId,
       clientId: data.user.clientId,
       clientUrl: data.user.clientUrl,
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     imageUrls: content.imageUrls,
     externalUrls: content.externalUrls,
     clientUrl: data.clientUrl,
-    userId: user?.id,
+    userRecordId: userRecord?.id,
     metadata: data.metadata,
   });
 
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
   }
 
   // always moderate records of suspended users
-  if (user && user.actionStatus === "Suspended") {
+  if (userRecord && userRecord.actionStatus === "Suspended") {
     moderationThreshold = true;
   }
 
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
     {
       id: record.id,
       moderation: pendingModeration?.id ?? null,
-      ...(user ? { user: user.id } : {}),
+      ...(userRecord ? { user: userRecord.id } : {}),
       message: "Success",
     },
     { status: 200 },

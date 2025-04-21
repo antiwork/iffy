@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
 import { formatAppealStatus } from "@/lib/badges";
-import { formatUserCompact } from "@/lib/user";
+import { formatUserRecordCompact } from "@/lib/user-record";
 
 export function AppealList({ items }: { items: AppealWithMessages[] }) {
   const router = useRouter();
@@ -29,7 +29,7 @@ export function AppealList({ items }: { items: AppealWithMessages[] }) {
             >
               <div className="flex justify-between gap-2">
                 <div className="flex flex-1 flex-col gap-2">
-                  <div className="font-semibold">{formatUserCompact(item.userAction.user)}</div>
+                  <div className="font-semibold">{formatUserRecordCompact(item.userAction.userRecord)}</div>
                   <div
                     className={cn(
                       "text-xs",

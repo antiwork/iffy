@@ -7,8 +7,8 @@ import sample from "lodash/sample";
 import { createMessage } from "@/services/messages";
 
 export async function seedUserActions(clerkOrganizationId: string) {
-  const users = await db.query.users.findMany({
-    where: eq(schema.users.clerkOrganizationId, clerkOrganizationId),
+  const userRecords = await db.query.userRecords.findMany({
+    where: eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
     with: {
       records: true,
     },
@@ -17,16 +17,20 @@ export async function seedUserActions(clerkOrganizationId: string) {
   const userActions = await db
     .insert(schema.userActions)
     .values(
-      users.map((user) => {
-        const isFlagged = user.records.some((record) => record.moderationStatus === "Flagged");
-        const status = isFlagged && !user.protected ? sample(["Suspended", "Banned"] as const) : "Compliant";
-        return {
-          clerkOrganizationId,
-          userId: user.id,
-          status,
-          createdAt: user.createdAt,
-        } as const;
-      }),
+      userRecords.map(
+        (userRecord: typeof schema.userRecords.$inferSelect & { records: (typeof schema.records.$inferSelect)[] }) => {
+          const isFlagged = userRecord.records.some(
+            (record: typeof schema.records.$inferSelect) => record.moderationStatus === "Flagged",
+          );
+          const status = isFlagged && !userRecord.protected ? sample(["Suspended", "Banned"] as const) : "Compliant";
+          return {
+            clerkOrganizationId,
+            userRecordId: userRecord.id,
+            status,
+            createdAt: userRecord.createdAt,
+          } as const;
+        },
+      ),
     )
     .returning();
 
@@ -37,19 +41,19 @@ export async function seedUserActions(clerkOrganizationId: string) {
 
   for (const userAction of userActions) {
     await db
-      .update(schema.users)
+      .update(schema.userRecords)
       .set({
         actionStatus: userAction.status,
         actionStatusCreatedAt: userAction.createdAt,
       })
-      .where(eq(schema.users.id, userAction.userId));
+      .where(eq(schema.userRecords.id, userAction.userRecordId));
 
     if (userAction.status === "Suspended") {
       await createMessage({
         clerkOrganizationId,
         userActionId: userAction.id,
         type: "Outbound",
-        toId: userAction.userId,
+        toId: userAction.userRecordId,
         subject,
         text: body,
       });

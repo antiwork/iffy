@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { Appeal } from "../appeal";
 import { subDays } from "date-fns";
 import { and, desc, eq, gte, inArray } from "drizzle-orm";
-import { formatUserCompact } from "@/lib/user";
+import { formatUserRecordCompact } from "@/lib/user-record";
 
 const HISTORY_DAYS = 7;
 
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ appealId:
     with: {
       userAction: {
         with: {
-          user: true,
+          userRecord: true,
         },
       },
     },
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ appealId:
   }
 
   return {
-    title: `Appeal from ${formatUserCompact(appeal.userAction.user)} | Iffy`,
+    title: `Appeal from ${formatUserRecordCompact(appeal.userAction.userRecord)} | Iffy`,
   };
 }
 
@@ -44,7 +44,7 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
     with: {
       userAction: {
         with: {
-          user: true,
+          userRecord: true,
         },
       },
       actions: {
@@ -65,10 +65,10 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
 
   const { messages, actions, ...appeal } = appealWithMessages;
 
-  const userId = appeal.userAction.user.id;
+  const userRecordId = appeal.userAction.userRecord.id;
 
   const records = await db.query.records.findMany({
-    where: and(eq(schema.records.clerkOrganizationId, orgId), eq(schema.records.userId, userId)),
+    where: and(eq(schema.records.clerkOrganizationId, orgId), eq(schema.records.userRecordId, userRecordId)),
   });
 
   const moderations = await db.query.moderations.findMany({
@@ -89,7 +89,7 @@ export default async function Page({ params }: { params: Promise<{ appealId: str
   const userActions = await db.query.userActions.findMany({
     where: and(
       eq(schema.userActions.clerkOrganizationId, orgId),
-      eq(schema.userActions.userId, userId),
+      eq(schema.userActions.userRecordId, userRecordId),
       gte(schema.userActions.createdAt, subDays(appeal.createdAt, HISTORY_DAYS)),
     ),
     orderBy: [desc(schema.userActions.createdAt)],

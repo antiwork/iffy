@@ -1,7 +1,7 @@
 import { sendWebhook } from "@/services/webhook";
 import { inngest } from "@/inngest/client";
 import db from "@/db";
-import { getFlaggedRecordsFromUser } from "@/services/users";
+import { getFlaggedRecordsFromUserRecord } from "@/services/user-records";
 import { updatePendingModeration } from "@/services/moderations";
 import { createUserAction } from "@/services/user-actions";
 import * as schema from "@/db/schema";
@@ -31,8 +31,8 @@ const moderate = inngest.createFunction(
   },
 );
 
-const updateUserAfterModeration = inngest.createFunction(
-  { id: "update-user-after-moderation" },
+const updateUserRecordAfterModeration = inngest.createFunction(
+  { id: "update-user-record-after-moderation" },
   { event: "moderation/status-changed" },
   async ({ event, step }) => {
     const { clerkOrganizationId, recordId, status } = event.data;
@@ -41,7 +41,7 @@ const updateUserAfterModeration = inngest.createFunction(
       const result = await db.query.records.findFirst({
         where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
         with: {
-          user: true,
+          userRecord: true,
         },
       });
 
@@ -51,13 +51,13 @@ const updateUserAfterModeration = inngest.createFunction(
       return result;
     });
 
-    const user = record.user;
-    if (!user) {
+    const userRecord = record.userRecord;
+    if (!userRecord) {
       return;
     }
 
     const flaggedRecords = await step.run("fetch-user-flagged-records", async () => {
-      return await getFlaggedRecordsFromUser({ clerkOrganizationId, id: user.id });
+      return await getFlaggedRecordsFromUserRecord({ clerkOrganizationId, id: userRecord.id });
     });
 
     const organization = await step.run("fetch-organization", async () => {
@@ -72,8 +72,8 @@ const updateUserAfterModeration = inngest.createFunction(
 
     if (
       status === "Flagged" &&
-      (!user.actionStatus || user.actionStatus === "Compliant") &&
-      !user.protected &&
+      (!userRecord.actionStatus || userRecord.actionStatus === "Compliant") &&
+      !userRecord.protected &&
       flaggedRecords.length >= organization.suspensionThreshold
     ) {
       actionStatus = "Suspended";
@@ -83,7 +83,7 @@ const updateUserAfterModeration = inngest.createFunction(
     if (
       status === "Compliant" &&
       flaggedRecords.length < organization.suspensionThreshold &&
-      user.actionStatus === "Suspended"
+      userRecord.actionStatus === "Suspended"
     ) {
       actionStatus = "Compliant";
       actionVia = { via: "Automation All Compliant" };
@@ -96,7 +96,7 @@ const updateUserAfterModeration = inngest.createFunction(
     await step.run("create-user-action", async () => {
       return await createUserAction({
         clerkOrganizationId,
-        userId: user.id,
+        userRecordId: userRecord.id,
         status: actionStatus,
         ...actionVia,
       });
@@ -124,7 +124,7 @@ const sendModerationWebhook = inngest.createFunction(
       const result = await db.query.records.findFirst({
         where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
         with: {
-          user: true,
+          userRecord: true,
         },
       });
 
@@ -134,7 +134,7 @@ const sendModerationWebhook = inngest.createFunction(
       return result;
     });
 
-    const user = record.user;
+    const userRecord = record.userRecord;
 
     await step.run("send-webhook", async () => {
       const webhook = await db.query.webhookEndpoints.findFirst({
@@ -159,16 +159,16 @@ const sendModerationWebhook = inngest.createFunction(
             status: moderation.status,
             statusUpdatedAt: new Date(moderation.updatedAt).getTime().toString(),
             statusUpdatedVia: moderation.via,
-            user: user
+            user: userRecord
               ? {
-                  id: user.id,
-                  clientId: user.clientId,
-                  clientUrl: user.clientUrl ?? undefined,
-                  protected: user.protected,
-                  metadata: user.metadata ? parseMetadata(user.metadata) : undefined,
-                  status: user.actionStatus ?? undefined,
-                  statusUpdatedAt: user.actionStatusCreatedAt
-                    ? new Date(user.actionStatusCreatedAt).getTime().toString()
+                  id: userRecord.id,
+                  clientId: userRecord.clientId,
+                  clientUrl: userRecord.clientUrl ?? undefined,
+                  protected: userRecord.protected,
+                  metadata: userRecord.metadata ? parseMetadata(userRecord.metadata) : undefined,
+                  status: userRecord.actionStatus ?? undefined,
+                  statusUpdatedAt: userRecord.actionStatusCreatedAt
+                    ? new Date(userRecord.actionStatusCreatedAt).getTime().toString()
                     : undefined,
                 }
               : undefined,
@@ -191,4 +191,4 @@ const recordModerationUsage = inngest.createFunction(
   },
 );
 
-export default [moderate, updateUserAfterModeration, sendModerationWebhook, recordModerationUsage];
+export default [moderate, updateUserRecordAfterModeration, sendModerationWebhook, recordModerationUsage];

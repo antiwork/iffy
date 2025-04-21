@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { IngestUserRequestData } from "./schema";
 import { parseRequestBody } from "@/app/api/parse";
-import { createOrUpdateUser } from "@/services/users";
+import { createOrUpdateUserRecord } from "@/services/user-records";
 import { authenticateRequest } from "@/app/api/auth";
 
 export async function POST(req: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const user = await createOrUpdateUser({
+  const userRecord = await createOrUpdateUserRecord({
     clerkOrganizationId,
     clientId: data.clientId,
     clientUrl: data.clientUrl,
@@ -27,5 +27,5 @@ export async function POST(req: NextRequest) {
     metadata: data.metadata,
   });
 
-  return NextResponse.json({ id: user.id, message: "Success" }, { status: 200 });
+  return NextResponse.json({ id: userRecord.id, message: "Success" }, { status: 200 });
 }

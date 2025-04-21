@@ -64,11 +64,11 @@ export async function renderEmailTemplate<T extends EmailTemplateType>({
 
 export async function sendEmail({
   clerkOrganizationId,
-  userId,
+  userRecordId: userId,
   ...payload
 }: {
   clerkOrganizationId: string;
-  userId: string;
+  userRecordId: string;
 } & CreateEmailOptions) {
   const { emailsEnabled } = await findOrCreateOrganization(clerkOrganizationId);
 
@@ -79,15 +79,16 @@ export async function sendEmail({
 
   const resend = new Resend(env.RESEND_API_KEY);
 
-  const user = await db.query.users.findFirst({
-    where: (users, { and, eq }) => and(eq(users.clerkOrganizationId, clerkOrganizationId), eq(users.id, userId)),
+  const userRecord = await db.query.userRecords.findFirst({
+    where: (userRecords, { and, eq }) =>
+      and(eq(userRecords.clerkOrganizationId, clerkOrganizationId), eq(userRecords.id, userId)),
   });
 
-  if (!user) {
+  if (!userRecord) {
     throw new Error("User not found");
   }
 
-  const email = user.email;
+  const email = userRecord.email;
   if (!email) {
     throw new Error("User has no email");
   }

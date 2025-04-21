@@ -1,5 +1,5 @@
 {
-  "id": "7d6dbea5-310c-4400-b1b6-c1bae67bbfbf",
+  "id": "8efc7458-a5ef-43dc-9447-7abcc25bcfd6",
   "prevId": "f1aef8aa-a44a-4772-82dd-7fc63ae013aa",
   "version": "7",
   "dialect": "postgresql",
@@ -527,7 +527,7 @@
         "messages_from_id_fkey": {
           "name": "messages_from_id_fkey",
           "tableFrom": "messages",
-          "tableTo": "users",
+          "tableTo": "user_records",
           "columnsFrom": [
             "from_id"
           ],
@@ -553,7 +553,7 @@
         "messages_to_id_fkey": {
           "name": "messages_to_id_fkey",
           "tableFrom": "messages",
-          "tableTo": "users",
+          "tableTo": "user_records",
           "columnsFrom": [
             "to_id"
           ],
@@ -1112,8 +1112,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "user_id": {
-          "name": "user_id",
+        "user_record_id": {
+          "name": "user_record_id",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -1204,11 +1204,11 @@
           "method": "btree",
           "with": {}
         },
-        "records_user_id_idx": {
-          "name": "records_user_id_idx",
+        "records_user_record_id_idx": {
+          "name": "records_user_record_id_idx",
           "columns": [
             {
-              "expression": "user_id",
+              "expression": "user_record_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last",
@@ -1238,12 +1238,12 @@
         }
       },
       "foreignKeys": {
-        "records_user_id_fkey": {
-          "name": "records_user_id_fkey",
+        "records_user_record_id_fkey": {
+          "name": "records_user_record_id_fkey",
           "tableFrom": "records",
-          "tableTo": "users",
+          "tableTo": "user_records",
           "columnsFrom": [
-            "user_id"
+            "user_record_id"
           ],
           "columnsTo": [
             "id"
@@ -1480,122 +1480,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.slack_inboxes": {
-      "name": "slack_inboxes",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "clerk_organization_id": {
-          "name": "clerk_organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "slack_team_id": {
-          "name": "slack_team_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "slack_team_name": {
-          "name": "slack_team_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "channel_id": {
-          "name": "channel_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "inbox_name": {
-          "name": "inbox_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "bot_user_id": {
-          "name": "bot_user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "inbox_access_token": {
-          "name": "inbox_access_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp (3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "slack_inboxes_clerk_organization_id_idx": {
-          "name": "slack_inboxes_clerk_organization_id_idx",
-          "columns": [
-            {
-              "expression": "clerk_organization_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "slack_inboxes_channel_id_idx": {
-          "name": "slack_inboxes_channel_id_idx",
-          "columns": [
-            {
-              "expression": "channel_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "slack_inboxes_pkey": {
-          "name": "slack_inboxes_pkey",
-          "columns": [
-            "clerk_organization_id",
-            "channel_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.subscriptions": {
       "name": "subscriptions",
       "schema": "",
@@ -1674,8 +1558,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
+        "user_record_id": {
+          "name": "user_record_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -1728,11 +1612,11 @@
         }
       },
       "indexes": {
-        "user_actions_user_id_idx": {
-          "name": "user_actions_user_id_idx",
+        "user_actions_user_record_id_idx": {
+          "name": "user_actions_user_record_id_idx",
           "columns": [
             {
-              "expression": "user_id",
+              "expression": "user_record_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last",
@@ -1772,12 +1656,12 @@
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
-        "user_actions_user_id_fkey": {
-          "name": "user_actions_user_id_fkey",
+        "user_actions_user_record_id_fkey": {
+          "name": "user_actions_user_record_id_fkey",
           "tableFrom": "user_actions",
-          "tableTo": "users",
+          "tableTo": "user_records",
           "columnsFrom": [
-            "user_id"
+            "user_record_id"
           ],
           "columnsTo": [
             "id"
@@ -1792,8 +1676,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.users": {
-      "name": "users",
+    "public.user_records": {
+      "name": "user_records",
       "schema": "",
       "columns": {
         "id": {
@@ -1951,15 +1835,15 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_client_id_unique": {
-          "name": "users_client_id_unique",
+        "user_records_client_id_unique": {
+          "name": "user_records_client_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "client_id"
           ]
         },
-        "users_sort_unique": {
-          "name": "users_sort_unique",
+        "user_records_sort_unique": {
+          "name": "user_records_sort_unique",
           "nullsNotDistinct": false,
           "columns": [
             "sort"

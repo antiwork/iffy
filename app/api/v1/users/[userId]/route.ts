@@ -16,8 +16,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
 
   const { userId: id } = await params;
 
-  const user = await db.query.users.findFirst({
-    where: and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, id)),
+  const userRecord = await db.query.userRecords.findFirst({
+    where: and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, id)),
     columns: {
       id: true,
       clientId: true,
@@ -34,16 +34,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
     },
   });
 
-  if (!user) {
+  if (!userRecord) {
     return NextResponse.json({ error: { message: "User not found" } }, { status: 404 });
   }
 
   const organization = await findOrCreateOrganization(clerkOrganizationId);
 
   const appealUrl =
-    organization.appealsEnabled && user.actionStatus === "Suspended"
-      ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(user.id)}`)
+    organization.appealsEnabled && userRecord.actionStatus === "Suspended"
+      ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(userRecord.id)}`)
       : null;
 
-  return NextResponse.json({ data: { ...user, appealUrl } });
+  return NextResponse.json({ data: { ...userRecord, appealUrl } });
 }

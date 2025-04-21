@@ -12,13 +12,19 @@ import { FlaskConical } from "lucide-react";
 import { Date } from "@/components/date";
 import { ActionMenu } from "../../records/action-menu";
 
-export function RecordsTable({ clerkOrganizationId, userId }: { clerkOrganizationId: string; userId: string }) {
+export function RecordsTable({
+  clerkOrganizationId,
+  userRecordId,
+}: {
+  clerkOrganizationId: string;
+  userRecordId: string;
+}) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = trpc.record.infinite.useInfiniteQuery(
     {
       clerkOrganizationId,
-      userId,
+      userRecordId,
       sorting: [
         { id: "moderationStatus", desc: true },
         { id: "createdAt", desc: true },

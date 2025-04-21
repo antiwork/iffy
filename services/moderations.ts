@@ -20,7 +20,7 @@ export interface LinkData {
 export interface Context {
   clerkOrganizationId: string;
   record: typeof schema.records.$inferSelect;
-  user?: typeof schema.users.$inferSelect;
+  user?: typeof schema.userRecords.$inferSelect;
   externalLinks: LinkData[];
   tokens: number;
   lastManualModeration?: typeof schema.moderations.$inferSelect;
@@ -59,7 +59,7 @@ export async function createModeration({
     const record = await tx.query.records.findFirst({
       where: and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)),
       columns: {
-        userId: true,
+        userRecordId: true,
         moderationStatus: true,
         protected: true,
       },
@@ -114,22 +114,32 @@ export async function createModeration({
       .where(and(eq(schema.records.clerkOrganizationId, clerkOrganizationId), eq(schema.records.id, recordId)));
 
     if (status !== lastStatus) {
-      if (record.userId) {
+      if (record.userRecordId) {
         if (status === "Flagged") {
           await tx
-            .update(schema.users)
+            .update(schema.userRecords)
             .set({
-              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} + 1`,
+              flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} + 1`,
             })
-            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+            .where(
+              and(
+                eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
         if (lastStatus === "Flagged" && status !== "Flagged") {
           await tx
-            .update(schema.users)
+            .update(schema.userRecords)
             .set({
-              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
+              flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} - 1`,
             })
-            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+            .where(
+              and(
+                eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
       }
     }
@@ -311,22 +321,32 @@ export async function updatePendingModeration({
       );
 
     if (statusChanged) {
-      if (record.userId) {
+      if (record.userRecordId) {
         if (status === "Flagged") {
           await tx
-            .update(schema.users)
+            .update(schema.userRecords)
             .set({
-              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} + 1`,
+              flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} + 1`,
             })
-            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+            .where(
+              and(
+                eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
         if (lastStatus === "Flagged" && status !== "Flagged") {
           await tx
-            .update(schema.users)
+            .update(schema.userRecords)
             .set({
-              flaggedRecordsCount: sql`${schema.users.flaggedRecordsCount} - 1`,
+              flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} - 1`,
             })
-            .where(and(eq(schema.users.clerkOrganizationId, clerkOrganizationId), eq(schema.users.id, record.userId)));
+            .where(
+              and(
+                eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
       }
     }

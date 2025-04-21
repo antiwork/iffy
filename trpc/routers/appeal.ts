@@ -61,16 +61,16 @@ export const appealRouter = router({
           exists(
             db
               .select({ 1: sql`1` })
-              .from(schema.users)
-              .innerJoin(schema.userActions, eq(schema.userActions.userId, schema.users.id))
+              .from(schema.userRecords)
+              .innerJoin(schema.userActions, eq(schema.userActions.userRecordId, schema.userRecords.id))
               .where(
                 and(
                   eq(schema.userActions.id, schema.appeals.userActionId),
                   or(
-                    ilike(schema.users.username, searchPattern),
-                    ilike(schema.users.email, searchPattern),
-                    ilike(schema.users.name, searchPattern),
-                    ilike(schema.users.clientId, searchPattern),
+                    ilike(schema.userRecords.username, searchPattern),
+                    ilike(schema.userRecords.email, searchPattern),
+                    ilike(schema.userRecords.name, searchPattern),
+                    ilike(schema.userRecords.clientId, searchPattern),
                   ),
                 ),
               ),
@@ -86,7 +86,7 @@ export const appealRouter = router({
       with: {
         userAction: {
           with: {
-            user: true,
+            userRecord: true,
           },
         },
         messages: {
