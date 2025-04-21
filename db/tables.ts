@@ -603,6 +603,7 @@ export const slackInboxes = pgTable(
     inboxName: text("inbox_name").notNull(),
     botUserId: text("bot_user_id").notNull(),
     inboxAccessToken: text("inbox_access_token").notNull(), // encrypted, please use the relevant decrypt/encrypt functions in @/services/encrypt.ts
+    adminSlackUserIds: text("admin_slack_user_ids").array().notNull().default([]), // This is their User ID in Slack
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
       .defaultNow()

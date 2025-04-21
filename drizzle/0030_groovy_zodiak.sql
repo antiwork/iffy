@@ -1,0 +1,1 @@
+ALTER TABLE "slack_inboxes" ADD COLUMN "admin_slack_user_ids" text[] DEFAULT '{}' NOT NULL;

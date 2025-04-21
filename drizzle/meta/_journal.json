@@ -211,6 +211,13 @@
       "when": 1744533304743,
       "tag": "0029_tough_pet_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1745245906295,
+      "tag": "0030_groovy_zodiak",
+      "breakpoints": true
     }
   ]
 }

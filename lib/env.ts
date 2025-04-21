@@ -63,7 +63,6 @@ const envSchema = z
       .default("false"),
     SLACK_SIGNING_SECRET: z.string().optional(),
     SLACK_CLIENT_SECRET: z.string().optional(),
-    SLACK_BOT_TOKEN: z.string().optional(),
     LOCAL_HOST_PROXY_URL: z.string().optional(), // For the Slack OAuth flow locally
     NEXT_PUBLIC_SLACK_CLIENT_ID: z.string().optional(),
   })
