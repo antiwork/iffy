@@ -33,7 +33,17 @@ const buildSlackAuthUrl = () => {
   // redirect back to the dashboard settings page after auth which handles code exchange
   const redirectUri = `${baseUrl}/dashboard/settings`;
   // these are the base permissions we need for v1
-  const scopes = ["incoming-webhook", "channels:read", "chat:write", "app_mentions:read"];
+  const scopes = [
+    "incoming-webhook",
+    "chat:write",
+    "channels:read",
+    "channels:history",
+    "groups:history",
+    "im:history",
+    "users:read",
+    "users:read.email",
+    "users.profile:read",
+  ];
 
   return `https://slack.com/oauth/v2/authorize?scope=${scopes.join(",")}&redirect_uri=${redirectUri}&client_id=${clientId}`;
 };
