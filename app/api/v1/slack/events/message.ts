@@ -10,7 +10,7 @@ async function handleMessage(ctx: SlackContext<"message">): Promise<NextResponse
   } = payload;
 
   // ignore messages from the bot itself
-  const botUserId = ctx.inbox.botUserId;
+  const { botUserId } = ctx.inbox;
   if (
     ("user" in payload.event && payload.event.user === botUserId) ||
     ("bot_id" in payload.event && payload.event.bot_id === botUserId) ||
@@ -36,11 +36,12 @@ async function handleMessage(ctx: SlackContext<"message">): Promise<NextResponse
     console.log("Bot has not been mentioned in the thread.");
     return NextResponse.json({}, { status: 200 });
   }
-
+  const isAdmin = await ctx.checkPayloadUserIsAdmin();
   const chatHistory = buildChatHistory(threadMessagesList);
   const llmResponse = await ctx.createLlmResponse({
     slackMessage: chatHistory[chatHistory.length - 1]?.content as string,
     chatHistory,
+    isAdmin,
   });
 
   if (!llmResponse) {

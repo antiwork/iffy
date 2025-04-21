@@ -123,7 +123,7 @@ class SlackOAuthHandler {
       }
 
       const {
-        data: { access_token, team, incoming_webhook },
+        data: { access_token, team, incoming_webhook, authed_user },
       } = parsedData;
 
       // Find the organization
@@ -146,6 +146,7 @@ class SlackOAuthHandler {
           slackTeamName: team.name,
           slackTeamId: team.id,
           botUserId: parsedData.data.bot_user_id,
+          adminSlackUserIds: [authed_user.id],
         },
       });
 
