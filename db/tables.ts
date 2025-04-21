@@ -113,7 +113,10 @@ export const userActions = pgTable(
   },
   (table) => {
     return {
-      userRecordIdIdx: index("user_actions_user_record_id_idx").using("btree", table.userRecordId.asc().nullsLast().op("text_ops")),
+      userRecordIdIdx: index("user_actions_user_record_id_idx").using(
+        "btree",
+        table.userRecordId.asc().nullsLast().op("text_ops"),
+      ),
       userActionsUserRecordIdFkey: foreignKey({
         columns: [table.userRecordId],
         foreignColumns: [userRecords.id],
@@ -530,7 +533,10 @@ export const records = pgTable(
         table.clerkOrganizationId.asc().nullsLast().op("text_ops"),
       ),
       clientIdKey: uniqueIndex("records_client_id_key").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
-      userRecordIdIdx: index("records_user_record_id_idx").using("btree", table.userRecordId.asc().nullsLast().op("text_ops")),
+      userRecordIdIdx: index("records_user_record_id_idx").using(
+        "btree",
+        table.userRecordId.asc().nullsLast().op("text_ops"),
+      ),
       sortKey: uniqueIndex("records_sort_key").using("btree", table.sort.asc().nullsLast().op("int4_ops")),
       recordsUserRecordIdFkey: foreignKey({
         columns: [table.userRecordId],

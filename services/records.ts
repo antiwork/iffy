@@ -83,7 +83,8 @@ export async function createOrUpdateRecord({
     if (record.moderationStatus === "Flagged") {
       const userRemoved = !!lastRecord?.userRecordId && !record.userRecordId;
       const userAdded = !lastRecord?.userRecordId && !!record.userRecordId;
-      const userChanged = !!lastRecord?.userRecordId && !!record.userRecordId && lastRecord.userRecordId !== record.userRecordId;
+      const userChanged =
+        !!lastRecord?.userRecordId && !!record.userRecordId && lastRecord.userRecordId !== record.userRecordId;
 
       if (userRemoved || userChanged) {
         await tx
@@ -92,7 +93,10 @@ export async function createOrUpdateRecord({
             flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} - 1`,
           })
           .where(
-            and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, lastRecord.userRecordId!)),
+            and(
+              eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+              eq(schema.userRecords.id, lastRecord.userRecordId!),
+            ),
           );
       }
 
@@ -102,7 +106,12 @@ export async function createOrUpdateRecord({
           .set({
             flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} + 1`,
           })
-          .where(and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, record.userRecordId!)));
+          .where(
+            and(
+              eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+              eq(schema.userRecords.id, record.userRecordId!),
+            ),
+          );
       }
     }
 
@@ -132,7 +141,12 @@ export async function deleteRecord(clerkOrganizationId: string, recordId: string
         .set({
           flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} - 1`,
         })
-        .where(and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, record.userRecordId)));
+        .where(
+          and(
+            eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+            eq(schema.userRecords.id, record.userRecordId),
+          ),
+        );
     }
 
     try {

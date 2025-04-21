@@ -121,7 +121,12 @@ export async function createModeration({
             .set({
               flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} + 1`,
             })
-            .where(and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, record.userRecordId)));
+            .where(
+              and(
+                eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
         if (lastStatus === "Flagged" && status !== "Flagged") {
           await tx
@@ -129,7 +134,12 @@ export async function createModeration({
             .set({
               flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} - 1`,
             })
-            .where(and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, record.userRecordId)));
+            .where(
+              and(
+                eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
       }
     }
@@ -318,7 +328,12 @@ export async function updatePendingModeration({
             .set({
               flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} + 1`,
             })
-            .where(and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, record.userRecordId)));
+            .where(
+              and(
+                eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
         if (lastStatus === "Flagged" && status !== "Flagged") {
           await tx
@@ -326,7 +341,12 @@ export async function updatePendingModeration({
             .set({
               flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} - 1`,
             })
-            .where(and(eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId), eq(schema.userRecords.id, record.userRecordId)));
+            .where(
+              and(
+                eq(schema.userRecords.clerkOrganizationId, clerkOrganizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
       }
     }
