@@ -1,11 +1,20 @@
-import findUserById from "./utils";
+import SlackContext from "../context";
+import findThirdPartyUserById from "./utils";
 
 /**
  * Get information about a user
  */
-async function getUserInfo({ userId }: { userId: string }) {
-  const user = await findUserById(userId);
+async function getUserInfo(this: SlackContext<"message">, { userId }: { userId: string }) {
+  const isAuthorized = await this.checkPayloadUserIsAdmin();
+  if (!isAuthorized) {
+    return {
+      result: "You are not authorized to perform this action.",
+    };
+  }
+
+  const user = await findThirdPartyUserById(userId);
   if (!user) {
+    console.log(`User with ID ${userId} not found.`);
     return { result: `User with ID ${userId} not found` };
   }
 

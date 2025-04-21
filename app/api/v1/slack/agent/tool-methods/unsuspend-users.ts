@@ -1,19 +1,47 @@
 import { createUserAction } from "@/services/user-actions";
-import findUserById from "./utils";
+import findThirdPartyUserById from "./utils";
+import SlackContext from "../context";
 
 /**
  * Unsuspend one or more users
  */
-async function unsuspendUsers({ reasoning, userIds }: { userIds: string[]; reasoning: string }) {
+async function unsuspendUsers(
+  this: SlackContext<"message">,
+  { reasoning, userIds }: { userIds: string[]; reasoning: string },
+) {
+  if (!(await this.checkPayloadUserIsAdmin())) {
+    return {
+      result: "You are not authorized to perform this action.",
+    };
+  }
+
+  const senderClerkId = this.senderDetails?.clerkUserId;
+  if (!senderClerkId) {
+    return {
+      result: "Admin Clerk User ID Not Found: Please complete the Iffy OAuth setup.",
+    };
+  }
+
+  if (!userIds || userIds.length === 0) {
+    return {
+      result: "No user IDs provided.",
+    };
+  }
+
+  if (!reasoning) {
+    return {
+      result: "No reasoning provided.",
+    };
+  }
+
   const results = await Promise.allSettled(
     userIds.map(async (userId) => {
-      const user = await findUserById(userId);
+      const user = await findThirdPartyUserById(userId);
 
       if (!user) {
         throw new Error(`User ${userId} not found`);
       }
 
-      // Check if user is already unsuspended or compliant
       if (user.actionStatus === "Compliant") {
         return { id: userId, status: "already compliant" };
       }
@@ -22,10 +50,9 @@ async function unsuspendUsers({ reasoning, userIds }: { userIds: string[]; reaso
         return { id: userId, status: "banned (cannot unsuspend)" };
       }
 
-      // Unsuspend the user
       await createUserAction({
-        clerkOrganizationId: user.clerkOrganizationId,
-        clerkUserId: user.clientId,
+        clerkOrganizationId: this.organization.clerkOrganizationId,
+        clerkUserId: senderClerkId,
         userId: user.id,
         status: "Compliant",
         via: "Manual",

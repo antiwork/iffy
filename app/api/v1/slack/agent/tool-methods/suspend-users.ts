@@ -1,19 +1,47 @@
 import { createUserAction } from "@/services/user-actions";
-import findUserById from "./utils";
+import findThirdPartyUserById from "./utils";
+import SlackContext from "../context";
 
 /**
  * Suspend one or more users
  */
-async function suspendUsers({ userIds, reasoning }: { userIds: string[]; reasoning: string }) {
+async function suspendUsers(
+  this: SlackContext<"message">,
+  { userIds, reasoning }: { userIds: string[]; reasoning: string },
+) {
+  if (!(await this.checkPayloadUserIsAdmin())) {
+    return {
+      result: "You are not authorized to perform this action.",
+    };
+  }
+
+  const senderClerkId = this.senderDetails?.clerkUserId;
+  if (!senderClerkId) {
+    return {
+      result: "Admin Clerk User ID Not Found: Please complete the Iffy OAuth setup.",
+    };
+  }
+
+  if (!userIds || userIds.length === 0) {
+    return {
+      result: "No user IDs provided.",
+    };
+  }
+
+  if (!reasoning) {
+    return {
+      result: "No reasoning provided.",
+    };
+  }
+
   const results = await Promise.allSettled(
     userIds.map(async (userId) => {
-      const user = await findUserById(userId);
+      const user = await findThirdPartyUserById(userId);
 
       if (!user) {
         throw new Error(`User with ID ${userId} not found`);
       }
 
-      // Check if user is already suspended or banned
       if (user.actionStatus === "Suspended") {
         return { id: userId, status: "already suspended" };
       }
@@ -22,15 +50,13 @@ async function suspendUsers({ userIds, reasoning }: { userIds: string[]; reasoni
         return { id: userId, status: "banned (cannot suspend)" };
       }
 
-      // Check if user is protected
       if (user.protected) {
         return { id: userId, status: "protected (cannot suspend)" };
       }
 
-      // Suspend the user
       await createUserAction({
-        clerkOrganizationId: user.clerkOrganizationId,
-        clerkUserId: user.clientId,
+        clerkOrganizationId: this.organization.clerkOrganizationId,
+        clerkUserId: senderClerkId,
         userId: user.id,
         status: "Suspended",
         via: "Manual",
