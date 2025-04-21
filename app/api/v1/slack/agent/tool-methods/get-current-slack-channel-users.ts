@@ -3,7 +3,7 @@ import SlackContext from "@/app/api/v1/slack/agent/context";
 /**
  * Get the list of users in the current Slack channel
  */
-async function getCurrentSlackChannelUsers(this: SlackContext<"app_mention">) {
+async function getCurrentSlackChannelUsers(this: SlackContext<"message">) {
   const { payload, client } = this;
   const inboxName = payload.inbox?.inboxName;
   const { channel: channelId } = payload.event;

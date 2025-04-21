@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
     name: "slack/event",
     id: payload.event_id,
     data: payload,
+    ts: Date.now(),
   });
 
   return NextResponse.json({ success: true }, { status: 200 });

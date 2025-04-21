@@ -3,7 +3,13 @@ import * as schema from "@/db/schema";
 import db from "@/db";
 import { eq } from "drizzle-orm";
 
-async function findUserById(userId: string) {
+/**
+ * Optimistically finds a third-party user by their ID which can be one of the following:
+ * - email address
+ * - clientId
+ * - id
+ */
+async function findThirdPartyUserById(userId: string) {
   if (userId.includes("@")) {
     return await db.query.users.findFirst({ where: eq(schema.users.email, userId) });
   }
@@ -13,29 +19,16 @@ async function findUserById(userId: string) {
     if (user) {
       return user;
     }
-  } catch (e) {
-    console.error("Error in findUserById:", e);
-  }
+  } catch {}
 
   try {
     const user = await db.query.users.findFirst({ where: eq(schema.users.id, userId) });
     if (user) {
       return user;
     }
-  } catch (e) {
-    console.error("Error in findUserById:", e);
-  }
-
-  // if (orgId) {
-  //   return db.query.organizations.findFirst({ where: eq(schema.organizations.id, orgId) });
-  // }
-
-  // TODO:??
-  // if (slackId) {
-  //   return db.query.users.findFirst({ where: eq(schema.users.slackId, slackId) });
-  // }
+  } catch {}
 
   return null;
 }
 
-export default findUserById;
+export default findThirdPartyUserById;

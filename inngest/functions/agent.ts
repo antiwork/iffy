@@ -14,10 +14,15 @@ const handleSlackEvent = inngest.createFunction(
     }
 
     await step.run("process-slack-event", async () => {
-      const ctx = new SlackContext(payload as SlackEventPayload<"app_mention">);
+      const ctx = new SlackContext(payload as SlackEventPayload<"message">);
       await ctx.initialize();
       const handler = new SlackEventHandler(ctx);
-      await handler.handleEvents();
+
+      try {
+        await handler.handleEvents();
+      } catch (error) {
+        throw error;
+      }
     });
   },
 );
