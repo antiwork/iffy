@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { createAppeal, generateAppealToken } from "@/services/appeals";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { getAbsoluteUrl } from "@/lib/url";
 import { authenticateRequest } from "@/app/api/auth";
 import { CreateAppealRequestData } from "./schema";
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
     return NextResponse.json({ error: { message: "Invalid API key" } }, { status: 401 });
   }
 
-  const { appealsEnabled } = await findOrCreateOrganization({ id: organizationId });
+  const { appealsEnabled } = await findOrganization(organizationId);
   if (!appealsEnabled) {
     return NextResponse.json({ error: { message: "Appeals are not enabled" } }, { status: 400 });
   }
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
   try {
     const appeal = await createAppeal({ userRecordId: userRecord.id, text: data.text });
 
-    const organization = await findOrCreateOrganization({ id: organizationId });
+    const organization = await findOrganization(organizationId);
 
     const appealUrl = organization.appealsEnabled
       ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(userRecord.id)}`)

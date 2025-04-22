@@ -1,6 +1,6 @@
 import { getApiKeys } from "@/services/api-keys";
 import { Settings } from "./settings";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export default async function DeveloperPage() {
     webhookEndpoint.secret = decrypt(webhookEndpoint.secret);
   }
 
-  const organization = await findOrCreateOrganization({ id: orgId });
+  const organization = await findOrganization(orgId);
 
   return (
     <div className="px-12 py-8">

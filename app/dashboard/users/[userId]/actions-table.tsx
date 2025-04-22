@@ -4,7 +4,7 @@ import { formatUserActionStatus, formatVia } from "@/lib/badges";
 import { Date, DateFull } from "@/components/date";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 
 export async function ActionsTable({
   organizationId,
@@ -14,7 +14,7 @@ export async function ActionsTable({
   actions: UserDetail["actions"];
 }) {
   const latestAction = actions[0];
-  const organization = await findOrCreateOrganization({ id: organizationId });
+  const organization = await findOrganization(organizationId);
   const appealsEnabled = organization.appealsEnabled;
 
   return (

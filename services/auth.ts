@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import db from "@/db";
 import { and, eq } from "drizzle-orm";
 import { members, userRecords } from "@/db/tables";
-import { findOrCreateOrganization } from "./organizations";
+import { findOrganization } from "./organizations";
 
 export async function hasAdminRole() {
   const { userId, orgRole } = await auth();
@@ -108,7 +108,7 @@ export async function getOrganizationMetadata(organizationId: string): Promise<O
     logo: organizationLogo,
     metadata: OrganizationMetadata,
     appealsEnabled,
-  } = await findOrCreateOrganization({ id: organizationId });
+  } = await findOrganization(organizationId);
 
   return {
     organizationName,

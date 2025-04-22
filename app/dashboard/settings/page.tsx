@@ -1,4 +1,4 @@
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { Settings } from "./settings";
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { Metadata } from "next";
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function SettingsPage() {
   const { orgId } = await authWithOrgSubscription();
-  const organization = await findOrCreateOrganization({ id: orgId });
+  const organization = await findOrganization(orgId);
 
   return (
     <div className="px-12 py-8">

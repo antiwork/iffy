@@ -8,7 +8,7 @@ import db from "@/db";
 import * as schema from "@/db/schema";
 import { AppealForm } from "./form";
 import { Separator } from "@/components/ui/separator";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { formatRecordStatus, formatUserActionStatus } from "@/lib/badges";
 import { desc, eq, and, isNull } from "drizzle-orm";
 
@@ -48,7 +48,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
   const latestAppeal = latestAction?.appeal;
 
   const { organizationId } = userRecord;
-  const { appealsEnabled } = await findOrCreateOrganization({ id: organizationId });
+  const { appealsEnabled } = await findOrganization(organizationId);
   if (!appealsEnabled) {
     return redirect("/");
   }

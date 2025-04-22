@@ -9,7 +9,7 @@ import { createOrUpdateUserRecord } from "@/services/user-records";
 import { createOrUpdateRecord, deleteRecord } from "@/services/records";
 import { inngest } from "@/inngest/client";
 import { parseRequestBody } from "@/app/api/parse";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { authenticateRequest } from "../../auth";
 import { hasActiveSubscription } from "@/services/stripe/subscriptions";
 import { env } from "@/lib/env";
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     metadata: data.metadata,
   });
 
-  const organization = await findOrCreateOrganization({ id: organizationId });
+  const organization = await findOrganization(organizationId);
 
   let moderationThreshold = false;
 

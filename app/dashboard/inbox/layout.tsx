@@ -1,12 +1,12 @@
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { notFound, redirect } from "next/navigation";
 import { Appeals } from "./appeals";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 
 const InboxLayout = async ({ children }: { children: React.ReactNode }) => {
   const { orgId } = await authWithOrgSubscription();
 
-  const organization = await findOrCreateOrganization({ id: orgId });
+  const organization = await findOrganization(orgId);
   if (!organization.appealsEnabled) {
     return notFound();
   }

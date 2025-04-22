@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
@@ -59,7 +59,7 @@ const EmailPreview = async <T extends (typeof schema.emailTemplateType.enumValue
 const Emails = async () => {
   const { orgId } = await authWithOrgSubscription();
 
-  const organization = await findOrCreateOrganization({ id: orgId });
+  const organization = await findOrganization(orgId);
   if (!organization.emailsEnabled) {
     return notFound();
   }

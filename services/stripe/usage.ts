@@ -1,5 +1,5 @@
 import { env } from "@/lib/env";
-import { findOrCreateOrganization } from "../organizations";
+import { findOrganization } from "../organizations";
 import { startOfCurrentBillingPeriod } from "./subscriptions";
 import stripe from "@/lib/stripe";
 import { z } from "zod";
@@ -9,7 +9,7 @@ export async function createMeterEvent(organizationId: string, eventName: string
     throw new Error("Billing is not enabled");
   }
 
-  const organization = await findOrCreateOrganization({ id: organizationId });
+  const organization = await findOrganization(organizationId);
   if (!organization.stripeCustomerId) {
     throw new Error("Organization does not have a Stripe Customer ID");
   }
@@ -40,7 +40,7 @@ export async function getUsage(organizationId: string, eventName: string, start:
     throw new Error("Billing is not enabled");
   }
 
-  const organization = await findOrCreateOrganization({ id: organizationId });
+  const organization = await findOrganization(organizationId);
   if (!organization || !organization.stripeCustomerId) {
     return null;
   }

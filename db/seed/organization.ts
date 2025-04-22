@@ -1,10 +1,10 @@
 import db from "../index";
 import * as schema from "../schema";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { eq } from "drizzle-orm";
 
 export async function seedOrganization(organizationId: string) {
-  const organization = await findOrCreateOrganization({ id: organizationId });
+  const organization = await findOrganization(organizationId);
   const [updatedOrganization] = await db
     .update(schema.organizations)
     .set({ testModeEnabled: false, emailsEnabled: true })

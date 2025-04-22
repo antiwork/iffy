@@ -8,7 +8,7 @@ import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import * as service from "@/services/moderations";
 import { parseMetadata } from "@/services/metadata";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { createMeterEvent } from "@/services/stripe/usage";
 
 const moderate = inngest.createFunction(
@@ -61,7 +61,7 @@ const updateUserRecordAfterModeration = inngest.createFunction(
     });
 
     const organization = await step.run("fetch-organization", async () => {
-      return await findOrCreateOrganization({ id: organizationId });
+      return await findOrganization(organizationId);
     });
 
     let actionStatus: (typeof schema.userActionStatus.enumValues)[number] | undefined;

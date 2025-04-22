@@ -12,7 +12,7 @@ import { eq, and } from "drizzle-orm";
 import db from "@/db";
 import { formatUserWithUserId } from "@/lib/user-action";
 import { notFound } from "next/navigation";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 
 export async function UserActionDetail({ organizationId, id }: { organizationId: string; id: string }) {
   const userAction = await db.query.userActions.findFirst({
@@ -27,7 +27,7 @@ export async function UserActionDetail({ organizationId, id }: { organizationId:
     return notFound();
   }
 
-  const organization = await findOrCreateOrganization({ id: organizationId });
+  const organization = await findOrganization(organizationId);
   const appealsEnabled = organization.appealsEnabled;
 
   return (

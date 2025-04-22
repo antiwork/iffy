@@ -6,7 +6,7 @@ import { generateAppealToken } from "@/services/appeals";
 import { createMessage } from "@/services/messages";
 import { sendEmail, renderEmailTemplate } from "@/services/email";
 import { pausePayments, resumePayments } from "@/services/stripe/accounts";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { RenderedTemplate } from "@/emails/types";
 import { getAbsoluteUrl } from "@/lib/url";
 import { createAppealAction } from "@/services/appeal-actions";
@@ -138,7 +138,7 @@ const sendUserActionEmail = inngest.createFunction(
     const { organizationId, id, status, lastStatus, userRecordId } = event.data;
 
     const organization = await step.run("fetch-organization", async () => {
-      return await findOrCreateOrganization({ id: organizationId });
+      return await findOrganization(organizationId);
     });
 
     if (!organization.emailsEnabled) return;

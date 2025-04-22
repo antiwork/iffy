@@ -10,7 +10,7 @@ import BannedTemplate from "./templates/banned";
 import InvitationTemplate from "./templates/invitation";
 import MagicLinkTemplate from "./templates/magiclink";
 import { DefaultTemplateContent, RenderedTemplate } from "./types";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { AppealButton } from "./components/appeal-button";
 import * as schema from "@/db/schema";
 import { getOrganizationMetadata } from "@/services/auth";
@@ -79,7 +79,7 @@ export async function render<T extends EmailTemplateType>({
   let appealsEnabled = false;
 
   if (organizationId !== "default") {
-    const settings = await findOrCreateOrganization({ id: organizationId });
+    const settings = await findOrganization(organizationId);
     appealsEnabled = settings.appealsEnabled;
     ({ organizationName, organizationLogo: organizationImageUrl } = await getOrganizationMetadata(organizationId));
   }

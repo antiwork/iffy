@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { generateAppealToken } from "@/services/appeals";
 import { getAbsoluteUrl } from "@/lib/url";
 import { authenticateRequest } from "@/app/api/auth";
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ user
     return NextResponse.json({ error: { message: "User not found" } }, { status: 404 });
   }
 
-  const organization = await findOrCreateOrganization({ id: organizationId });
+  const organization = await findOrganization(organizationId);
 
   const appealUrl =
     organization.appealsEnabled && userRecord.actionStatus === "Suspended"

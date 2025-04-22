@@ -6,7 +6,7 @@ import { SQL } from "drizzle-orm";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { parseQueryParams } from "@/app/api/parse";
-import { findOrCreateOrganization } from "@/services/organizations";
+import { findOrganization } from "@/services/organizations";
 import { getAbsoluteUrl } from "@/lib/url";
 import { generateAppealToken } from "@/services/appeals";
 import { authenticateRequest } from "../../auth";
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const organization = await findOrCreateOrganization({ id: organizationId });
+  const organization = await findOrganization(organizationId);
 
   const { limit, starting_after, ending_before, email, clientId, status, user } = data;
 

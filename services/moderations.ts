@@ -1,6 +1,6 @@
 import db from "@/db";
 import { and, desc, eq, sql } from "drizzle-orm";
-import { findOrCreateOrganization } from "./organizations";
+import { findOrganization } from "./organizations";
 import { inngest } from "@/inngest/client";
 import * as schema from "@/db/schema";
 import { ViaWithRelations } from "@/lib/types";
@@ -408,7 +408,7 @@ export const moderate = async ({
     throw new Error("No ruleset found for organization");
   }
 
-  const organization = await findOrCreateOrganization({ id: organizationId });
+  const organization = await findOrganization(organizationId);
 
   const rules = await db.query.rules.findMany({
     where: and(eq(schema.rules.organizationId, organizationId), eq(schema.rules.rulesetId, ruleset.id)),

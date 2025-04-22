@@ -5,7 +5,7 @@ import { actionClient } from "@/lib/action-client";
 import { PRODUCTS } from "@/products/products";
 import stripe from "@/lib/stripe";
 import type { Stripe } from "stripe";
-import { findOrCreateOrganization, updateOrganization } from "@/services/organizations";
+import { findOrganization, updateOrganization } from "@/services/organizations";
 import { isFixedFeeAndOverage, isPayAsYouGo } from "@/products/types";
 import { clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -27,7 +27,7 @@ export const createCheckoutSession = actionClient
       throw new Error("Billing is not enabled");
     }
 
-    const organization = await findOrCreateOrganization({ id: organizationId });
+    const organization = await findOrganization(organizationId);
 
     const product = PRODUCTS[tier];
 
@@ -117,7 +117,7 @@ export const createPortalSession = actionClient.action(async ({ ctx: { organizat
     throw new Error("Billing is not enabled");
   }
 
-  const organization = await findOrCreateOrganization({ id: organizationId });
+  const organization = await findOrganization(organizationId);
   if (!organization.stripeCustomerId) {
     return null;
   }
