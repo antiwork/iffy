@@ -10,10 +10,11 @@ import { sendTenantEmail } from "@/services/email";
 import { render, replacePlaceholders } from "@/emails/render";
 import InvitationTemplate from "@/emails/templates/invitation";
 import MagicLinkTemplate from "@/emails/templates/magiclink";
+import { getAbsoluteUrl } from "./url";
 
 const options = {
   appName: "Iffy",
-  secret: env.BETTER_AUTH_SECRET,
+  secret: env.SECRET_KEY,
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
@@ -25,7 +26,7 @@ const options = {
   plugins: [
     organization({
       sendInvitationEmail: async ({ email, organization, role, invitation }) => {
-        const url = `${env.NEXT_PUBLIC_BETTER_AUTH_URL}/organization/invite/${invitation.id}`;
+        const url = getAbsoluteUrl(`/organization/invite/${invitation.id}`);
         const { html, subject } = await render({
           organizationId: organization.id,
           type: "Invitation",

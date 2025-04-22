@@ -7,14 +7,15 @@ import db from "@/db";
 import { and, eq } from "drizzle-orm";
 import { invitations } from "@/db/tables";
 import { auth } from "@/services/auth";
-import { env } from "@/lib/env";
 import { acceptInvitation } from "../actions";
 
+import { getAbsoluteUrl } from "@/lib/url";
 export default async function InvitePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
+  const { id } = await params;
 
   if (!session.userId) {
-    redirect("/sign-in?redirect_url=" + env.NEXT_PUBLIC_BETTER_AUTH_URL + "/organization/invite/" + (await params).id);
+    redirect(`/sign-in?redirect_url=${getAbsoluteUrl(`/organization/invite/${id}`)}`);
   }
 
   const invitation = await db.query.invitations.findFirst({

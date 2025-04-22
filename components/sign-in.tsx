@@ -13,6 +13,7 @@ import { Loader, Mail } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from "@/lib/auth-client";
+import { getAbsoluteUrl } from "@/lib/url";
 
 const formSchema = z.object({
   email: z
@@ -44,7 +45,7 @@ export function SignIn() {
       const { data, error } = await signIn.email({
         email: values.email,
         password: values.password,
-        callbackURL: redirect_url?.toString() || `${window.location.origin}/dashboard`,
+        callbackURL: redirect_url?.toString() || getAbsoluteUrl("/dashboard"),
       });
 
       if (error) {
@@ -82,7 +83,7 @@ export function SignIn() {
     try {
       const { error } = await signIn.magicLink({
         email,
-        callbackURL: redirect_url?.toString() || `${window.location.origin}/dashboard`,
+        callbackURL: redirect_url?.toString() || getAbsoluteUrl("/dashboard"),
       });
 
       if (error) {
