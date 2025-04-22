@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ actionId:
     },
   });
 
-  if (!userAction || !userAction.userRecord) {
+  if (!userAction) {
     return notFound();
   }
 

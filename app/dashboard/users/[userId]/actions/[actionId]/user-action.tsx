@@ -23,7 +23,7 @@ export async function UserActionDetail({ organizationId, id }: { organizationId:
     },
   });
 
-  if (!userAction || !userAction.userRecord) {
+  if (!userAction) {
     return notFound();
   }
 
