@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import db from "@/db";
-import { formatUserWithUserId } from "@/lib/user-action";
+import { formatUser } from "@/lib/user";
 import { notFound } from "next/navigation";
 import { findOrganization } from "@/services/organizations";
 
@@ -91,7 +91,7 @@ export async function UserActionDetail({ organizationId, id }: { organizationId:
                 {userAction.via === "Manual" && (
                   <div className="grid gap-2">
                     <div>Action created manually</div>
-                    {userAction.userId && <div>{await formatUserWithUserId(userAction.userId)}</div>}
+                    {userAction.userId && <div>{await formatUser(userAction.userId)}</div>}
                   </div>
                 )}
               </dd>

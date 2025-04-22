@@ -41,7 +41,6 @@ const options = {
           html,
         });
       },
-      additionalFields:
     }),
     nextCookies(),
     magicLink({

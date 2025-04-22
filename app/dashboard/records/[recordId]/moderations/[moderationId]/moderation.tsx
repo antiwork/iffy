@@ -6,7 +6,7 @@ import { Section, SectionContent, SectionTitle } from "@/components/sheet/sectio
 import Link from "next/link";
 import { FlaskConical } from "lucide-react";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { formatUserWithUserId } from "@/lib/user-action";
+import { formatUser } from "@/lib/user";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import db from "@/db";
@@ -77,7 +77,7 @@ export async function ModerationDetail({ organizationId, id }: { organizationId:
             {moderation.userId && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">By</dt>
-                <dd>{await formatUserWithUserId(moderation.userId)}</dd>
+                <dd>{await formatUser(moderation.userId)}</dd>
               </div>
             )}
             {rules && rules.length > 0 && (
