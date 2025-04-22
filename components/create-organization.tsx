@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { organization } from "@/lib/auth-client";
-import { checkSlugAvailability } from "@/app/actions/organization";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -70,8 +69,11 @@ export function CreateOrganization({ open, onOpenChange, onSuccess }: CreateOrga
           setIsCheckingSlug(true);
           setSlugError(null);
           try {
-            const isSlugAvailable = await checkSlugAvailability(currentSlug);
-            if (!isSlugAvailable) {
+            const { data, error } = await organization.checkSlug({
+              slug: currentSlug,
+            });
+            if (error) throw error;
+            if (!data.status) {
               setSlugError("This slug is already taken");
             }
           } catch (err) {
