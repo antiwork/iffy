@@ -3,7 +3,7 @@ import {
   records,
   moderations,
   rulesets,
-  endUsers,
+  userRecords,
   userActions,
   appeals,
   messages,
@@ -35,9 +35,9 @@ export const moderationsRelations = relations(moderations, ({ one, many }) => ({
 
 export const recordsRelations = relations(records, ({ one, many }) => ({
   moderations: many(moderations),
-  user: one(endUsers, {
-    fields: [records.endUserId],
-    references: [endUsers.id],
+  userRecord: one(userRecords, {
+    fields: [records.userRecordId],
+    references: [userRecords.id],
   }),
 }));
 
@@ -47,9 +47,9 @@ export const rulesetsRelations = relations(rulesets, ({ many }) => ({
 }));
 
 export const userActionsRelations = relations(userActions, ({ one, many }) => ({
-  user: one(endUsers, {
-    fields: [userActions.endUserId],
-    references: [endUsers.id],
+  userRecord: one(userRecords, {
+    fields: [userActions.userRecordId],
+    references: [userRecords.id],
   }),
   messages: many(messages),
   appeal: one(appeals, { fields: [userActions.id], references: [appeals.userActionId] }),
@@ -64,7 +64,7 @@ export const userActionsRelations = relations(userActions, ({ one, many }) => ({
     relationName: "viaAppeal",
   }),
 }));
-export const usersRelations = relations(endUsers, ({ many }) => ({
+export const userRecordsRelations = relations(userRecords, ({ many }) => ({
   actions: many(userActions),
   from: many(messages, { relationName: "from" }),
   to: many(messages, { relationName: "to" }),
@@ -76,18 +76,18 @@ export const messagesRelations = relations(messages, ({ one }) => ({
     fields: [messages.appealId],
     references: [appeals.id],
   }),
-  from: one(endUsers, {
+  from: one(userRecords, {
     fields: [messages.fromId],
-    references: [endUsers.id],
+    references: [userRecords.id],
     relationName: "from",
   }),
   userAction: one(userActions, {
     fields: [messages.userActionId],
     references: [userActions.id],
   }),
-  to: one(endUsers, {
+  to: one(userRecords, {
     fields: [messages.toId],
-    references: [endUsers.id],
+    references: [userRecords.id],
     relationName: "to",
   }),
 }));
@@ -174,9 +174,6 @@ export const invitationOrganizationRelations = relations(invitations, ({ one }) 
     fields: [invitations.organizationId],
     references: [organizations.id],
   }),
-}));
-
-export const invitationInviterRelations = relations(invitations, ({ one }) => ({
   inviter: one(users, {
     fields: [invitations.inviterId],
     references: [users.id],

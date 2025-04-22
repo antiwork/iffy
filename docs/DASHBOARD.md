@@ -2,14 +2,14 @@ This document breaks down how a page renders in this Next.js application, includ
 
 **1. Routing:**
 
-Next.js determines which page component to render based on the URL. For example, a request to `/dashboard/users` will route to the `app/dashboard/users/page.tsx` component. File-based routing simplifies this process.
+Next.js determines which page component to render based on the URL. For example, a request to `/dashboard/users` will route to the `app/dashboard/users/page.tsx` component. File-based routing simplifies this process. (Note: users are stored in the `user_records` table, to disambiguate users uploaded by customers as content, from internal user accounts)
 
 **2. Server Components (Default):**
 
 By default, components in the `app` directory are Server Components. This means they are executed on the server.
 
-- **Data Fetching (tRPC):** Inside a Server Component, data fetching happens synchronously. For example, in `app/dashboard/users/page.tsx`, the `DataTable` component needs user data. It uses the tRPC client (`trpc.user.infinite.useInfiniteQuery`) to fetch this data. This tRPC call is made on the server.
-  - **tRPC Routing:** The `trpc.user.infinite` call corresponds to the `user.infinite` query defined in the `trpc/routers/user.ts` router. tRPC handles routing this request to the correct procedure.
+- **Data Fetching (tRPC):** Inside a Server Component, data fetching happens synchronously. For example, in `app/dashboard/users/page.tsx`, the `DataTable` component needs user data. It uses the tRPC client (`trpc.userRecord.infinite.useInfiniteQuery`) to fetch this data. This tRPC call is made on the server.
+  - **tRPC Routing:** The `trpc.userRecord.infinite` call corresponds to the `userRecord.infinite` query defined in the `trpc/routers/user-record.ts` router. tRPC handles routing this request to the correct procedure.
   - **Database Interaction:** The procedure then interacts with the Drizzle ORM to query the database.
   - **Data Transformation:** The data is then potentially transformed and serialized using SuperJSON before being returned to the Server Component.
 - **Rendering:** The Server Component renders the HTML for the page, embedding the fetched user data within the HTML. This HTML is sent to the client.
@@ -32,8 +32,8 @@ For requests not directly tied to page rendering, API routes (`app/api`) are use
 
 1. **Request:** The user navigates to `/dashboard/users`.
 2. **Routing:** Next.js matches the route to `app/dashboard/users/page.tsx`.
-3. **Server Component Execution:** `page.tsx` (Server Component) fetches the initial user data using `trpc.user.infinite.useInfiniteQuery`.
-4. **tRPC Routing:** tRPC routes the request to the `user.infinite` query in `trpc/routers/user.ts`.
+3. **Server Component Execution:** `page.tsx` (Server Component) fetches the initial user data using `trpc.userRecord.infinite.useInfiniteQuery`.
+4. **tRPC Routing:** tRPC routes the request to the `userRecord.infinite` query in `trpc/routers/user-record.ts`.
 5. **Database Query:** The query procedure fetches user data from the database using Drizzle ORM.
 6. **Server-Side Render:** `page.tsx` renders the HTML, including the `DataTable` component with the initial user data embedded.
 7. **Client-Side Hydration:** The HTML is sent to the client, and React hydrates the page. The `DataTable` is now an interactive Client Component.

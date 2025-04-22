@@ -28,7 +28,7 @@ const paginationSchema = z.object({
   search: z.string().optional(),
   statuses: z.enum(schema.records.moderationStatus.enumValues).array().optional(),
   entities: z.array(z.string()).optional(),
-  userId: z.string().optional(),
+  userRecordId: z.string().optional(),
 });
 
 const getWhereInput = (
@@ -37,13 +37,13 @@ const getWhereInput = (
   cursorValue?: number,
   sortingOrder?: boolean,
 ) => {
-  const { search, statuses, entities, userId } = input;
+  const { search, statuses, entities, userRecordId } = input;
 
   return (records: typeof schema.records) => {
     const conditions = [eq(records.organizationId, organizationId), isNull(records.deletedAt)];
 
-    if (userId) {
-      conditions.push(eq(records.endUserId, userId));
+    if (userRecordId) {
+      conditions.push(eq(records.userRecordId, userRecordId));
     }
 
     if (statuses?.length) {

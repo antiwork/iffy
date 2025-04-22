@@ -16,33 +16,35 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { User } from "./types";
+import * as schema from "@/db/schema";
 
-export const BulkActionMenu = ({ users }: { users: User[] }) => {
+type UserRecord = typeof schema.userRecords.$inferSelect;
+
+export const BulkActionMenu = ({ userRecords }: { userRecords: UserRecord[] }) => {
   const utils = trpc.useUtils();
   const createUserActionsWithIds = createUserActions.bind(
     null,
-    users.map((user) => user.id),
+    userRecords.map((userRecord) => userRecord.id),
   );
   const setUserProtectedManyWithIds = setUserProtectedMany.bind(
     null,
-    users.map((user) => user.id),
+    userRecords.map((userRecord) => userRecord.id),
   );
 
   const [actionType, setActionType] = useState<"suspend" | "unsuspend" | "ban" | null>(null);
   const [reasoning, setReasoning] = useState<{ value: string; error?: boolean }>({ value: "" });
   const [isLoading, setIsLoading] = useState(false);
 
-  const hideSuspend = users.length === 1 && users[0]?.actionStatus === "Suspended";
-  const hideUnsuspend = users.length === 1 && users[0]?.actionStatus !== "Suspended";
+  const hideSuspend = userRecords.length === 1 && userRecords[0]?.actionStatus === "Suspended";
+  const hideUnsuspend = userRecords.length === 1 && userRecords[0]?.actionStatus !== "Suspended";
 
-  const hideBan = users.length === 1 && users[0]?.actionStatus === "Banned";
-  const hideUnban = users.length === 1 && users[0]?.actionStatus !== "Banned";
+  const hideBan = userRecords.length === 1 && userRecords[0]?.actionStatus === "Banned";
+  const hideUnban = userRecords.length === 1 && userRecords[0]?.actionStatus !== "Banned";
 
-  const disableSuspendAndBan = users.length === 1 && users[0]?.protected;
+  const disableSuspendAndBan = userRecords.length === 1 && userRecords[0]?.protected;
 
-  const hideProtect = users.length === 1 && users[0]?.protected;
-  const hideUnprotect = users.length === 1 && !users[0]?.protected;
+  const hideProtect = userRecords.length === 1 && userRecords[0]?.protected;
+  const hideUnprotect = userRecords.length === 1 && !userRecords[0]?.protected;
 
   const handleAction = useCallback(async () => {
     if (!reasoning.value.trim()) {
@@ -67,7 +69,7 @@ export const BulkActionMenu = ({ users }: { users: User[] }) => {
           reasoning: reasoning.value,
         });
       }
-      await utils.user.infinite.invalidate();
+      await utils.userRecord.infinite.invalidate();
     } catch (error) {
       toast({
         title: "Error",
@@ -80,7 +82,7 @@ export const BulkActionMenu = ({ users }: { users: User[] }) => {
       setActionType(null);
       setReasoning({ value: "" });
     }
-  }, [actionType, createUserActionsWithIds, reasoning.value, utils.user.infinite]);
+  }, [actionType, createUserActionsWithIds, reasoning.value, utils.userRecord.infinite]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -156,7 +158,7 @@ export const BulkActionMenu = ({ users }: { users: User[] }) => {
                 try {
                   event.stopPropagation();
                   await setUserProtectedManyWithIds(true);
-                  await utils.user.infinite.invalidate();
+                  await utils.userRecord.infinite.invalidate();
                 } catch (error) {
                   toast({
                     title: "Error",
@@ -176,7 +178,7 @@ export const BulkActionMenu = ({ users }: { users: User[] }) => {
                 try {
                   event.stopPropagation();
                   await setUserProtectedManyWithIds(false);
-                  await utils.user.infinite.invalidate();
+                  await utils.userRecord.infinite.invalidate();
                 } catch (error) {
                   toast({
                     title: "Error",
@@ -243,6 +245,6 @@ export const BulkActionMenu = ({ users }: { users: User[] }) => {
   );
 };
 
-export const ActionMenu = ({ user }: { user: User }) => {
-  return <BulkActionMenu users={[user]} />;
+export const ActionMenu = ({ userRecord }: { userRecord: UserRecord }) => {
+  return <BulkActionMenu userRecords={[userRecord]} />;
 };

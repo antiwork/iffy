@@ -1,12 +1,12 @@
 import { authWithOrgSubscription } from "@/app/dashboard/auth";
 import { UserActionDetail } from "@/app/dashboard/users/[userId]/actions/[actionId]/user-action";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { RouterSheet } from "@/components/router-sheet";
 import { Metadata } from "next";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq } from "drizzle-orm";
-import { formatUser } from "@/lib/user";
+import { formatUserRecord } from "@/lib/user-record";
 
 export async function generateMetadata({ params }: { params: Promise<{ actionId: string }> }): Promise<Metadata> {
   const { orgId } = await authWithOrgSubscription();
@@ -16,16 +16,16 @@ export async function generateMetadata({ params }: { params: Promise<{ actionId:
   const userAction = await db.query.userActions.findFirst({
     where: and(eq(schema.userActions.organizationId, orgId), eq(schema.userActions.id, id)),
     with: {
-      user: true,
+      userRecord: true,
     },
   });
 
-  if (!userAction || !userAction.user) {
+  if (!userAction || !userAction.userRecord) {
     return notFound();
   }
 
   return {
-    title: `${formatUser(userAction.user)} | User action | Iffy`,
+    title: `${formatUserRecord(userAction.userRecord)} | User action | Iffy`,
   };
 }
 

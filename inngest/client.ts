@@ -26,7 +26,7 @@ const eventsMap = {
     data: z.object({
       organizationId: z.string(),
       id: z.string(),
-      endUserId: z.string(),
+      userRecordId: z.string(),
       status: z.enum(schema.userActionStatus.enumValues),
       lastStatus: z.enum(schema.userActionStatus.enumValues).nullable(),
     }),

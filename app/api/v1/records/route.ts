@@ -38,14 +38,14 @@ export async function GET(req: NextRequest) {
   ];
 
   if (user) {
-    const userExists = await db.query.endUsers.findFirst({
-      where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, user)),
+    const userRecordExists = await db.query.userRecords.findFirst({
+      where: and(eq(schema.userRecords.organizationId, organizationId), eq(schema.userRecords.id, user)),
       columns: { id: true },
     });
-    if (!userExists) {
+    if (!userRecordExists) {
       return NextResponse.json({ error: { message: "Invalid user ID" } }, { status: 400 });
     }
-    conditions.push(eq(schema.records.endUserId, user));
+    conditions.push(eq(schema.records.userRecordId, user));
   }
 
   if (entity) {
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
       moderationStatusCreatedAt: schema.records.moderationStatusCreatedAt,
       moderationPending: schema.records.moderationPending,
       moderationPendingCreatedAt: schema.records.moderationPendingCreatedAt,
-      endUserId: schema.records.endUserId,
+      userRecordId: schema.records.userRecordId,
     })
     .from(schema.records)
     .where(and(...conditions))
@@ -112,9 +112,9 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
-    data: records.map(({ endUserId, metadata, ...record }) => ({
+    data: records.map(({ userRecordId, metadata, ...record }) => ({
       ...record,
-      user: endUserId,
+      user: userRecordId,
       metadata: metadata ? parseMetadata(metadata) : undefined,
     })),
     has_more: hasMore,

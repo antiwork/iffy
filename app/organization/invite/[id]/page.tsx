@@ -10,11 +10,11 @@ import { auth } from "@/services/auth";
 import { env } from "@/lib/env";
 import { acceptInvitation } from "../actions";
 
-export default async function InvitePage({ params }: { params: { id: string } }) {
+export default async function InvitePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
 
   if (!session.userId) {
-    redirect("/sign-in?redirect_url=" + env.NEXT_PUBLIC_BETTER_AUTH_URL + "/organization/invite/" + (await params.id));
+    redirect("/sign-in?redirect_url=" + env.NEXT_PUBLIC_BETTER_AUTH_URL + "/organization/invite/" + (await params).id);
   }
 
   const invitation = await db.query.invitations.findFirst({

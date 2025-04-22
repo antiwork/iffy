@@ -102,7 +102,7 @@ export const userActions = pgTable(
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
     organizationId: text("organization_id").notNull(),
-    endUserId: text("end_user_id").notNull(),
+    userRecordId: text("user_record_id").notNull(),
     status: userActionStatus().notNull(),
     via: via().default("Automation").notNull(),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
@@ -119,11 +119,14 @@ export const userActions = pgTable(
   },
   (table) => {
     return {
-      userIdIdx: index("user_actions_user_id_idx").using("btree", table.userId.asc().nullsLast().op("text_ops")),
-      userActionsUserIdFkey: foreignKey({
-        columns: [table.userId],
-        foreignColumns: [endUsers.id],
-        name: "end_user_actions_user_id_fkey",
+      userRecordIdIdx: index("user_actions_user_record_id_idx").using(
+        "btree",
+        table.userRecordId.asc().nullsLast().op("text_ops"),
+      ),
+      userActionsUserRecordIdFkey: foreignKey({
+        columns: [table.userRecordId],
+        foreignColumns: [userRecords.id],
+        name: "user_actions_user_record_id_fkey",
       })
         .onUpdate("cascade")
         .onDelete("restrict"),
@@ -259,7 +262,7 @@ export const messages = pgTable(
         .onDelete("set null"),
       messagesFromIdFkey: foreignKey({
         columns: [table.fromId],
-        foreignColumns: [endUsers.id],
+        foreignColumns: [userRecords.id],
         name: "messages_from_id_fkey",
       })
         .onUpdate("cascade")
@@ -273,7 +276,7 @@ export const messages = pgTable(
         .onDelete("restrict"),
       messagesToIdFkey: foreignKey({
         columns: [table.toId],
-        foreignColumns: [endUsers.id],
+        foreignColumns: [userRecords.id],
         name: "messages_to_id_fkey",
       })
         .onUpdate("cascade")
@@ -282,8 +285,8 @@ export const messages = pgTable(
   },
 );
 
-export const endUsers = pgTable(
-  "end_users",
+export const userRecords = pgTable(
+  "user_records",
   {
     id: text().primaryKey().notNull().$defaultFn(cuid),
     organizationId: text("organization_id").notNull(),
@@ -491,7 +494,7 @@ export const records = pgTable(
     externalUrls: text("external_urls").array().notNull().default([]),
     protected: boolean("protected").default(false).notNull(),
     metadata: jsonb(),
-    endUserId: text("end_user_id"),
+    userRecordId: text("user_record_id"),
     createdAt: timestamp("created_at", { precision: 3, mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { precision: 3, mode: "date" })
       .defaultNow()
@@ -511,12 +514,15 @@ export const records = pgTable(
         table.organizationId.asc().nullsLast().op("text_ops"),
       ),
       clientIdKey: uniqueIndex("records_client_id_key").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
-      userIdIdx: index("records_end_user_id_idx").using("btree", table.endUserId.asc().nullsLast().op("text_ops")),
+      userRecordIdIdx: index("records_user_record_id_idx").using(
+        "btree",
+        table.userRecordId.asc().nullsLast().op("text_ops"),
+      ),
       sortKey: uniqueIndex("records_sort_key").using("btree", table.sort.asc().nullsLast().op("int4_ops")),
-      recordsUserIdFkey: foreignKey({
-        columns: [table.endUserId],
-        foreignColumns: [endUsers.id],
-        name: "records_end_user_id_fkey",
+      recordsUserRecordIdFkey: foreignKey({
+        columns: [table.userRecordId],
+        foreignColumns: [userRecords.id],
+        name: "records_user_record_id_fkey",
       })
         .onUpdate("cascade")
         .onDelete("set null"),

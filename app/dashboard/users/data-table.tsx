@@ -33,13 +33,13 @@ const DataTable = ({ organizationId }: { organizationId: string }) => {
     statuses: (columnFilters.find((filter) => filter.id === "status")?.value as UserActionStatus[]) || [],
     search: globalFilter || undefined,
   };
-  const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = trpc.user.infinite.useInfiniteQuery(query, {
+  const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = trpc.userRecord.infinite.useInfiniteQuery(query, {
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
-  const users = useMemo(() => data?.pages?.flatMap((page) => page.users) ?? [], [data]);
+  const userRecords = useMemo(() => data?.pages?.flatMap((page) => page.userRecords) ?? [], [data]);
 
   const table = useReactTable({
-    data: users,
+    data: userRecords,
     columns,
     state: {
       sorting,
@@ -83,7 +83,7 @@ const DataTable = ({ organizationId }: { organizationId: string }) => {
 
   return (
     <div className="flex h-full flex-col space-y-4 py-4">
-      <DataTableToolbar table={table} data={users} />
+      <DataTableToolbar table={table} data={userRecords} />
 
       <div
         onScroll={(e) => fetchMoreOnBottomReached(e.target as HTMLDivElement)}

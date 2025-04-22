@@ -6,7 +6,7 @@ type Appeal = typeof schema.appeals.$inferSelect;
 type AppealAction = typeof schema.appealActions.$inferSelect;
 type Moderation = typeof schema.moderations.$inferSelect;
 type Record = typeof schema.records.$inferSelect;
-type User = typeof schema.endUsers.$inferSelect;
+type UserRecord = typeof schema.userRecords.$inferSelect;
 type UserAction = typeof schema.userActions.$inferSelect;
 
 export function formatModerationStatus({ status, pending }: Partial<Pick<Moderation, "status" | "pending">>) {
@@ -89,14 +89,14 @@ export function formatRecordVia({ moderations }: { moderations: Moderation[] }) 
   return null;
 }
 
-export function formatUserStatus({ actionStatus }: Pick<User, "actionStatus">) {
+export function formatUserRecordStatus({ actionStatus }: Pick<UserRecord, "actionStatus">) {
   if (actionStatus) {
     return formatUserActionStatus({ status: actionStatus });
   }
   return null;
 }
 
-export function formatUserVia({ actions }: { actions: UserAction[] }) {
+export function formatUserRecordVia({ actions }: { actions: UserAction[] }) {
   if (actions.length > 0) {
     return formatVia(actions[0]!);
   }

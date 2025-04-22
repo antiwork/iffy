@@ -53,7 +53,7 @@ const PRODUCTS = [
 export async function seedRecords(
   organizationId: string,
   ruleset: { id: string },
-  users: (typeof schema.endUsers.$inferSelect)[],
+  users: (typeof schema.userRecords.$inferSelect)[],
 ) {
   const rules = await db.query.rules.findMany({
     where: eq(schema.rules.rulesetId, ruleset.id),
@@ -78,7 +78,7 @@ export async function seedRecords(
             price: faker.commerce.price({ max: 20 }),
             material: faker.commerce.productMaterial(),
           },
-          userId: sample(users)?.id,
+          userRecordId: sample(users)?.id,
           createdAt: faker.date.recent({ days: 10 }),
           protected: sample([true, false, false, false, false]),
           externalUrls: [...Array(faker.number.int({ min: 0, max: 3 }))].map(() => faker.internet.url()),
@@ -129,13 +129,13 @@ export async function seedRecords(
       })
       .where(eq(schema.records.id, record.id));
 
-    if (record.endUserId && isFlagged) {
+    if (record.userRecordId && isFlagged) {
       await db
-        .update(schema.endUsers)
+        .update(schema.userRecords)
         .set({
           flaggedRecordsCount: sql`flagged_records_count + 1`,
         })
-        .where(eq(schema.endUsers.id, record.endUserId));
+        .where(eq(schema.userRecords.id, record.userRecordId));
     }
   }
 

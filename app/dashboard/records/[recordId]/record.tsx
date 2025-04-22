@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { formatModerationStatus, formatRecordStatus, formatUserStatus, formatVia } from "@/lib/badges";
+import { formatModerationStatus, formatRecordStatus, formatUserRecordStatus, formatVia } from "@/lib/badges";
 import { ExternalLink, FlaskConical, FlaskConicalOff, ShieldCheck, ShieldOff } from "lucide-react";
 import { RecordImages } from "./record-images";
 import { Code, CodeInline } from "@/components/code";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ActionMenu } from "../action-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatUserCompact } from "@/lib/user";
+import { formatUserRecordCompact } from "@/lib/user-record";
 import { cn } from "@/lib/utils";
 import { formatLink } from "@/lib/url";
 import { ModerationsTable } from "./moderations-table";
@@ -39,7 +39,7 @@ export async function RecordDetail({ organizationId, id }: { organizationId: str
           },
         },
       },
-      user: true,
+      userRecord: true,
     },
   });
 
@@ -48,8 +48,6 @@ export async function RecordDetail({ organizationId, id }: { organizationId: str
   }
 
   const metadata = record.metadata ? parseMetadata(record.metadata) : undefined;
-
-  const rules = record.moderations[0]?.moderationsToRules.map((moderationToRule) => moderationToRule.rule);
 
   return (
     <div>
@@ -114,14 +112,16 @@ export async function RecordDetail({ organizationId, id }: { organizationId: str
         <SectionTitle>Details</SectionTitle>
         <SectionContent>
           <dl className="grid gap-3">
-            {record.user && (
+            {record.userRecord && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">User</dt>
                 <dd className="flex items-center gap-4">
                   <Button asChild variant="link" className="text-md -mx-4 -my-2 font-normal">
-                    <Link href={`/dashboard/users/${record.user.id}`}>{formatUserCompact(record.user)}</Link>
+                    <Link href={`/dashboard/users/${record.userRecord.id}`}>
+                      {formatUserRecordCompact(record.userRecord)}
+                    </Link>
                   </Button>
-                  {formatUserStatus(record.user)}
+                  {formatUserRecordStatus(record.userRecord)}
                 </dd>
               </div>
             )}

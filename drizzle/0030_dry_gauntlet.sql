@@ -1,1 +1,0 @@
-ALTER TABLE "invitations" ADD COLUMN "created_at" timestamp (3) DEFAULT now() NOT NULL;

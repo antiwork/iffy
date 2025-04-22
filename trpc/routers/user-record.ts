@@ -23,20 +23,20 @@ const getWhereInput = (
 ) => {
   const { search, statuses } = input;
 
-  return (users: typeof schema.endUsers) => {
-    const conditions = [eq(users.organizationId, organizationId)];
+  return (userRecords: typeof schema.userRecords) => {
+    const conditions = [eq(userRecords.organizationId, organizationId)];
 
     if (statuses?.length) {
-      conditions.push(inArray(users.actionStatus, statuses));
+      conditions.push(inArray(userRecords.actionStatus, statuses));
     }
 
     if (search) {
       conditions.push(
         or(
-          ilike(users.username, `%${search}%`),
-          ilike(users.email, `%${search}%`),
-          ilike(users.name, `%${search}%`),
-          ilike(users.clientId, `%${search}%`),
+          ilike(userRecords.username, `%${search}%`),
+          ilike(userRecords.email, `%${search}%`),
+          ilike(userRecords.name, `%${search}%`),
+          ilike(userRecords.clientId, `%${search}%`),
         ) ?? sql`true`,
       );
     }
@@ -44,9 +44,9 @@ const getWhereInput = (
     if (cursorValue !== undefined && sortingOrder !== undefined) {
       const cursorSort = cursorValue;
       if (sortingOrder) {
-        conditions.push(lt(users.sort, cursorSort));
+        conditions.push(lt(userRecords.sort, cursorSort));
       } else {
-        conditions.push(gt(users.sort, cursorSort));
+        conditions.push(gt(userRecords.sort, cursorSort));
       }
     }
 
@@ -54,7 +54,7 @@ const getWhereInput = (
   };
 };
 
-export const userRouter = router({
+export const userRecordRouter = router({
   infinite: protectedProcedure.input(paginationSchema).query(async ({ input, ctx }) => {
     const { cursor, limit, sorting } = input;
     const { organizationId } = ctx;
@@ -64,18 +64,18 @@ export const userRouter = router({
     }
 
     const supportsCursorPagination = sorting.length === 1 && sorting[0]?.id === "sort";
-    let users;
+    let userRecords;
     let nextCursor;
 
     // Cursor pagination is more performant, but only works with a single sort field
     if (supportsCursorPagination) {
       const { sort } = cursor;
       const sortingOrder = sorting[0]?.desc;
-      const orderBy = sortingOrder ? desc(schema.endUsers.sort) : asc(schema.endUsers.sort);
+      const orderBy = sortingOrder ? desc(schema.userRecords.sort) : asc(schema.userRecords.sort);
       const where = getWhereInput(input, organizationId, sort, sortingOrder);
 
-      users = await db.query.endUsers.findMany({
-        where: where(schema.endUsers),
+      userRecords = await db.query.userRecords.findMany({
+        where: where(schema.userRecords),
         limit: limit + 1,
         orderBy: [orderBy],
         with: {
@@ -86,14 +86,14 @@ export const userRouter = router({
         },
       });
 
-      if (users.length > limit) {
-        const nextItem = users.pop();
+      if (userRecords.length > limit) {
+        const nextItem = userRecords.pop();
         nextCursor = { sort: nextItem!.sort };
       } else {
         nextCursor = undefined;
       }
 
-      return { users, nextCursor };
+      return { userRecords, nextCursor };
     }
 
     // Offset pagination is more flexible, but less performant
@@ -101,8 +101,8 @@ export const userRouter = router({
     const offsetValue = skip ?? 0;
     const where = getWhereInput(input, organizationId);
 
-    users = await db.query.endUsers.findMany({
-      where: where(schema.endUsers),
+    userRecords = await db.query.userRecords.findMany({
+      where: where(schema.userRecords),
       limit: limit + 1,
       offset: offsetValue,
       orderBy: (usersTable, { asc, desc }) =>
@@ -125,13 +125,13 @@ export const userRouter = router({
       },
     });
 
-    if (users.length > limit) {
-      users.pop();
+    if (userRecords.length > limit) {
+      userRecords.pop();
       nextCursor = { skip: offsetValue + limit };
     } else {
       nextCursor = undefined;
     }
 
-    return { users, nextCursor };
+    return { userRecords, nextCursor };
   }),
 });

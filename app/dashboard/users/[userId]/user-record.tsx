@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { formatUser, getUserSecondaryParts } from "@/lib/user";
+import { formatUserRecord, getUserRecordSecondaryParts } from "@/lib/user-record";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { formatUserActionStatus, formatVia } from "@/lib/badges";
@@ -21,9 +21,9 @@ import { notFound } from "next/navigation";
 import { parseMetadata } from "@/services/metadata";
 import { formatLink } from "@/lib/url";
 
-export async function UserDetail({ organizationId, id }: { organizationId: string; id: string }) {
-  const user = await db.query.endUsers.findFirst({
-    where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, id)),
+export async function UserRecordDetail({ organizationId, id }: { organizationId: string; id: string }) {
+  const userRecord = await db.query.userRecords.findFirst({
+    where: and(eq(schema.userRecords.organizationId, organizationId), eq(schema.userRecords.id, id)),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],
@@ -34,25 +34,25 @@ export async function UserDetail({ organizationId, id }: { organizationId: strin
     },
   });
 
-  if (!user) {
+  if (!userRecord) {
     return notFound();
   }
 
-  const metadata = user.metadata ? parseMetadata(user.metadata) : undefined;
+  const metadata = userRecord.metadata ? parseMetadata(userRecord.metadata) : undefined;
 
   return (
     <div>
       <Header>
         <HeaderContent>
-          <HeaderPrimary>{formatUser(user)}</HeaderPrimary>
+          <HeaderPrimary>{formatUserRecord(userRecord)}</HeaderPrimary>
           <HeaderSecondary>
-            {getUserSecondaryParts(user).map((part) => (
+            {getUserRecordSecondaryParts(userRecord).map((part) => (
               <div key={part}>{part}</div>
             ))}
           </HeaderSecondary>
         </HeaderContent>
         <HeaderActions className="flex items-center gap-4">
-          {user.protected ? (
+          {userRecord.protected ? (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
@@ -75,8 +75,8 @@ export async function UserDetail({ organizationId, id }: { organizationId: strin
               </Tooltip>
             </TooltipProvider>
           )}
-          {formatUserActionStatus({ status: user.actionStatus ?? "Compliant" })}
-          <ActionMenu user={user} />
+          {formatUserActionStatus({ status: userRecord.actionStatus ?? "Compliant" })}
+          <ActionMenu userRecord={userRecord} />
         </HeaderActions>
       </Header>
       <Separator className="my-2" />
@@ -87,17 +87,17 @@ export async function UserDetail({ organizationId, id }: { organizationId: strin
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Client ID</dt>
               <dd className="flex items-center gap-2 break-words">
-                <CodeInline>{user.clientId}</CodeInline>
-                <CopyButton text={user.clientId} name="Client ID" />
+                <CodeInline>{userRecord.clientId}</CodeInline>
+                <CopyButton text={userRecord.clientId} name="Client ID" />
               </dd>
             </div>
-            {user.clientUrl && (
+            {userRecord.clientUrl && (
               <div className="grid grid-cols-2 gap-4">
                 <dt className="text-stone-500 dark:text-zinc-500">Client URL</dt>
                 <dd>
                   <Button asChild variant="link" className="text-md -mx-4 -my-2 font-normal">
-                    <Link href={user.clientUrl} target="_blank" rel="noopener noreferrer">
-                      {formatLink(user.clientUrl)} <ExternalLink className="h-4 w-4" />
+                    <Link href={userRecord.clientUrl} target="_blank" rel="noopener noreferrer">
+                      {formatLink(userRecord.clientUrl)} <ExternalLink className="h-4 w-4" />
                     </Link>
                   </Button>
                 </dd>
@@ -106,22 +106,22 @@ export async function UserDetail({ organizationId, id }: { organizationId: strin
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Created At</dt>
               <dd>
-                <DateFull date={user.createdAt} />
+                <DateFull date={userRecord.createdAt} />
               </dd>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <dt className="text-stone-500 dark:text-zinc-500">Updated At</dt>
               <dd>
-                <DateFull date={user.updatedAt} />
+                <DateFull date={userRecord.updatedAt} />
               </dd>
             </div>
           </dl>
         </SectionContent>
       </Section>
-      {user.stripeAccountId && (
+      {userRecord.stripeAccountId && (
         <>
           <Separator className="my-2" />
-          <StripeAccount organizationId={organizationId} stripeAccountId={user.stripeAccountId} />
+          <StripeAccount organizationId={organizationId} stripeAccountId={userRecord.stripeAccountId} />
         </>
       )}
       {metadata && (
@@ -144,13 +144,13 @@ export async function UserDetail({ organizationId, id }: { organizationId: strin
           </Section>
         </>
       )}
-      {user.actions.length > 0 && (
+      {userRecord.actions.length > 0 && (
         <>
           <Separator className="my-2" />
           <Section>
             <SectionTitle>Actions</SectionTitle>
             <SectionContent>
-              <ActionsTable organizationId={organizationId} actions={user.actions} />
+              <ActionsTable organizationId={organizationId} actions={userRecord.actions} />
             </SectionContent>
           </Section>
         </>
@@ -159,7 +159,7 @@ export async function UserDetail({ organizationId, id }: { organizationId: strin
       <Section>
         <SectionTitle>Records</SectionTitle>
         <SectionContent>
-          <RecordsTable organizationId={organizationId} userId={user.id} />
+          <RecordsTable organizationId={organizationId} userRecordId={userRecord.id} />
         </SectionContent>
       </Section>
     </div>

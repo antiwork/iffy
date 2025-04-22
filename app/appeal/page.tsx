@@ -22,13 +22,13 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
     return redirect("/");
   }
 
-  const [isValid, userId] = validateAppealToken(token);
+  const [isValid, userRecordId] = validateAppealToken(token);
   if (!isValid) {
     return redirect("/");
   }
 
-  const user = await db.query.endUsers.findFirst({
-    where: eq(schema.endUsers.id, userId),
+  const userRecord = await db.query.userRecords.findFirst({
+    where: eq(schema.userRecords.id, userRecordId),
     with: {
       actions: {
         orderBy: [desc(schema.userActions.createdAt)],
@@ -40,14 +40,14 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
     },
   });
 
-  if (!user) {
+  if (!userRecord) {
     return redirect("/");
   }
 
-  const latestAction = user.actions[0];
+  const latestAction = userRecord.actions[0];
   const latestAppeal = latestAction?.appeal;
 
-  const { organizationId } = user;
+  const { organizationId } = userRecord;
   const { appealsEnabled } = await findOrCreateOrganization({ id: organizationId });
   if (!appealsEnabled) {
     return redirect("/");
@@ -59,7 +59,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
         <Card className="w-full max-w-(--breakpoint-sm)">
           <CardHeader className="flex flex-row items-start justify-between gap-4">
             <div>
-              <CardTitle className="text-lg lowercase">{user.email}</CardTitle>
+              <CardTitle className="text-lg lowercase">{userRecord.email}</CardTitle>
               <CardDescription>Your account has been banned from Gumroad.</CardDescription>
             </div>
             <div>{formatUserActionStatus({ status: "Banned" })}</div>
@@ -75,7 +75,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
         <Card className="w-full max-w-(--breakpoint-sm)">
           <CardHeader className="flex flex-row items-start justify-between gap-4">
             <div>
-              <CardTitle className="text-lg lowercase">{user.email}</CardTitle>
+              <CardTitle className="text-lg lowercase">{userRecord.email}</CardTitle>
               <CardDescription>Your account is compliant with Gumroad&apos;s terms of service.</CardDescription>
             </div>
             <div>{formatUserActionStatus({ status: "Compliant" })}</div>
@@ -91,7 +91,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
         <Card className="w-full max-w-(--breakpoint-sm)">
           <CardHeader className="flex flex-row items-start justify-between gap-4">
             <div>
-              <CardTitle className="text-lg lowercase">{user.email}</CardTitle>
+              <CardTitle className="text-lg lowercase">{userRecord.email}</CardTitle>
               <CardDescription>Your appeal has been submitted.</CardDescription>
             </div>
             <div>{formatUserActionStatus({ status: "Suspended" })}</div>
@@ -104,7 +104,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
   const records = await db.query.records.findMany({
     where: and(
       eq(schema.records.organizationId, organizationId),
-      eq(schema.records.endUserId, user.id),
+      eq(schema.records.userRecordId, userRecord.id),
       isNull(schema.records.deletedAt),
     ),
     with: {
@@ -120,7 +120,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
       <Card className="w-full max-w-(--breakpoint-sm)">
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div>
-            <CardTitle className="text-lg lowercase">{user.email}</CardTitle>
+            <CardTitle className="text-lg lowercase">{userRecord.email}</CardTitle>
             <CardDescription>
               Please update the following products to be compliant with Gumroad&apos;s terms of service.
             </CardDescription>

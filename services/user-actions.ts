@@ -8,7 +8,7 @@ type ActionStatus = (typeof schema.userActionStatus.enumValues)[number];
 
 export async function createUserAction({
   organizationId,
-  endUserId,
+  userRecordId,
   status,
   via,
   userId,
@@ -17,28 +17,31 @@ export async function createUserAction({
   viaAppealId,
 }: {
   organizationId: string;
-  endUserId: string;
+  userRecordId: string;
   status: ActionStatus;
   reasoning?: string;
 } & ViaWithRelations) {
   const [userAction, lastUserAction] = await db.transaction(async (tx) => {
-    const user = await tx.query.endUsers.findFirst({
-      where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, endUserId)),
+    const userRecord = await tx.query.userRecords.findFirst({
+      where: and(eq(schema.userRecords.organizationId, organizationId), eq(schema.userRecords.id, userRecordId)),
       columns: {
         protected: true,
       },
     });
 
-    if (!user) {
+    if (!userRecord) {
       throw new Error("User not found");
     }
 
-    if (user.protected && status !== "Compliant") {
+    if (userRecord.protected && status !== "Compliant") {
       throw new Error("User is protected");
     }
 
     const lastUserAction = await tx.query.userActions.findFirst({
-      where: and(eq(schema.userActions.organizationId, organizationId), eq(schema.userActions.endUserId, endUserId)),
+      where: and(
+        eq(schema.userActions.organizationId, organizationId),
+        eq(schema.userActions.userRecordId, userRecordId),
+      ),
       orderBy: desc(schema.userActions.createdAt),
       columns: {
         id: true,
@@ -55,7 +58,7 @@ export async function createUserAction({
       .values({
         organizationId,
         status,
-        endUserId,
+        userRecordId,
         via,
         userId,
         reasoning,
@@ -70,12 +73,12 @@ export async function createUserAction({
 
     // sync the record user status with the new status
     await tx
-      .update(schema.endUsers)
+      .update(schema.userRecords)
       .set({
         actionStatus: status,
         actionStatusCreatedAt: userAction.createdAt,
       })
-      .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, endUserId)));
+      .where(and(eq(schema.userRecords.organizationId, organizationId), eq(schema.userRecords.id, userRecordId)));
 
     return [userAction, lastUserAction];
   });
@@ -87,7 +90,7 @@ export async function createUserAction({
         data: {
           organizationId,
           id: userAction.id,
-          endUserId,
+          userRecordId,
           status,
           lastStatus: lastUserAction?.status ?? null,
         },

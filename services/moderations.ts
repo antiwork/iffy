@@ -20,7 +20,7 @@ export interface LinkData {
 export interface Context {
   organizationId: string;
   record: typeof schema.records.$inferSelect;
-  user?: typeof schema.endUsers.$inferSelect;
+  user?: typeof schema.userRecords.$inferSelect;
   externalLinks: LinkData[];
   tokens: number;
   lastManualModeration?: typeof schema.moderations.$inferSelect;
@@ -59,7 +59,7 @@ export async function createModeration({
     const record = await tx.query.records.findFirst({
       where: and(eq(schema.records.organizationId, organizationId), eq(schema.records.id, recordId)),
       columns: {
-        endUserId: true,
+        userRecordId: true,
         moderationStatus: true,
         protected: true,
       },
@@ -114,22 +114,32 @@ export async function createModeration({
       .where(and(eq(schema.records.organizationId, organizationId), eq(schema.records.id, recordId)));
 
     if (status !== lastStatus) {
-      if (record.endUserId) {
+      if (record.userRecordId) {
         if (status === "Flagged") {
           await tx
-            .update(schema.endUsers)
+            .update(schema.userRecords)
             .set({
-              flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} + 1`,
+              flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} + 1`,
             })
-            .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, record.endUserId)));
+            .where(
+              and(
+                eq(schema.userRecords.organizationId, organizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
         if (lastStatus === "Flagged" && status !== "Flagged") {
           await tx
-            .update(schema.endUsers)
+            .update(schema.userRecords)
             .set({
-              flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} - 1`,
+              flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} - 1`,
             })
-            .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, record.endUserId)));
+            .where(
+              and(
+                eq(schema.userRecords.organizationId, organizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
       }
     }
@@ -306,22 +316,32 @@ export async function updatePendingModeration({
       .where(and(eq(schema.records.organizationId, organizationId), eq(schema.records.id, moderation.recordId)));
 
     if (statusChanged) {
-      if (record.endUserId) {
+      if (record.userRecordId) {
         if (status === "Flagged") {
           await tx
-            .update(schema.endUsers)
+            .update(schema.userRecords)
             .set({
-              flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} + 1`,
+              flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} + 1`,
             })
-            .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, record.endUserId)));
+            .where(
+              and(
+                eq(schema.userRecords.organizationId, organizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
         if (lastStatus === "Flagged" && status !== "Flagged") {
           await tx
-            .update(schema.endUsers)
+            .update(schema.userRecords)
             .set({
-              flaggedRecordsCount: sql`${schema.endUsers.flaggedRecordsCount} - 1`,
+              flaggedRecordsCount: sql`${schema.userRecords.flaggedRecordsCount} - 1`,
             })
-            .where(and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, record.endUserId)));
+            .where(
+              and(
+                eq(schema.userRecords.organizationId, organizationId),
+                eq(schema.userRecords.id, record.userRecordId),
+              ),
+            );
         }
       }
     }

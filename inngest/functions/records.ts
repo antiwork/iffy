@@ -1,13 +1,13 @@
 import { inngest } from "@/inngest/client";
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { getFlaggedRecordsFromUser } from "@/services/users";
+import { getFlaggedRecordsFromUserRecord } from "@/services/user-records";
 import { createUserAction } from "@/services/user-actions";
 import { and, eq } from "drizzle-orm/expressions";
 import { findOrCreateOrganization } from "@/services/organizations";
 
-const updateUserAfterDeletion = inngest.createFunction(
-  { id: "update-user-after-deletion" },
+const updateUserRecordAfterDeletion = inngest.createFunction(
+  { id: "update-user-record-after-deletion" },
   { event: "record/deleted" },
   async ({ event, step }) => {
     const { organizationId, id } = event.data;
@@ -16,22 +16,22 @@ const updateUserAfterDeletion = inngest.createFunction(
       const record = await db.query.records.findFirst({
         where: and(eq(schema.records.organizationId, organizationId), eq(schema.records.id, id)),
         with: {
-          user: true,
+          userRecord: true,
         },
       });
       if (!record) throw new Error(`Record not found: ${id}`);
       return record;
     });
 
-    const user = record.user;
-    if (!user) {
+    const userRecord = record.userRecord;
+    if (!userRecord) {
       return;
     }
 
     const flaggedRecords = await step.run("fetch-user-flagged-records", async () => {
-      return await getFlaggedRecordsFromUser({
+      return await getFlaggedRecordsFromUserRecord({
         organizationId,
-        id: user.id,
+        id: userRecord.id,
       });
     });
 
@@ -39,11 +39,11 @@ const updateUserAfterDeletion = inngest.createFunction(
       return await findOrCreateOrganization({ id: organizationId });
     });
 
-    if (flaggedRecords.length < organization.suspensionThreshold && user.actionStatus === "Suspended") {
+    if (flaggedRecords.length < organization.suspensionThreshold && userRecord.actionStatus === "Suspended") {
       await step.run("create-user-action", async () => {
         return await createUserAction({
           organizationId,
-          endUserId: user.id,
+          userRecordId: userRecord.id,
           status: "Compliant",
           via: "Automation All Compliant",
         });
@@ -52,4 +52,4 @@ const updateUserAfterDeletion = inngest.createFunction(
   },
 );
 
-export default [updateUserAfterDeletion];
+export default [updateUserRecordAfterDeletion];

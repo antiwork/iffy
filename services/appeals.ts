@@ -6,30 +6,32 @@ import { env } from "@/lib/env";
 import { inngest } from "@/inngest/client";
 import { deriveSecret } from "@/lib/crypto";
 
-export function generateAppealToken(userId: string) {
+export function generateAppealToken(userRecordId: string) {
   const derivedKey = deriveSecret(env.SECRET_KEY, `appeal-token`);
-  const signature = crypto.createHmac("sha256", derivedKey).update(userId).digest("hex");
+  const signature = crypto.createHmac("sha256", derivedKey).update(userRecordId).digest("hex");
 
-  return `${userId}-${signature}`;
+  return `${userRecordId}-${signature}`;
 }
 
-export function validateAppealToken(token: string): [isValid: false, userId: null] | [isValid: true, userId: string] {
-  const [userId, _] = token.split("-");
-  if (!userId) {
+export function validateAppealToken(
+  token: string,
+): [isValid: false, userRecordId: null] | [isValid: true, userRecordId: string] {
+  const [userRecordId, _] = token.split("-");
+  if (!userRecordId) {
     return [false, null];
   }
 
-  if (token === generateAppealToken(userId)) {
-    return [true, userId];
+  if (token === generateAppealToken(userRecordId)) {
+    return [true, userRecordId];
   }
 
   return [false, null];
 }
 
-export async function createAppeal({ userId, text }: { userId: string; text: string }) {
+export async function createAppeal({ userRecordId, text }: { userRecordId: string; text: string }) {
   const [appeal, appealAction] = await db.transaction(async (tx) => {
-    const user = await tx.query.endUsers.findFirst({
-      where: eq(schema.users.id, userId),
+    const userRecord = await tx.query.userRecords.findFirst({
+      where: eq(schema.userRecords.id, userRecordId),
       orderBy: desc(schema.userActions.createdAt),
       with: {
         actions: {
@@ -39,11 +41,11 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
       },
     });
 
-    if (!user) {
+    if (!userRecord) {
       throw new Error("User not found");
     }
 
-    const userAction = user.actions[0];
+    const userAction = userRecord.actions[0];
     if (!userAction) {
       throw new Error("User is not suspended");
     }
@@ -56,7 +58,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
       throw new Error("User is not suspended");
     }
 
-    const { organizationId } = user;
+    const { organizationId } = userRecord;
 
     const existingAppeal = await tx.query.appeals.findFirst({
       where: and(eq(schema.appeals.organizationId, organizationId), eq(schema.appeals.userActionId, userAction.id)),
@@ -111,7 +113,7 @@ export async function createAppeal({ userId, text }: { userId: string; text: str
     await tx.insert(schema.messages).values({
       organizationId,
       userActionId: userAction.id,
-      fromId: userId,
+      fromId: userRecordId,
       text,
       appealId: appeal.id,
       type: "Inbound",

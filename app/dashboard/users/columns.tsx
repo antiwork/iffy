@@ -5,15 +5,15 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { formatUserActionStatus, formatUserVia, formatVia } from "@/lib/badges";
+import { formatUserActionStatus, formatUserRecordVia, formatVia } from "@/lib/badges";
 import { ActionMenu } from "./action-menu";
 import { Date } from "@/components/date";
-import type { User } from "./types";
-import { formatUserCompact } from "@/lib/user";
+import type { UserRecord } from "./types";
+import { formatUserRecordCompact } from "@/lib/user-record";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ShieldCheck } from "lucide-react";
 
-const columnHelper = createColumnHelper<User>();
+const columnHelper = createColumnHelper<UserRecord>();
 
 export const columns = [
   columnHelper.display({
@@ -40,7 +40,7 @@ export const columns = [
     enableSorting: false,
     enableHiding: false,
   }),
-  columnHelper.accessor((row) => formatUserCompact(row), {
+  columnHelper.accessor((row: UserRecord) => formatUserRecordCompact(row), {
     id: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="User / Record" />,
     cell: (props) => {
@@ -76,10 +76,10 @@ export const columns = [
   columnHelper.display({
     id: "via",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Via" />,
-    cell: ({ row }) => formatUserVia(row.original) ?? "—",
+    cell: ({ row }) => formatUserRecordVia(row.original) ?? "—",
     enableSorting: false,
   }),
-  columnHelper.accessor((row) => row.flaggedRecordsCount, {
+  columnHelper.accessor((row: UserRecord) => row.flaggedRecordsCount, {
     id: "flaggedRecordsCount",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Moderations" />,
     cell: (props) => {
@@ -106,7 +106,7 @@ export const columns = [
       const record = row.original;
       return (
         <div onClick={(event) => event.stopPropagation()}>
-          <ActionMenu user={record} />
+          <ActionMenu userRecord={record} />
         </div>
       );
     },

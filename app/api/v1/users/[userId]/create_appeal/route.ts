@@ -28,21 +28,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const user = await db.query.endUsers.findFirst({
-    where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, id)),
+  const userRecord = await db.query.userRecords.findFirst({
+    where: and(eq(schema.userRecords.organizationId, organizationId), eq(schema.userRecords.id, id)),
   });
 
-  if (!user) {
+  if (!userRecord) {
     return NextResponse.json({ error: { message: "User not found" } }, { status: 404 });
   }
 
   try {
-    const appeal = await createAppeal({ userId: user.id, text: data.text });
+    const appeal = await createAppeal({ userRecordId: userRecord.id, text: data.text });
 
     const organization = await findOrCreateOrganization({ id: organizationId });
 
     const appealUrl = organization.appealsEnabled
-      ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(user.id)}`)
+      ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(userRecord.id)}`)
       : null;
 
     return NextResponse.json({

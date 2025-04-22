@@ -61,9 +61,6 @@ const envSchema = z
       .transform((s) => s === "true")
       .optional()
       .default("false"),
-    NEXT_PUBLIC_BETTER_AUTH_URL: z.string(),
-    BETTER_AUTH_GOOGLE_CLIENT_ID: z.string().default(""),
-    BETTER_AUTH_GOOGLE_CLIENT_SECRET: z.string().default(""),
   })
   .and(resendOrNoResendSchema);
 

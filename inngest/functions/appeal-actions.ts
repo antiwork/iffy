@@ -4,8 +4,8 @@ import { createUserAction } from "@/services/user-actions";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
-const updateUserAfterAppealAction = inngest.createFunction(
-  { id: "update-user-after-appeal-action" },
+const updateUserRecordAfterAppealAction = inngest.createFunction(
+  { id: "update-user-record-after-appeal-action" },
   { event: "appeal-action/status-changed" },
   async ({ event, step }) => {
     const { organizationId, appealId, status, lastStatus } = event.data;
@@ -21,7 +21,7 @@ const updateUserAfterAppealAction = inngest.createFunction(
         with: {
           userAction: {
             with: {
-              user: true,
+              userRecord: true,
             },
             columns: {
               id: true,
@@ -37,7 +37,7 @@ const updateUserAfterAppealAction = inngest.createFunction(
     await step.run("create-user-action", async () => {
       return await createUserAction({
         organizationId,
-        endUserId: appeal.userAction.user.id,
+        userRecordId: appeal.userAction.userRecord.id,
         status: "Compliant",
         via: "Automation Appeal Approved",
         viaAppealId: appeal.id,
@@ -46,4 +46,4 @@ const updateUserAfterAppealAction = inngest.createFunction(
   },
 );
 
-export default [updateUserAfterAppealAction];
+export default [updateUserRecordAfterAppealAction];

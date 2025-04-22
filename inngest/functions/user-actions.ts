@@ -18,14 +18,14 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
   { id: "update-stripe-payments-payouts" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, status, endUserId } = event.data;
+    const { organizationId, status, userRecordId } = event.data;
 
-    const user = await step.run("fetch-user", async () => {
-      const result = await db.query.endUsers.findFirst({
-        where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, endUserId)),
+    const userRecord = await step.run("fetch-user-record", async () => {
+      const result = await db.query.userRecords.findFirst({
+        where: and(eq(schema.userRecords.organizationId, organizationId), eq(schema.userRecords.id, userRecordId)),
       });
       if (!result) {
-        throw new Error(`User not found: ${endUserId}`);
+        throw new Error(`User record not found: ${userRecordId}`);
       }
 
       return result;
@@ -43,14 +43,14 @@ const updateStripePaymentsAndPayouts = inngest.createFunction(
     });
 
     await step.run("update-stripe-payouts", async () => {
-      if (organization.stripeApiKey && user.stripeAccountId) {
+      if (organization.stripeApiKey && userRecord.stripeAccountId) {
         switch (status) {
           case "Suspended":
           case "Banned":
-            await pausePayments(decrypt(organization.stripeApiKey), user.stripeAccountId);
+            await pausePayments(decrypt(organization.stripeApiKey), userRecord.stripeAccountId);
             break;
           case "Compliant":
-            await resumePayments(decrypt(organization.stripeApiKey), user.stripeAccountId);
+            await resumePayments(decrypt(organization.stripeApiKey), userRecord.stripeAccountId);
             break;
         }
       }
@@ -62,7 +62,7 @@ const sendUserActionWebhook = inngest.createFunction(
   { id: "send-user-action-webhook" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, id, status, endUserId } = event.data;
+    const { organizationId, id, status } = event.data;
 
     const userAction = await step.run("fetch-user-action", async () => {
       const result = await db.query.userActions.findFirst({
@@ -75,12 +75,15 @@ const sendUserActionWebhook = inngest.createFunction(
       return result;
     });
 
-    const user = await step.run("fetch-user", async () => {
-      const result = await db.query.endUsers.findFirst({
-        where: and(eq(schema.endUsers.organizationId, organizationId), eq(schema.endUsers.id, endUserId)),
+    const userRecord = await step.run("fetch-user-record", async () => {
+      const result = await db.query.userRecords.findFirst({
+        where: and(
+          eq(schema.userRecords.organizationId, organizationId),
+          eq(schema.userRecords.id, userAction.userRecordId),
+        ),
       });
       if (!result) {
-        throw new Error(`User not found: ${endUserId}`);
+        throw new Error(`User record not found: ${userAction.userRecordId}`);
       }
 
       return result;
@@ -113,11 +116,11 @@ const sendUserActionWebhook = inngest.createFunction(
         data: {
           id: userAction.id,
           payload: {
-            id: user.id,
-            clientId: user.clientId,
-            clientUrl: user.clientUrl ?? undefined,
-            protected: user.protected,
-            metadata: user.metadata ? parseMetadata(user.metadata) : undefined,
+            id: userRecord.id,
+            clientId: userRecord.clientId,
+            clientUrl: userRecord.clientUrl ?? undefined,
+            protected: userRecord.protected,
+            metadata: userRecord.metadata ? parseMetadata(userRecord.metadata) : undefined,
             status: userAction.status,
             statusUpdatedAt: new Date(userAction.createdAt).getTime().toString(),
             statusUpdatedVia: userAction.via,
@@ -132,7 +135,7 @@ const sendUserActionEmail = inngest.createFunction(
   { id: "send-user-action-email" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, id, status, lastStatus, endUserId } = event.data;
+    const { organizationId, id, status, lastStatus, userRecordId } = event.data;
 
     const organization = await step.run("fetch-organization", async () => {
       return await findOrCreateOrganization({ id: organizationId });
@@ -157,7 +160,7 @@ const sendUserActionEmail = inngest.createFunction(
             organizationId,
             type: "Suspended",
             appealUrl: organization.appealsEnabled
-              ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(endUserId)}`)
+              ? getAbsoluteUrl(`/appeal?token=${generateAppealToken(userRecordId)}`)
               : undefined,
           });
           break;
@@ -179,7 +182,7 @@ const sendUserActionEmail = inngest.createFunction(
         organizationId,
         userActionId: id,
         type: "Outbound",
-        toId: endUserId,
+        toId: userRecordId,
         subject: template.subject,
         text: template.body,
       });
@@ -188,7 +191,7 @@ const sendUserActionEmail = inngest.createFunction(
     await step.run("send-email", async () => {
       return await sendEmail({
         organizationId,
-        endUserId: endUserId,
+        userRecordId,
         subject: template.subject,
         html: template.html,
         text: template.body,
@@ -201,7 +204,7 @@ const updateAppealsAfterUserAction = inngest.createFunction(
   { id: "update-appeals-after-user-action" },
   { event: "user-action/status-changed" },
   async ({ event, step }) => {
-    const { organizationId, status, endUserId } = event.data;
+    const { organizationId, status, userRecordId } = event.data;
 
     if (status === "Suspended") return;
 
@@ -215,7 +218,7 @@ const updateAppealsAfterUserAction = inngest.createFunction(
         .where(
           and(
             eq(schema.userActions.organizationId, organizationId),
-            eq(schema.userActions.endUserId, endUserId),
+            eq(schema.userActions.userRecordId, userRecordId),
             eq(schema.appeals.actionStatus, "Open"),
           ),
         );
