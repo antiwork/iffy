@@ -39,13 +39,6 @@ const envSchema = z
     OPENAI_API_KEY: z.string(),
     FIELD_ENCRYPTION_KEY: z.string(),
     SECRET_KEY: z.string(),
-    CLERK_SECRET_KEY: z.string(),
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
-    NEXT_PUBLIC_CLERK_SIGN_IN_URL: z.literal("/sign-in"),
-    NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.literal("/sign-up"),
-    NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
-    NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.literal("/dashboard"),
-    SEED_CLERK_ORGANIZATION_ID: z.string().optional(),
     STRIPE_API_KEY: z.string().optional(),
     POSTGRES_URL: z.string(),
     POSTGRES_URL_NON_POOLING: z.string(),
@@ -61,6 +54,8 @@ const envSchema = z
       .transform((s) => s === "true")
       .optional()
       .default("false"),
+    NEXT_PUBLIC_BETTER_AUTH_URL: z.string(),
+    BETTER_AUTH_SECRET: z.string(),
   })
   .and(resendOrNoResendSchema);
 

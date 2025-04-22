@@ -13,6 +13,7 @@ import MagicLinkTemplate from "@/emails/templates/magiclink";
 
 const options = {
   appName: "Iffy",
+  secret: env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
@@ -20,12 +21,6 @@ const options = {
   }),
   emailAndPassword: {
     enabled: true,
-  },
-  socialProviders: {
-    google: {
-      clientId: env.BETTER_AUTH_GOOGLE_CLIENT_ID,
-      clientSecret: env.BETTER_AUTH_GOOGLE_CLIENT_SECRET,
-    },
   },
   plugins: [
     organization({
