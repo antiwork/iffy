@@ -46,18 +46,18 @@ const setUserProtectedSchema = z.boolean();
 
 export const setUserProtectedMany = actionClient
   .schema(setUserProtectedSchema)
-  .bindArgsSchemas<[userIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
-  .action(async ({ parsedInput, bindArgsParsedInputs: [userIds], ctx: { organizationId } }) => {
+  .bindArgsSchemas<[userRecordIds: z.ZodArray<z.ZodString>]>([z.array(z.string())])
+  .action(async ({ parsedInput, bindArgsParsedInputs: [userRecordIds], ctx: { organizationId } }) => {
     const userRecords = await db
       .update(schema.userRecords)
       .set({
         protected: parsedInput,
       })
-      .where(and(eq(schema.userRecords.organizationId, organizationId), inArray(schema.userRecords.id, userIds)))
+      .where(and(eq(schema.userRecords.organizationId, organizationId), inArray(schema.userRecords.id, userRecordIds)))
       .returning();
 
-    for (const userId of userIds) {
-      revalidatePath(`/dashboard/users/${userId}`);
+    for (const userRecordId of userRecordIds) {
+      revalidatePath(`/dashboard/users/${userRecordId}`);
     }
     return userRecords;
   });
