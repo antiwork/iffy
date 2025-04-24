@@ -151,7 +151,7 @@
                       "description": "The ID of the created record"
                     },
                     "status": {
-                      "type": "string", 
+                      "type": "string",
                       "description": "The moderation status",
                       "enum": ["Compliant", "Flagged"]
                     },
