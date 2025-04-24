@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { formatModerationStatus, formatRecordStatus, formatUserRecordStatus, formatVia } from "@/lib/badges";
+import { formatRecordStatus, formatUserRecordStatus } from "@/lib/badges";
 import { ExternalLink, FlaskConical, FlaskConicalOff, ShieldCheck, ShieldOff } from "lucide-react";
 import { RecordImages } from "./record-images";
 import { Code, CodeInline } from "@/components/code";
@@ -188,33 +188,35 @@ export async function RecordDetail({ clerkOrganizationId, id }: { clerkOrganizat
           </Section>
         </>
       )}
-      <Separator className="my-2" />
       {record.externalUrls.length > 0 ||
         record.text ||
         (record.imageUrls.length > 0 && (
-          <Section>
-            <SectionTitle>Content</SectionTitle>
-            <SectionContent className="grid gap-3">
-              <dl className="grid gap-3">
-                {record.externalUrls.length > 0 && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <dt className="text-stone-500 dark:text-zinc-500">External Links</dt>
-                    <dd>
-                      {record.externalUrls.map((url, index) => (
-                        <Button key={index} asChild variant="link" className="text-md -mx-4 -my-2 font-normal">
-                          <Link href={url} target="_blank" rel="noopener noreferrer">
-                            {formatLink(url)} <ExternalLink className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                      ))}
-                    </dd>
-                  </div>
-                )}
-              </dl>
-              {record.text && <Code>{record.text}</Code>}
-              {record.imageUrls.length > 0 ? <RecordImages imageUrls={record.imageUrls} /> : null}
-            </SectionContent>
-          </Section>
+          <>
+            <Separator className="my-2" />
+            <Section>
+              <SectionTitle>Content</SectionTitle>
+              <SectionContent className="grid gap-3">
+                <dl className="grid gap-3">
+                  {record.externalUrls.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <dt className="text-stone-500 dark:text-zinc-500">External Links</dt>
+                      <dd>
+                        {record.externalUrls.map((url, index) => (
+                          <Button key={index} asChild variant="link" className="text-md -mx-4 -my-2 font-normal">
+                            <Link href={url} target="_blank" rel="noopener noreferrer">
+                              {formatLink(url)} <ExternalLink className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+                {record.text && <Code>{record.text}</Code>}
+                {record.imageUrls.length > 0 ? <RecordImages imageUrls={record.imageUrls} /> : null}
+              </SectionContent>
+            </Section>
+          </>
         ))}
       {record.moderations.length > 0 && (
         <>

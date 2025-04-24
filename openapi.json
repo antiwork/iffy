@@ -12,10 +12,217 @@
     }
   ],
   "paths": {
+    "/api/v1/moderate": {
+      "post": {
+        "summary": "Moderate record",
+        "description": "Moderate a record and return results immediately",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["clientId", "name", "entity", "content"],
+                "properties": {
+                  "clientId": {
+                    "type": "string",
+                    "description": "A unique identifier for the record"
+                  },
+                  "clientUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Optional URL associated with the record"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "The name or title of the record"
+                  },
+                  "entity": {
+                    "type": "string",
+                    "description": "The category or type of the record"
+                  },
+                  "content": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "description": "Text content to be moderated"
+                      },
+                      {
+                        "type": "object",
+                        "required": ["text"],
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "description": "Text content to be moderated"
+                          },
+                          "imageUrls": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uri"
+                            },
+                            "description": "Array of image URLs to be moderated"
+                          },
+                          "externalUrls": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uri"
+                            },
+                            "description": "Array of external URLs to be moderated"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "description": "Optional metadata associated with the record. Keys must be strings, values can be of any type. Keys can't be more than 40 characters or include '[' or ']'. Values must be serializable and can't be more than 500 characters. Maximum 50 keys.",
+                    "additionalProperties": true
+                  },
+                  "user": {
+                    "type": "object",
+                    "description": "Optional information about the user associated with the record",
+                    "properties": {
+                      "clientId": {
+                        "type": "string",
+                        "description": "Unique identifier for this user"
+                      },
+                      "clientUrl": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL where this user's profile can be viewed"
+                      },
+                      "stripeAccountId": {
+                        "type": "string",
+                        "description": "The user's Stripe account ID"
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "The user's email address"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The user's full name"
+                      },
+                      "username": {
+                        "type": "string",
+                        "description": "The user's username"
+                      },
+                      "protected": {
+                        "type": "boolean",
+                        "description": "Whether this user is protected from automated moderation actions"
+                      },
+                      "metadata": {
+                        "type": "object",
+                        "description": "Additional metadata about the user",
+                        "additionalProperties": true
+                      }
+                    },
+                    "required": ["clientId"]
+                  },
+                  "passthrough": {
+                    "type": "boolean",
+                    "description": "Whether to moderate the content without persisting it. If passthrough is true, the record name and content (and user email, name, and username) will not be stored.",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Content successfully moderated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["id", "status", "moderation"],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the created record"
+                    },
+                    "status": {
+                      "type": "string", 
+                      "description": "The moderation status",
+                      "enum": ["Compliant", "Flagged"]
+                    },
+                    "moderation": {
+                      "type": "string",
+                      "description": "The ID of the moderation"
+                    },
+                    "user": {
+                      "type": "string",
+                      "description": "The ID of the associated user record, if one exists"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["message"],
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Error message",
+                          "example": "Invalid request body"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["message"],
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Error message",
+                          "example": "Invalid API key"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/ingest": {
       "post": {
         "summary": "Ingest record",
-        "description": "Create or update a content record for moderation. To update a record, simply ingest the content again with the same clientId.",
+        "description": "Create or update a content record for moderation asynchronously. Results are returned via a webhook event. To update a record, simply ingest the content again with the same clientId.",
         "security": [
           {
             "bearerAuth": []

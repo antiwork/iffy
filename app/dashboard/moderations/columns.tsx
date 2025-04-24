@@ -11,6 +11,7 @@ import { ActionMenu } from "../records/action-menu";
 import type { Record } from "../records/types";
 import { FlaskConical, ShieldCheck } from "lucide-react";
 import { Date } from "@/components/date";
+import { formatRecord } from "@/lib/record";
 
 const columnHelper = createColumnHelper<Record>();
 
@@ -38,7 +39,7 @@ export const columns = [
     enableSorting: false,
     enableHiding: false,
   }),
-  columnHelper.accessor("name", {
+  columnHelper.accessor((row: Record) => formatRecord(row), {
     id: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Record" />,
     cell: (props) => {

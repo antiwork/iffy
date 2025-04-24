@@ -1,8 +1,9 @@
 ---
 title: Ingest record
 description: >-
-  Create or update a content record for moderation. To update a record, simply
-  ingest the content again with the same clientId.
+  Create or update a content record for moderation asynchronously. Results are
+  returned via a webhook event. To update a record, simply ingest the content
+  again with the same clientId.
 full: true
 _openapi:
   method: POST
@@ -12,8 +13,9 @@ _openapi:
     headings: []
     contents:
       - content: >-
-          Create or update a content record for moderation. To update a record,
-          simply ingest the content again with the same clientId.
+          Create or update a content record for moderation asynchronously.
+          Results are returned via a webhook event. To update a record, simply
+          ingest the content again with the same clientId.
 ---
 
 <APIPage document={"./openapi.json"} operations={[{"path":"/api/v1/ingest","method":"post"}]} webhooks={[]} hasHead={false} />
