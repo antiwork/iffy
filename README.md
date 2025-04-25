@@ -192,7 +192,7 @@ npm run shortest -- --no-cache # with arguments
 
 ## Iffy Cloud vs Iffy Community
 
-You may self-host Iffy Community for free, if your business has less than 1 million USD total revenue in the prior tax year, and less than 10 million USD GMV (Gross Merchandise Value). For more details, see the [Iffy Community License 1.0](LICENSE.md).
+You may self-host Iffy Community for free. For more details, see the [MIT License](LICENSE.md).
 
 Here are the differences between the managed, hosted [Iffy Cloud](https://iffy.com) and the free Iffy Community version.
 
