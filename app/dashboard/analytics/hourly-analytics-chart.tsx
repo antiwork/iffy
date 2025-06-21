@@ -131,7 +131,8 @@ export function HourlyAnalyticsChart({
                   className="w-[150px]"
                   labelKey="time"
                   labelFormatter={(_, payload) => {
-                    const time = payload[0]!.payload.time;
+                    if (!payload || payload.length === 0) return "";
+                    const time = payload[0].payload.time;
                     return time.toLocaleTimeString("en-US", { hour: "numeric" });
                   }}
                 />

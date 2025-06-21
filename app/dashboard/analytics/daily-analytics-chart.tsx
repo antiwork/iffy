@@ -137,7 +137,8 @@ export function DailyAnalyticsChart({
                   className="w-[150px]"
                   labelKey="time"
                   labelFormatter={(_, payload) => {
-                    const date = payload[0]!.payload.time;
+                    if (!payload || payload.length === 0) return "";
+                    const date = payload[0].payload.time;
                     return formatDayFull(date);
                   }}
                 />
