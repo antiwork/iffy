@@ -13,13 +13,6 @@ export type RuleWithStrategies = typeof schema.rules.$inferSelect & {
   strategies: Strategy[];
 };
 
-export type RuleWithStrategiesInsert =
-  | (typeof schema.rules.$inferInsert & { presetId: string; strategies?: never })
-  | (typeof schema.rules.$inferInsert & {
-      presetId?: never;
-      strategies: Pick<typeof schema.ruleStrategies.$inferInsert, "type" | "options">[];
-    });
-
 export const getRules = async (clerkOrganizationId: string, rulesetId: string): Promise<RuleWithStrategies[]> => {
   const rules = await db.query.rules.findMany({
     where: and(eq(schema.rules.clerkOrganizationId, clerkOrganizationId), eq(schema.rules.rulesetId, rulesetId)),

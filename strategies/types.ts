@@ -10,10 +10,6 @@ export interface StrategyInstance {
   test: (context: Context) => Promise<StrategyResult>;
 }
 
-export interface StrategyConstructor {
-  new (options: unknown): StrategyInstance;
-}
-
 export type RawStrategy = typeof schema.ruleStrategies.$inferSelect | typeof schema.presetStrategies.$inferSelect;
 
 export type Strategy =
