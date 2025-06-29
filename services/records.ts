@@ -161,9 +161,3 @@ export async function deleteRecord(clerkOrganizationId: string, recordId: string
     return record;
   });
 }
-
-export function getRecordUrls({ text, externalUrls }: { text: string; externalUrls?: string[] }) {
-  const embeddedUrls = findUrlsInText(text);
-  const allLinks = Array.from(new Set([...embeddedUrls, ...(externalUrls ?? [])]));
-  return allLinks;
-}

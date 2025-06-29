@@ -18,10 +18,6 @@ export function getUserRecordSecondaryParts(userRecord: UserRecord) {
   return secondary;
 }
 
-export function formatUserRecordSecondary(userRecord: UserRecord) {
-  return getUserRecordSecondaryParts(userRecord)[0];
-}
-
 export function formatUserRecordCompact(userRecord: UserRecord) {
   let primary = userRecord.clientId;
   // in compact situations the ranking of properties is different than above
@@ -31,11 +27,3 @@ export function formatUserRecordCompact(userRecord: UserRecord) {
   return primary;
 }
 
-export function formatUserRecordCompactSecondary(userRecord: UserRecord) {
-  let secondary = "No email provided";
-  // in compact situations the ranking of properties is different than above
-  if (userRecord.name) secondary = userRecord.clientId;
-  if (userRecord.email && userRecord.name) secondary = userRecord.name;
-  if (userRecord.username && userRecord.email) secondary = userRecord.email;
-  return secondary;
-}

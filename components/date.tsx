@@ -9,27 +9,6 @@ interface DateProps {
   date: Date;
 }
 
-export function Day({ date }: DateProps) {
-  const [localDate, setLocalDate] = React.useState<string | null>(null);
-
-  useLayoutEffect(() => {
-    setLocalDate(formatDay(date));
-  }, [date]);
-
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          <span>{localDate}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{date.toISOString()}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
-
 export function DayFull({ date }: DateProps) {
   const [localDate, setLocalDate] = React.useState<string | null>(null);
 

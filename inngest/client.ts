@@ -80,5 +80,3 @@ export const inngest = new Inngest({
   id: env.INNGEST_APP_NAME,
   schemas: new EventSchemas().fromZod(eventsMap),
 });
-
-export type Events = GetEvents<typeof inngest>;
