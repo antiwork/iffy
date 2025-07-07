@@ -35,8 +35,8 @@ const defaultConfig: ResolvedConfig = {
   },
   strategies: {
     prompt: {
-      defaultModel: "openai:gpt-4o",
-      judgeModel: "openai:gpt-4o-mini",
+      defaultModel: "openai:o4-mini",
+      judgeModel: "openai:o4-mini",
     },
     blocklist: {},
     classifier: {},

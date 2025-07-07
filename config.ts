@@ -10,8 +10,8 @@ export default defineConfig({
   strategies: {
     // LLM-based moderation
     prompt: {
-      defaultModel: "openai:gpt-4o",
-      judgeModel: "openai:gpt-4o-mini", // checks for ambiguity
+      defaultModel: "openai:o4-mini",
+      judgeModel: "openai:o4-mini", // checks for ambiguity
     },
     // regex filtering
     blocklist: {},
