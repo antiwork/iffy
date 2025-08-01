@@ -13,7 +13,11 @@ import { findOrCreateOrganization } from "@/services/organizations";
 import { AppealButton } from "./components/appeal-button";
 import * as schema from "@/db/schema";
 
-const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
+const clerkSecret = process.env.CLERK_SECRET_KEY;
+if (!clerkSecret) {
+  throw new Error("Missing environment variable: CLERK_SECRET_KEY");
+}
+const clerk = createClerkClient({ secretKey: clerkSecret });
 
 type EmailTemplateType = (typeof schema.emailTemplateType.enumValues)[number];
 
