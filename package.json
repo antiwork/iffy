@@ -34,6 +34,7 @@
   "dependencies": {
     "@47ng/cloak": "^1.2.0",
     "@ai-sdk/openai": "^1.1.5",
+    "@clerk/backend": "^2.6.2",
     "@clerk/nextjs": "^6.9.13",
     "@faker-js/faker": "^8.4.1",
     "@hookform/resolvers": "^3.9.0",
