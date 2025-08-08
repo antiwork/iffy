@@ -6,6 +6,9 @@ const MetadataSchema = z.record(z.string(), z.unknown()).refine(isValidMetadata,
     "Metadata keys can't be more than 40 characters or include '[' or ']'. Metadata values must be serializable and can't be more than 500 characters. The total number of keys can't be more than 50.",
 });
 
+// Maximum content length to prevent resource consumption attacks
+const MAX_CONTENT_LENGTH = 10000;
+
 export const ModerateRequestData = z
   .object({
     clientId: z.string(),
@@ -13,9 +16,9 @@ export const ModerateRequestData = z
     name: z.string(),
     entity: z.string(),
     content: z.union([
-      z.string(),
+      z.string().max(MAX_CONTENT_LENGTH, { message: `Content must be ${MAX_CONTENT_LENGTH} characters or less.` }),
       z.object({
-        text: z.string(),
+        text: z.string().max(MAX_CONTENT_LENGTH, { message: `Text must be ${MAX_CONTENT_LENGTH} characters or less.` }),
         imageUrls: z.array(z.string().url()).optional(),
         externalUrls: z.array(z.string().url()).optional(),
       }),

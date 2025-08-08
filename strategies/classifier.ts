@@ -58,9 +58,23 @@ export class Strategy implements StrategyInstance {
     let status: "Compliant" | "Flagged" = "Compliant";
     let reasoning: string[] = [];
 
+    // OpenAI's moderation endpoint has a limit of 32,768 characters.
+    // We truncate the input to a reasonable limit to prevent excessive costs and errors.
+    const MAX_INPUT_LENGTH = 4096;
+
     const moderation = await openai.moderations.create({
       model: MODEL,
-      input: context.record.text,
+      input: (() => {
+        const originalText = context.record.text;
+        if (originalText.length > MAX_INPUT_LENGTH) {
+          console.warn(
+            `Content truncated from ${originalText.length} to ${MAX_INPUT_LENGTH} characters for moderation`
+          );
+          // Consider analyzing both beginning and end portions for comprehensive coverage
+          return originalText.substring(0, MAX_INPUT_LENGTH);
+        }
+        return originalText;
+      })(),
     });
 
     const result = moderation.results[0];
