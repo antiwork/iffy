@@ -19,5 +19,3 @@ export const source = loader({
 
 export const openapi = createOpenAPI();
 
-export type Page = InferPageType<typeof source>;
-export type Meta = InferMetaType<typeof source>;
