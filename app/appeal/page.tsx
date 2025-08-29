@@ -133,10 +133,17 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
             <TableBody>
               {records.map((record) => {
                 const badge = formatRecordStatus(record);
+                const latestModeration = record.moderations[0];
+                const reasoning = latestModeration?.reasoning;
                 return (
                   <TableRow key={record.id}>
                     <TableCell>
                       <div className="font-medium">{formatRecord(record)}</div>
+                      {reasoning && record.moderationStatus === "Flagged" && (
+                        <div className="text-sm text-stone-500 dark:text-zinc-500 mt-1">
+                          {reasoning}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <Badge variant="secondary">
