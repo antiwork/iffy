@@ -133,21 +133,34 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
             <TableBody>
               {records.map((record) => {
                 const badge = formatRecordStatus(record);
+                const latestModeration = record.moderations[0];
                 return (
-                  <TableRow key={record.id}>
-                    <TableCell>
-                      <div className="font-medium">{formatRecord(record)}</div>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <Badge variant="secondary">
-                        <span>{record.entity}</span>
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{badge}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Date date={record.updatedAt} />
-                    </TableCell>
-                  </TableRow>
+                  <>
+                    <TableRow key={record.id}>
+                      <TableCell>
+                        <div className="font-medium">{formatRecord(record)}</div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge variant="secondary">
+                          <span>{record.entity}</span>
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{badge}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Date date={record.updatedAt} />
+                      </TableCell>
+                    </TableRow>
+                    {latestModeration?.reasoning && (
+                      <TableRow key={`${record.id}-reasoning`}>
+                        <TableCell colSpan={4} className="pt-0 pb-3">
+                          <div className="text-sm text-stone-600 dark:text-zinc-400">
+                            <span className="font-medium">Reason: </span>
+                            {latestModeration.reasoning}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
                 );
               })}
             </TableBody>
