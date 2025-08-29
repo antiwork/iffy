@@ -140,9 +140,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
                     <TableCell>
                       <div className="font-medium">{formatRecord(record)}</div>
                       {reasoning && record.moderationStatus === "Flagged" && (
-                        <div className="text-sm text-stone-500 dark:text-zinc-500 mt-1">
-                          {reasoning}
-                        </div>
+                        <div className="mt-1 text-sm text-stone-500 dark:text-zinc-500">{reasoning}</div>
                       )}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
