@@ -2,6 +2,8 @@
 
 Thanks for your interest in contributing! This document will help you get started.
 
+For general Antiwork contributing guidelines including AI disclosure requirements, please see the [main Antiwork Contributing Guidelines](https://github.com/antiwork/.github/blob/main/CONTRIBUTING.md).
+
 ## Environment
 
 For detailed instructions on setting up your local development environment, please refer to the [README](README.md).
