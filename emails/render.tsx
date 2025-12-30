@@ -1,5 +1,5 @@
 import * as React from "react";
-import { clerkClient } from "@clerk/nextjs/server";
+import { createClerkClient } from "@clerk/backend";
 import { Liquid } from "liquidjs";
 import { z } from "zod";
 import { render as renderComponent, Text } from "@react-email/components";
@@ -12,6 +12,12 @@ import { DefaultTemplateContent, RenderedTemplate } from "./types";
 import { findOrCreateOrganization } from "@/services/organizations";
 import { AppealButton } from "./components/appeal-button";
 import * as schema from "@/db/schema";
+
+const clerkSecret = process.env.CLERK_SECRET_KEY;
+if (!clerkSecret) {
+  throw new Error("Missing environment variable: CLERK_SECRET_KEY");
+}
+const clerk = createClerkClient({ secretKey: clerkSecret });
 
 type EmailTemplateType = (typeof schema.emailTemplateType.enumValues)[number];
 
@@ -68,9 +74,8 @@ export async function render<T extends EmailTemplateType>({
 }): Promise<RenderedTemplate> {
   const settings = await findOrCreateOrganization(clerkOrganizationId);
 
-  const { name: clerkOrganizationName, imageUrl: clerkOrganizationImageUrl } = await (
-    await clerkClient()
-  ).organizations.getOrganization({ organizationId: clerkOrganizationId });
+  const { name: clerkOrganizationName, imageUrl: clerkOrganizationImageUrl } =
+    await clerk.organizations.getOrganization({ organizationId: clerkOrganizationId });
 
   const { subject, heading, body } = await replacePlaceholders(content, {
     ORGANIZATION_NAME: clerkOrganizationName,
